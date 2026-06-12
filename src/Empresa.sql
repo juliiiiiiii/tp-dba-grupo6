@@ -2,9 +2,9 @@ use parque_nacional;
 
 create table Concesiones.Empresa (
 	id int not null primary key identity(1, 1),
-	nombre varchar(25),
-	tipo varchar(100),
-	cuit varchar(15) check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
+	nombre varchar(25) not null,
+	tipo varchar(100) nut null,
+	cuit varchar(15) check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') not null
 );
 
 -- TODO nuevo archivo de SP
