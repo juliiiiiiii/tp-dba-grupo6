@@ -575,6 +575,45 @@ END
 GO
 
 -----------------------------------------------------------
+-- Actualizar guia
+
+CREATE OR ALTER PROCEDURE gestion.sp_actualizar_guia
+@dni CHAR(8),
+@nombre VARCHAR(30),
+@apellido VARCHAR(30)
+AS
+BEGIN
+    DECLARE @id_acreditacion INT;
+    DECLARE @estado_acreditacion CHAR(7);
+    DECLARE @error VARCHAR(100);
+    SET @error = '';
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF @dni NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+            SET @error += 'Ingresar dni valido.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+                SET @error += 'El dni no pertenece a un guia.' + CHAR(10);
+        END    
+    END
+
+    IF @nombre IS NULL OR @apellido IS NULL OR @nombre = '' or @apellido = ''
+        SET @error += 'Se debe especificar nombre y apellido del guia.' + CHAR(10);
+    
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        UPDATE gestion.Guia SET nombre = @nombre, apellido = @apellido WHERE dni = @dni
+    END
+END
+GO
+
+-----------------------------------------------------------
 -- Asignar guia a actividad
 
 CREATE OR ALTER PROCEDURE gestion.sp_asignar_guia

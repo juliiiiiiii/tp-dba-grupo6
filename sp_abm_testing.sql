@@ -545,13 +545,76 @@ EXEC gestion.sp_registrar_guia
 GO
 
 -- ============================================================
--- SECCION 12: ASIGNACION DE GUIA A ACTIVIDAD
+-- SECCION 12: ACTUALIZACION DE GUIA
+-- ============================================================
+
+PRINT '=== ACTUALIZACION DE GUIA ===';
+GO
+
+-- TEST 12.1: Actalizar exitoso
+PRINT '--- TEST 12.1: Actalizar guía exitosamente ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '30456789',
+    @nombre = 'Luciano',
+    @apellido = 'Fernandez';
+GO
+
+-- TEST 12.2: Actalizar exitoso
+PRINT '--- TEST 12.2: Actalizar guía exitosamente ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '25123456',
+    @nombre = 'Marcos',
+    @apellido = 'Villanueva';
+GO
+
+-- TEST 12.3: DNI sin guia (debe fallar)
+PRINT '--- TEST 12.3: DNI sin guia (debe fallar) ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '32000000',
+    @nombre = 'Lucas',
+    @apellido = 'Perez';
+GO
+
+-- TEST 12.4: Nombre inválido (debe fallar)
+PRINT '--- TEST 12.4: Falta de nombre/apellido (debe fallar) ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '30456789',
+    @nombre = '',
+    @apellido = 'Perez';
+GO
+
+-- TEST 12.6: Apellido vacío (debe fallar)
+PRINT '--- TEST 12.6: Falta apellido (debe fallar) ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = '';
+GO
+
+-- TEST 12.7: Apellido NULL (debe fallar)
+PRINT '--- TEST 12.7: Apellido NULL (debe fallar) ---';
+EXEC gestion.sp_actualizar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = NULL;
+GO
+
+-- TEST 12.8: DNI NULL (debe fallar)
+PRINT '--- TEST 12.8: Falta DNI (debe fallar) ---';
+    EXEC gestion.sp_actualizar_guia
+    @dni = NULL,
+    @nombre = 'Lucas',
+    @apellido = 'Perez';
+GO
+
+-- ============================================================
+-- SECCION 13: ASIGNACION DE GUIA A ACTIVIDAD
 -- ============================================================
 
 PRINT '=== ASIGNACION DE GUIA A ACTIVIDAD ===';
 GO
 
-PRINT '--- TEST 12.0: Registrar actividad exitosa ---';
+PRINT '--- TEST 13.0: Registrar actividad exitosa ---';
 EXEC gestion.sp_registrar_actividad
     @id_parque   = 1,
     @id_guia     = 1,
@@ -563,8 +626,8 @@ EXEC gestion.sp_registrar_actividad
     @duracion    = 180,
     @cupo        = 20;
 
--- TEST 12.1: Asignación exitosa
-PRINT '--- TEST 12.1: Asignar guía exitosamente ---';
+-- TEST 13.1: Asignación exitosa
+PRINT '--- TEST 13.1: Asignar guía exitosamente ---';
 EXEC gestion.sp_asignar_guia
 @dni = '30456789',
 @nombre_actividad = 'Trekking Cataratas',
@@ -574,8 +637,8 @@ EXEC gestion.sp_asignar_guia
 @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.2: Actividad inexistente en el parque (debe fallar)
-PRINT '--- TEST 12.2: Actividad inexistente en el parque (debe fallar) ---';
+-- TEST 13.2: Actividad inexistente en el parque (debe fallar)
+PRINT '--- TEST 13.2: Actividad inexistente en el parque (debe fallar) ---';
     EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -585,8 +648,8 @@ PRINT '--- TEST 12.2: Actividad inexistente en el parque (debe fallar) ---';
     @f_hasta = '2026-06-17';
 GO
  
- -- TEST 12.3: DNI NULL (debe fallar)
-PRINT '--- TEST 12.3: Falta especificar DNI del guía (debe fallar) ---';
+ -- TEST 13.3: DNI NULL (debe fallar)
+PRINT '--- TEST 13.3: Falta especificar DNI del guía (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = NULL,
     @nombre_actividad = 'Trekking Cataratas',
@@ -596,8 +659,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.4: Guía inexistente (debe fallar)
-PRINT '--- TEST 12.4: DNI de guía inexistente (debe fallar) ---';
+-- TEST 13.4: Guía inexistente (debe fallar)
+PRINT '--- TEST 13.4: DNI de guía inexistente (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '11122345',
     @nombre_actividad = 'Trekking Cataratas',
@@ -607,8 +670,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.5: Nombre de actividad inexistente (debe fallar)
-PRINT '--- TEST 12.5: Actividad inexistente (debe fallar) ---';
+-- TEST 13.5: Nombre de actividad inexistente (debe fallar)
+PRINT '--- TEST 13.5: Actividad inexistente (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Escalda',
@@ -618,8 +681,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.6: Fecha de actividad incorrecta (debe fallar)
-PRINT '--- TEST 12.6: Fecha de actividad inexistente (debe fallar) ---';
+-- TEST 13.6: Fecha de actividad incorrecta (debe fallar)
+PRINT '--- TEST 13.6: Fecha de actividad inexistente (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -629,8 +692,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.7: Nombre de actividad NULL (debe fallar)
-PRINT '--- TEST 12.7: Falta nombre de actividad (debe fallar) ---';
+-- TEST 13.7: Nombre de actividad NULL (debe fallar)
+PRINT '--- TEST 13.7: Falta nombre de actividad (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = NULL,
@@ -640,8 +703,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.8: Fecha de actividad NULL (debe fallar)
-PRINT '--- TEST 12.8: Falta fecha de actividad (debe fallar) ---';
+-- TEST 13.8: Fecha de actividad NULL (debe fallar)
+PRINT '--- TEST 13.8: Falta fecha de actividad (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -651,8 +714,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.9: Fecha desde NULL (debe fallar)
-PRINT '--- TEST 12.9: Falta fecha desde (debe fallar) ---';
+-- TEST 13.9: Fecha desde NULL (debe fallar)
+PRINT '--- TEST 13.9: Falta fecha desde (debe fallar) ---';
     EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -662,8 +725,8 @@ PRINT '--- TEST 12.9: Falta fecha desde (debe fallar) ---';
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.10: Fecha hasta NULL (debe fallar)
-PRINT '--- TEST 12.10: Falta fecha hasta (debe fallar) ---';
+-- TEST 13.10: Fecha hasta NULL (debe fallar)
+PRINT '--- TEST 13.10: Falta fecha hasta (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -673,8 +736,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = NULL;
 GO
 
--- TEST 12.11: Asignación duplicada (debe fallar)
-PRINT '--- TEST 12.11: La actividad ya está asignada al guía (debe fallar) ---';
+-- TEST 13.11: Asignación duplicada (debe fallar)
+PRINT '--- TEST 13.11: La actividad ya está asignada al guía (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -684,8 +747,8 @@ EXEC gestion.sp_asignar_guia
     @f_hasta = '2026-06-17';
 GO
 
--- TEST 12.12: Guía con acreditación vencida (debe fallar)
-PRINT '--- TEST 12.12: Guía con acreditación vencida (debe fallar) ---';
+-- TEST 13.12: Guía con acreditación vencida (debe fallar)
+PRINT '--- TEST 13.12: Guía con acreditación vencida (debe fallar) ---';
 EXEC gestion.sp_asignar_guia
     @dni = '25123456',
     @nombre_actividad = 'Trekking Cataratas',

@@ -16,6 +16,15 @@
 USE parques_nacionales;
 GO
 
+IF OBJECT_ID(N'[gestion].[Ubicacion]') IS NULL
+BEGIN
+    CREATE TABLE gestion.Ubicacion (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        provincia VARCHAR(50) NOT NULL UNIQUE
+    )
+END
+GO
+
 IF OBJECT_ID('[gestion].[Parque]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Parque (
@@ -100,7 +109,7 @@ IF OBJECT_ID(N'[guia].[Titulo]', N'U') IS NULL
 BEGIN
     CREATE TABLE guia.Titulo (
         id INT IDENTITY(1,1) PRIMARY KEY,
-        descripcion VARCHAR(50) NOT NULL,
+        descripcion VARCHAR(80) NOT NULL,
         institucion VARCHAR(30) NOT NULL,
         fecha_emision DATE NOT NULL
     )

@@ -142,7 +142,7 @@ GO
 
 CREATE OR ALTER PROCEDURE guia.sp_asignar_titulacion_guia
 @dni CHAR(8),
-@descripcion VARCHAR(50),
+@descripcion VARCHAR(80),
 @institucion VARCHAR(30),
 @fecha_emision DATE
 AS
@@ -188,6 +188,58 @@ BEGIN
 
             INSERT INTO guia.Titulacion_guia VALUES(@id_guia, @id_titulo);
         COMMIT
+    END
+END
+GO
+
+-----------------------------------------------------------
+-- Actualizar titulo a un guia
+
+CREATE OR ALTER PROCEDURE guia.sp_actualizar_titulo_guia
+@dni CHAR(8),
+@descripcion VARCHAR(80),
+@institucion VARCHAR(30),
+@fecha_emision DATE
+AS
+BEGIN
+    DECLARE @error VARCHAR(150);
+    SET @error = '';
+
+    DECLARE @id_guia INT;
+    DECLARE @id_titulo INT;
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
+        IF @id_guia IS NULL
+            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
+    END
+
+    IF @descripcion IS NULL OR @descripcion = ''
+        SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
+    
+    IF @institucion IS NULL OR @institucion = ''
+        SET @error += 'El titulo debe tener una institucion.' + CHAR(10);
+    
+    IF @fecha_emision IS NULL OR @fecha_emision = ''
+        SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
+    
+    IF @id_guia IS NOT NULL AND @descripcion IS NOT NULL AND @institucion IS NOT NULL
+    BEGIN
+        SET @id_titulo = (
+                SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
+                WHERE descripcion = @descripcion AND institucion = @institucion AND tg.id_guia = @id_guia
+        )
+        IF @id_titulo IS NULL
+            SET @error += 'El guia no tiene asignado ese titulo.' + CHAR(10);   
+    END
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        UPDATE guia.titulo SET fecha_emision = @fecha_emision WHERE id = @id_titulo;
     END
 END
 GO

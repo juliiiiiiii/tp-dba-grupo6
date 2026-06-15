@@ -236,3 +236,64 @@ EXEC guia.sp_asignar_titulacion_guia
 	@institucion = 'UBA',
 	@fecha_emision = '2024-04-25';
 GO
+
+-- ============================================================
+-- SECCION 4: ACTUALIZAR TITULO A GUIA
+-- ============================================================
+
+PRINT '=== ACTUALIZAR TITULO A GUIA ===';
+GO
+
+-- TEST 5.1: DNI NULL (debe fallar)
+PRINT '--- TEST 5.1: Falta especificar el DNI del guía (debe fallar) ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = NULL,
+	@descripcion = 'Especializado en flora nativa Argentina',
+	@institucion = 'UNLAM',
+	@fecha_emision = '2020-04-15';
+GO
+
+-- TEST 5.2: Descripción del título NULL (debe fallar)
+PRINT '--- TEST 5.2: Falta especificar el título (debe fallar) ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = '25123456',
+	@descripcion = NULL,
+	@institucion = 'UNLAM',
+	@fecha_emision = '2020-04-15';
+GO
+
+-- TEST 5.3: Institución NULL (debe fallar)
+PRINT '--- TEST 5.3: Falta especificar la institución (debe fallar) ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = '25123456',
+	@descripcion = 'Especializado en flora nativa Argentina',
+	@institucion = NULL,
+	@fecha_emision = '2020-04-15';
+GO
+
+-- TEST 5.4: Fecha de emisión NULL (debe fallar)
+PRINT '--- TEST 5.4: Falta especificar la fecha de emisión (debe fallar) ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = '25123456',
+	@descripcion = 'Especializado en flora nativa Argentina',
+	@institucion = 'UNLAM',
+	@fecha_emision = NULL;
+GO
+
+-- TEST 5.5: Actualizacion exitosa
+PRINT '--- TEST 5.5: Asignar titulación exitosamente ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = '25123456',
+	@descripcion = 'Especializado en flora nativa Argentina',
+	@institucion = 'UNLAM',
+	@fecha_emision = '2012-04-15';
+GO
+
+-- TEST 5.6: Título no asignado al guía (debe fallar)
+PRINT '--- TEST 5.6: El guía no posee esa titulación (debe fallar) ---';
+EXEC guia.sp_actualizar_titulo_guia
+	@dni = '30456789',
+	@descripcion = 'Especializado en flora nativa Argentina',
+	@institucion = 'UNLAM',
+	@fecha_emision = '2020-09-15';
+GO

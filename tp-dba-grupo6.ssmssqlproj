@@ -22,6 +22,12 @@
     </LogicalFolder>
     <LogicalFolder Name="Consultas" Type="0" Sorted="true">
       <Items>
+        <FileNode Name="creacion_views.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>creacion_views.sql</FullPath>
+        </FileNode>
         <FileNode Name="create_db_scheme.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
@@ -33,6 +39,12 @@
           <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>create_tables.sql</FullPath>
+        </FileNode>
+        <FileNode Name="reportes.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>reportes.sql</FullPath>
         </FileNode>
         <FileNode Name="sp.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
@@ -51,6 +63,12 @@
           <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>sp_abm_testing.sql</FullPath>
+        </FileNode>
+        <FileNode Name="sp_importacion.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>sp_importacion.sql</FullPath>
         </FileNode>
         <FileNode Name="sp_test.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
