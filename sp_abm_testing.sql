@@ -10,7 +10,7 @@
 --  Vargas, Tomas
  
 -- Objetivo del script: Testing de SPs del esquema 'gestion'
--- Cubre altas, bajas y modificaciones de Parque, Guardaparque, Parque_asignado y Actividad
+-- Cubre altas, bajas y modificaciones de Parque, Guardaparque, Parque_asignado, Actividad, Guias y asignacion de guias
  
 -- Fecha: 12/06/2026
  
@@ -446,14 +446,251 @@ EXEC gestion.sp_baja_actividad
     @id     = 1,
     @motivo = 'Intento duplicado';
 GO
- 
+
 -- ============================================================
--- EVIDENCIA FINAL: estado de todas las tablas
+-- SECCION 11: ALTA DE GUIA
 -- ============================================================
-PRINT '=== ESTADO FINAL DE LAS TABLAS ===';
+
+PRINT '=== ALTA DE GUIA ===';
+GO
+
+-- TEST 11.1: Registro exitoso
+PRINT '--- TEST 11.1: Registrar guía exitosamente ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '30456789',
+    @nombre = 'Lucía',
+    @apellido = 'Ferreyra',
+    @fecha_vencimiento_acreditacion = '2026-12-31';
+GO
+
+-- TEST 11.2: Registro exitoso
+PRINT '--- TEST 11.2: Registrar guía exitosamente ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '25123456',
+    @nombre = 'Marcos',
+    @apellido = 'Villanueva',
+    @fecha_vencimiento_acreditacion = '2025-06-13';
+GO
+
+-- TEST 11.3: DNI duplicado (debe fallar)
+PRINT '--- TEST 11.3: DNI duplicado (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '30456789',
+    @nombre = 'Lucas',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.4: DNI duplicado y nombre inválido (debe fallar)
+PRINT '--- TEST 11.4: DNI duplicado y falta de nombre/apellido (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '30456789',
+    @nombre = '',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.5: Formato de DNI inválido (debe fallar)
+PRINT '--- TEST 11.5: DNI con formato inválido (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = 'ABC12',
+    @nombre = 'Lucas',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.6: Apellido vacío (debe fallar)
+PRINT '--- TEST 11.6: Falta apellido (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = '',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.7: Apellido NULL (debe fallar)
+PRINT '--- TEST 11.7: Apellido NULL (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = NULL,
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.8: Fecha de vencimiento NULL (debe fallar)
+PRINT '--- TEST 11.8: Falta fecha de vencimiento de la acreditacion (debe fallar) ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = NULL;
+GO
+
+-- TEST 11.9: DNI NULL (debe fallar)
+PRINT '--- TEST 11.9: Falta DNI (debe fallar) ---';
+    EXEC gestion.sp_registrar_guia
+    @dni = NULL,
+    @nombre = 'Lucas',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- TEST 11.10: Registro exitoso
+PRINT '--- TEST 11.10: Registrar guía exitosamente ---';
+EXEC gestion.sp_registrar_guia
+    @dni = '38912345',
+    @nombre = 'Lucas',
+    @apellido = 'Perez',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
+GO
+
+-- ============================================================
+-- SECCION 12: ASIGNACION DE GUIA A ACTIVIDAD
+-- ============================================================
+
+PRINT '=== ASIGNACION DE GUIA A ACTIVIDAD ===';
+GO
+
+PRINT '--- TEST 12.0: Registrar actividad exitosa ---';
+EXEC gestion.sp_registrar_actividad
+    @id_parque   = 1,
+    @id_guia     = 1,
+    @nombre      = 'Trekking Cataratas',
+    @descripcion = 'Caminata por circuito superior',
+    @tipo        = 'Tour guiado',
+    @costo       = 2500.00,
+    @fecha       = '2026-08-15',
+    @duracion    = 180,
+    @cupo        = 20;
+
+-- TEST 12.1: Asignación exitosa
+PRINT '--- TEST 12.1: Asignar guía exitosamente ---';
+EXEC gestion.sp_asignar_guia
+@dni = '30456789',
+@nombre_actividad = 'Trekking Cataratas',
+@nombre_parque = 'Parque Nacional Iguazu',
+@fecha_actividad = '2026-06-16 00:00:00',
+@f_desde = '2026-06-14',
+@f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.2: Actividad inexistente en el parque (debe fallar)
+PRINT '--- TEST 12.2: Actividad inexistente en el parque (debe fallar) ---';
+    EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nahuel Huapi',
+    @fecha_actividad = '2026-06-16 00:00:00',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
  
-SELECT 'Parque'           AS tabla, id, nombre, estado FROM gestion.Parque;
-SELECT 'Guardaparque'     AS tabla, id, nombre, apellido, estado FROM gestion.Guardaparque;
-SELECT 'Parque_asignado'  AS tabla, id, id_parque, id_guardaparque, fecha_ingreso, fecha_egreso FROM gestion.Parque_asignado;
-SELECT 'Actividad'        AS tabla, id, nombre, fecha, cupo, estado FROM gestion.Actividad;
+ -- TEST 12.3: DNI NULL (debe fallar)
+PRINT '--- TEST 12.3: Falta especificar DNI del guía (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = NULL,
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.4: Guía inexistente (debe fallar)
+PRINT '--- TEST 12.4: DNI de guía inexistente (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '11122345',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.5: Nombre de actividad inexistente (debe fallar)
+PRINT '--- TEST 12.5: Actividad inexistente (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Escalda',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.6: Fecha de actividad incorrecta (debe fallar)
+PRINT '--- TEST 12.6: Fecha de actividad inexistente (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-17 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.7: Nombre de actividad NULL (debe fallar)
+PRINT '--- TEST 12.7: Falta nombre de actividad (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = NULL,
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.8: Fecha de actividad NULL (debe fallar)
+PRINT '--- TEST 12.8: Falta fecha de actividad (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = NULL,
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.9: Fecha desde NULL (debe fallar)
+PRINT '--- TEST 12.9: Falta fecha desde (debe fallar) ---';
+    EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = NULL,
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.10: Fecha hasta NULL (debe fallar)
+PRINT '--- TEST 12.10: Falta fecha hasta (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = NULL;
+GO
+
+-- TEST 12.11: Asignación duplicada (debe fallar)
+PRINT '--- TEST 12.11: La actividad ya está asignada al guía (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '30456789',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
+GO
+
+-- TEST 12.12: Guía con acreditación vencida (debe fallar)
+PRINT '--- TEST 12.12: Guía con acreditación vencida (debe fallar) ---';
+EXEC gestion.sp_asignar_guia
+    @dni = '25123456',
+    @nombre_actividad = 'Trekking Cataratas',
+    @nombre_parque = 'Parque Nacional Iguazu',
+    @fecha_actividad = '2026-06-16 00:00:00.000',
+    @f_desde = '2026-06-14',
+    @f_hasta = '2026-06-17';
 GO

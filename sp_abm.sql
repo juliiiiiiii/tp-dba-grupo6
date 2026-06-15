@@ -179,8 +179,8 @@ BEGIN
 	BEGIN
 		IF NOT EXISTS(
 			SELECT g.id FROM gestion.Guia g
-			INNER JOIN gestion.Acreditacion a ON g.id_acreditacion = a.id
-			WHERE g.id = @id_guia AND a.estado = 'Activo' AND a.fecha_vencimiento >= GETDATE()
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND a.estado = 'vigente' AND a.fecha_vencimiento >= GETDATE()
 		)
 		BEGIN
 			SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
@@ -514,5 +514,138 @@ BEGIN
  
     UPDATE gestion.Actividad SET id_guia = @id_guia, id_tipo = @id_tipo, nombre = @nombre, descripcion = @descripcion, costo = @costo, fecha = @fecha, duracion = @duracion, cupo = @cupo, estado = @estado
     WHERE id = @id;
+END
+GO
+
+-----------------------------------------------------------
+-- Registrar guia
+
+CREATE OR ALTER PROCEDURE gestion.sp_registrar_guia
+@dni CHAR(8),
+@nombre VARCHAR(30),
+@apellido VARCHAR(30), 
+@fecha_vencimiento_acreditacion DATE
+AS
+BEGIN
+    DECLARE @id_acreditacion INT;
+    DECLARE @estado_acreditacion CHAR(7);
+    DECLARE @error VARCHAR(100);
+    SET @error = '';
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF @dni NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+            SET @error += 'Ingresar dni valido.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+                SET @error += 'El dni ya pertenece a un guia.' + CHAR(10);
+        END    
+    END
+
+    IF @nombre IS NULL OR @apellido IS NULL OR @nombre = '' or @apellido = ''
+        SET @error += 'Se debe especificar nombre y apellido del guia.' + CHAR(10);
+    
+    IF @fecha_vencimiento_acreditacion IS NULL
+        SET @error += 'Se debe especificar fecha de vencimiento de acriditacion.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF @fecha_vencimiento_acreditacion < CAST(GETDATE() AS DATE)
+            SET @estado_acreditacion = 'vencido';
+        ELSE
+            SET @estado_acreditacion = 'vigente';
+    END
+    
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        BEGIN TRANSACTION
+            INSERT INTO guia.Acreditacion VALUES(@fecha_vencimiento_acreditacion, @estado_acreditacion);
+            
+            SET @id_acreditacion = SCOPE_IDENTITY();
+
+            INSERT INTO gestion.Guia VALUES(@dni, @nombre, @apellido, @id_acreditacion);
+
+        COMMIT
+    END
+END
+GO
+
+-----------------------------------------------------------
+-- Asignar guia a actividad
+
+CREATE OR ALTER PROCEDURE gestion.sp_asignar_guia
+@dni CHAR(8),
+@nombre_actividad VARCHAR(50),
+@nombre_parque VARCHAR(50),
+@fecha_actividad DATETIME,
+@f_desde DATE,
+@f_hasta DATE
+AS
+BEGIN
+    DECLARE @error VARCHAR(150);
+    SET @error = '';
+
+    DECLARE @id_guia INT;
+    DECLARE @id_parque INT;
+    DECLARE @id_actividad INT;
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        IF @id_guia IS NULL
+            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
+    END
+
+    IF @nombre_parque IS NULL
+        SET @error += 'Se debe especificar el nombre del parque.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @nombre_parque);
+        IF @id_parque IS NULL
+            SET @error += 'El nombre no pertenece a ningun parque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @nombre_actividad IS NULL OR @fecha_actividad IS NULL
+                SET @error += 'Se debe especificar el nombre y fecha de la actividad.' + CHAR(10);
+            ELSE
+            BEGIN
+                SET @id_actividad = (SELECT id FROM gestion.Actividad 
+                        WHERE nombre = @nombre_actividad AND id_parque = @id_parque AND fecha = @fecha_actividad
+                    );
+                IF @id_actividad IS NULL
+                    SET @error += 'No existe una actividad con ese nombre en ese parque en esa fecha.' + CHAR(10); 
+            END
+        END
+    END
+
+    IF @f_desde IS NULL OR @f_hasta IS NULL
+        SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
+    
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND a.estado = 'vencido'
+    )
+        SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
+    ELSE
+    BEGIN
+        IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL
+            IF EXISTS(SELECT id FROM gestion.Coordina 
+                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
+            )
+                SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
+    END
+
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
+    END
 END
 GO

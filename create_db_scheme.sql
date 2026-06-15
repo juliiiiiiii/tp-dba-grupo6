@@ -13,24 +13,25 @@
 
 -- Fecha: 12/06/2026
 
-IF NOT EXISTS(SELECT name FROM sys.databases WHERE name = '[parques_nacionales]')
-	CREATE DATABASE parques_nacionales;
+IF DB_ID('parques_nacionales') IS NULL
+    CREATE DATABASE parques_nacionales;
 GO
 
 USE parques_nacionales;
+GO
 
-IF SCHEMA_ID('[concesiones]') IS NULL
+IF SCHEMA_ID('concesiones') IS NULL
 	EXEC('CREATE SCHEMA concesiones');
 GO
 
-IF SCHEMA_ID('[gestion]') IS NULL
+IF SCHEMA_ID('gestion') IS NULL
 	EXEC('CREATE SCHEMA gestion');
 GO
 
-IF SCHEMA_ID('[guia]') IS NULL
+IF SCHEMA_ID('guia') IS NULL
 	EXEC('CREATE SCHEMA guia');
 GO
 
-IF SCHEMA_ID('[ventas]') IS NULL
+IF SCHEMA_ID('ventas') IS NULL
 	EXEC('CREATE SCHEMA ventas');
 GO

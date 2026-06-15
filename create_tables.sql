@@ -20,7 +20,7 @@ IF OBJECT_ID('[gestion].[Parque]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Parque (
 		id INT IDENTITY(1,1) PRIMARY KEY,
-		nombre VARCHAR(50) NOT NULL,
+		nombre VARCHAR(50) NOT NULL UNIQUE,
 		tipo VARCHAR(50) NOT NULL,
 		ubicacion VARCHAR(50) NOT NULL,
 		superficie INT NOT NULL CHECK(superficie > 0),
@@ -56,30 +56,6 @@ BEGIN
 END
 GO
 
-----------------------------------------------------------------------------------------------------------------------
-
-IF OBJECT_ID('[gestion].[Acreditacion]', 'U') IS NULL
-BEGIN
-	CREATE TABLE gestion.Acreditacion (
-		id INT IDENTITY(1,1) PRIMARY KEY,
-		fecha_vencimiento DATE NOT NULL,
-		estado CHAR(8) NOT NULL CHECK(estado IN('Activo', 'Inactivo'))
-	);
-END
-GO
-
-IF OBJECT_ID('[gestion].[Guia]', 'U') IS NULL
-BEGIN
-	CREATE TABLE gestion.Guia (
-		id INT IDENTITY(1,1) PRIMARY KEY,
-		id_acreditacion INT NOT NULL,
-		CONSTRAINT fk_acreditacion_guia FOREIGN KEY (id_acreditacion) REFERENCES gestion.Acreditacion(id)
-	);
-END
-GO
-
-----------------------------------------------------------------------------------------------------------------------
-
 IF OBJECT_ID('[gestion].[Tipo_actividad]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Tipo_actividad (
@@ -95,7 +71,6 @@ BEGIN
 		id INT IDENTITY(1,1) PRIMARY KEY,
 		nombre CHAR(50) NOT NULL,
 		descripcion VARCHAR(100) NOT NULL,
-		--tipo CHAR(25) NOT NULL CHECK(tipo IN('Atraccion gratuita', 'Atraccion paga', 'Tour guiado')),
 		costo DECIMAL(9,2) NOT NULL CHECK(costo >= 0),
 		fecha DATETIME NOT NULL,
 		duracion INT NOT NULL CHECK(duracion > 0),
@@ -108,5 +83,79 @@ BEGIN
 		CONSTRAINT fk_actividad_guia FOREIGN KEY (id_guia) REFERENCES gestion.Guia(id),
 		CONSTRAINT fk_actividad_tipo FOREIGN KEY (id_tipo) REFERENCES gestion.Tipo_actividad(id)
 	);
+END
+GO
+
+IF OBJECT_ID(N'[guia].[Acreditacion]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Acreditacion (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        fecha_vencimiento DATE NOT NULL,
+        estado CHAR(7) CHECK(estado IN ('vigente', 'vencido'))
+    )
+END
+GO
+
+IF OBJECT_ID(N'[guia].[Titulo]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Titulo (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        descripcion VARCHAR(50) NOT NULL,
+        institucion VARCHAR(30) NOT NULL,
+        fecha_emision DATE NOT NULL
+    )
+END
+GO
+
+IF OBJECT_ID(N'[guia].[Especialidad]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Especialidad (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        descripcion VARCHAR(50) NOT NULL UNIQUE
+    )
+END
+GO
+
+IF OBJECT_ID(N'[gestion].[Guia]', N'U') IS NULL 
+BEGIN
+    CREATE TABLE gestion.Guia (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+        nombre VARCHAR(30) NOT NULL,
+        apellido VARCHAR(30) NOT NULL,
+        id_acreditacion INT REFERENCES guia.Acreditacion(id) NOT NULL UNIQUE
+    )
+END
+GO
+
+IF OBJECT_ID(N'[guia].[Especializado_en]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Especializado_en (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        id_guia INT REFERENCES gestion.Guia(id),
+        id_especialidad INT REFERENCES guia.Especialidad(id)
+    )
+END
+GO
+
+IF OBJECT_ID(N'[guia].[Titulacion_guia]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Titulacion_guia (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        id_guia INT REFERENCES gestion.Guia(id),
+        id_titulo INT REFERENCES guia.Titulo(id)
+    )
+END
+GO
+
+IF OBJECT_ID(N'[gestion].[Coordina]') IS NULL
+BEGIN
+    CREATE TABLE gestion.Coordina (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        id_actividad INT REFERENCES gestion.Actividad(id) NOT NULL,
+        id_guia INT REFERENCES gestion.Guia(id) NOT NULL,
+        fecha_desde DATE NOT NULL,
+        fecha_hasta DATE NOT NULL
+    )
 END
 GO
