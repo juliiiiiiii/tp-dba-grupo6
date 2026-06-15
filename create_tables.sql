@@ -159,3 +159,90 @@ BEGIN
     )
 END
 GO
+
+--Creación de tabla para los tipos de visitantes, los cuales definen el precio de las entradas
+IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.tipo_visitante
+	(
+		id INT IDENTITY(1,1) PRIMARY KEY,
+		descripcion VARCHAR(20) UNIQUE NOT NULL-- Jubilado, Menor, Adulto, Estudiante, Extranjero
+	)
+END
+GO
+
+--Creación de los puntos de ventas, donde se realizan las ventas en los parques
+IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.punto_de_venta
+	(
+		id INT IDENTITY(1,1) PRIMARY KEY,
+		parque INT NOT NULL, --El punto de venta tiene que estar asociado a algún parque
+		descripcion VARCHAR(30) NOT NULL,
+		CONSTRAINT fk_parque_pov FOREIGN KEY (parque) REFERENCES gestion.parque(id),
+	)
+END
+GO
+
+--Creación de tabla para los métodos de pago como puede ser Efectivo, débito, crédito, transferencia, etc.
+IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.metodo_de_pago
+	(
+		id INT IDENTITY (1,1) PRIMARY KEY,
+		descripcion VARCHAR(25) NOT NULL UNIQUE
+	)
+END
+GO
+
+--Creación de los tipos de entrada
+IF OBJECT_ID('parques_nacionales.ventas.entrada','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.entrada
+	(
+		id INT IDENTITY(1, 1) PRIMARY KEY,
+		tipo INT NOT NULL, --La entrada está asociada a un tipo de estudiante
+		parque INT NOT NULL, --Todas las entradas pertenecen a algún parque
+		precio DECIMAL(10,2) CHECK (precio >= 0),
+		fecha_desde DATE NOT NULL,
+		fecha_hasta DATE, --Si es NULL, la entrada está vigente.
+		CONSTRAINT fk_tipo_visitante FOREIGN KEY (tipo) REFERENCES ventas.tipo_visitante(id),
+		CONSTRAINT fk_parque FOREIGN KEY (parque) REFERENCES gestion.Parque(id),
+	)
+END
+GO
+
+--Creación de tabla para las ventas. Cada venta puede tener varias entradas y actividades
+IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.venta
+	(
+		id INT IDENTITY(1,1) PRIMARY KEY,
+		parque INT NOT NULL, --No existen ventas que no estén asociada a un parque
+		fecha DATE NOT NULL,
+		punto_de_venta INT NOT NULL, --Tiene que haber sido realizada en algún punto
+		metodo_de_pago INT,
+		total DECIMAL(10,2),
+		CONSTRAINT fk_venta_parque FOREIGN KEY (parque) REFERENCES gestion.parque(id),
+		CONSTRAINT fk_punto_de_venta FOREIGN KEY (punto_de_venta) REFERENCES ventas.punto_de_venta(id),
+		CONSTRAINT fk_metodo FOREIGN KEY (metodo_de_pago) REFERENCES ventas.metodo_de_pago(id)
+	)
+END
+GO
+
+--Creación de tabla para los items que van asociados a cada venta
+IF OBJECT_ID('parques_nacionales.ventas.item_venta','U') IS NULL
+BEGIN
+	CREATE TABLE ventas.item_venta
+	(
+		id INT IDENTITY(1, 1) PRIMARY KEY,
+		venta INT NOT NULL, --El item representa el detalle dentro de cada venta
+		concepto INT NOT NULL,
+		cantidad INT CHECK(cantidad > 0) NOT NULL,
+		precio INT CHECK(precio >= 0) NOT NULL,
+		subtotal DECIMAL (10, 2),
+		fecha_acceso DATE NOT NULL,
+		CONSTRAINT fk_item_a_venta FOREIGN KEY (venta) REFERENCES ventas.venta(id)
+	)
+END
+GO
