@@ -168,3 +168,48 @@ BEGIN
     )
 END
 GO
+
+if object_id('concesiones.Canon_pagar', 'U') is null
+begin
+    create table concesiones.Canon_pagar (
+        id int identity(1,1) primary key,
+        monto decimal(10, 2) not null,
+        fecha_generacion date not null,
+        fecha_pagado date null,
+        estado varchar(30) not null,
+        periodo varchar(50) not null,
+        id_concesion int not null,
+        constraint fk_canon_concesion foreign key (id_concesion) references concesiones.Concesion(id),
+        constraint uq_canon_concesion_fecha unique (id_concesion, fecha_generacion)
+    );
+end
+go
+
+if object_id('concesiones.Empresa', 'U') is null then
+    create table concesiones.Empresa (
+	    id int not null primary key identity(1, 1),
+	    nombre varchar(25) not null unique,
+	    tipo varchar(100) not null,
+	    cuit varchar(15) not null unique,
+        constraint check_cuit_formato check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
+    );
+end
+go
+
+if object_id('concesiones.Concesion', 'U') is null
+    create table concesiones.Concesion (
+	    id int not null primary key identity(1, 1),
+	    fecha_inicio date not null,
+	    fecha_fin datetime,
+	    canon_mensual numeric(10, 2),
+	    estado char(8) constraint check_estado_concesion check(estado = 'ACTIVO' or estado = 'INACTIVO'),
+	    id_empresa int not null,
+	    id_parque int not null,
+	    id_actividad int null,
+	    constraint fk_concesion_empresa foreign key (id_empresa) references concesiones.Empresa(id),
+	    constraint fk_concesion_parque foreign key (id_parque) references concesiones.Parque(id),
+	    constraint fk_concesion_actividad foreign key (id_actividad) references concesiones.Actividad(id),
+        constraint uq_concesion_empresa_parque_inicio unique (id_empresa, id_parque, fecha_inicio)
+    );
+end
+go
