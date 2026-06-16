@@ -255,7 +255,7 @@ create or alter procedure concesiones.sp_validacion_concesion(
     @id_concesion int output
 ) as begin
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
-    declare @id_parque int = (select top 1 id from concesiones.Parque where nombre = @parque);
+    declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
 
     if @id_empresa is null begin
         set @errores += 'No se encontro la empresa.' + char(10);
@@ -290,7 +290,7 @@ create or alter procedure concesiones.sp_alta_concesion(
 ) as begin
 
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
-    declare @id_parque int = (select top 1 id from concesiones.Parque where nombre = @parque);
+    declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
     declare @errores varchar(4000) = '';
 
 	if @fecha_inicio is null begin
@@ -371,7 +371,7 @@ create or alter procedure concesiones.sp_modificacion_concesion(
     end
 
     if @parque_nuevo is not null begin
-        select @id_parque = id from concesiones.Parque where nombre = @parque_nuevo;
+        select @id_parque = id from gestion.Parque where nombre = @parque_nuevo;
         if @id_parque is null begin
             set @errores += 'No se encontro el parque nuevo.' + char(10)
         end

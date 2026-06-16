@@ -186,15 +186,15 @@ BEGIN
  
     CREATE TABLE #temp_csv (
         provincia VARCHAR(50),
-        nombre VARCHAR(100),
+        nombre VARCHAR(200),
         anio VARCHAR(5),
-        region VARCHAR(60),
+        region VARCHAR(250),
         superficie VARCHAR(20),
         latitud VARCHAR(10),
         longitud VARCHAR(10),
-        ley VARCHAR(100),
-        ecorregiones VARCHAR(100),
-        categoria_intern VARCHAR(100),
+        ley VARCHAR(250),
+        ecorregiones VARCHAR(250),
+        categoria_intern VARCHAR(250),
         especies VARCHAR(20),
         animales VARCHAR(20),
         bacterias VARCHAR(20),
@@ -207,11 +207,11 @@ BEGIN
             'BULK INSERT #temp_csv
              FROM ''' + @archivo_dir + '''
              WITH (
-                FIRSTROW        = 3,
+                FIRSTROW = 3,
                 FIELDTERMINATOR = '','',
-                FIELDQUOTE      = ''"'',
-                ROWTERMINATOR   = ''0x0d0a'',
-                CODEPAGE        = ''1252''
+                FIELDQUOTE = ''"'',
+                ROWTERMINATOR = ''\n'',
+                CODEPAGE = ''1252''
              );';
         EXEC (@sql);
     END TRY
@@ -268,20 +268,23 @@ BEGIN
     INSERT INTO #temp_parques (nombre, ubicacion, superficie, tipo)
     SELECT
         LTRIM(RTRIM(nombre)),
-        ISNULL(NULLIF(LTRIM(RTRIM(provincia)), ''), 'Sin provincia asignada'),
+        CASE LTRIM(RTRIM(provincia))
+            WHEN 'Tierra Del Fuego' THEN 'Tierra del Fuego, Antártida e Islas del Atlántico Sur'
+            ELSE NULLIF(LTRIM(RTRIM(provincia)), '')
+        END,
         TRY_CAST(TRY_CAST(superficie AS FLOAT) AS INT),
         CASE
-            WHEN nombre LIKE 'Parque Nacional%'                            THEN 'Parque nacional'
-            WHEN nombre LIKE 'Parque Interjurisdiccional Marino Costero%'  THEN 'Parque interjurisdiccional marino costero'
-            WHEN nombre LIKE 'Parque Interjurisdiccional Marino%'          THEN 'Parque interjurisdiccional marino'
+            WHEN nombre LIKE 'Parque Nacional%' THEN 'Parque nacional'
+            WHEN nombre LIKE 'Parque Interjurisdiccional Marino Costero%' THEN 'Parque interjurisdiccional marino costero'
+            WHEN nombre LIKE 'Parque Interjurisdiccional Marino%' THEN 'Parque interjurisdiccional marino'
             WHEN nombre LIKE 'Área Marina Protegida%'
-              OR nombre LIKE 'Area Marina Protegida%'                      THEN 'Area marina protegida'
-            WHEN nombre LIKE 'Reserva Natural Silvestre%'                  THEN 'Reserva natural silvestre'
-            WHEN nombre LIKE 'Reserva Natural Educativa%'                  THEN 'Reserva natural educativa'
-            WHEN nombre LIKE 'Reserva Natural Estricta%'                   THEN 'Reserva natural estricta'
-            WHEN nombre LIKE 'Reserva Natural%'                            THEN 'Reserva natural'
-            WHEN nombre LIKE 'Reserva Nacional%'                           THEN 'Reserva nacional'
-            WHEN nombre LIKE 'Monumento Natural%'                          THEN 'Monumento natural'
+              OR nombre LIKE 'Area Marina Protegida%' THEN 'Area marina protegida'
+            WHEN nombre LIKE 'Reserva Natural Silvestre%' THEN 'Reserva natural silvestre'
+            WHEN nombre LIKE 'Reserva Natural Educativa%' THEN 'Reserva natural educativa'
+            WHEN nombre LIKE 'Reserva Natural Estricta%' THEN 'Reserva natural estricta'
+            WHEN nombre LIKE 'Reserva Natural%' THEN 'Reserva natural'
+            WHEN nombre LIKE 'Reserva Nacional%' THEN 'Reserva nacional'
+            WHEN nombre LIKE 'Monumento Natural%' THEN 'Monumento natural'
         END
     FROM #temp_csv
     WHERE nombre NOT IN (SELECT ISNULL(nombre, '') FROM #errores)
@@ -297,6 +300,8 @@ BEGIN
 
     WHILE @id_act <= @id_max
     BEGIN
+        SET @id_existente = NULL;
+
         SELECT @c_nombre = nombre, @c_ubicacion = ubicacion, @c_superficie = superficie, @c_tipo = tipo
         FROM #temp_parques WHERE id = @id_act;
 
@@ -306,9 +311,9 @@ BEGIN
         BEGIN
             BEGIN TRY
                 EXEC gestion.sp_registrar_parque
-                    @nombre     = @c_nombre,
-                    @tipo       = @c_tipo,
-                    @ubicacion  = @c_ubicacion,
+                    @nombre = @c_nombre,
+                    @tipo = @c_tipo,
+                    @ubicacion = @c_ubicacion,
                     @superficie = @c_superficie;
             END TRY
             BEGIN CATCH
@@ -320,10 +325,10 @@ BEGIN
         BEGIN
             BEGIN TRY
                 EXEC gestion.sp_modificar_parque
-                    @id         = @id_existente,
-                    @nombre     = @c_nombre,
-                    @tipo       = @c_tipo,
-                    @ubicacion  = @c_ubicacion,
+                    @id = @id_existente,
+                    @nombre = @c_nombre,
+                    @tipo = @c_tipo,
+                    @ubicacion = @c_ubicacion,
                     @superficie = @c_superficie;
             END TRY
             BEGIN CATCH
@@ -344,7 +349,7 @@ BEGIN
  
     SELECT COUNT(*) AS filas_en_csv FROM #temp_csv;
     SELECT COUNT(*) AS filas_con_errores FROM #errores;
-    SELECT COUNT(*) AS filas_validas FROM #temp_csv
+    SELECT COUNT(*) AS filas_validas FROM #temp_parques
  
     EXEC sp_configure 'xp_cmdshell', 0;
     RECONFIGURE;
@@ -355,5 +360,5 @@ BEGIN
     DROP TABLE #temp_csv;
     DROP TABLE #errores;
     DROP TABLE #temp_parques;
-END;
+END
 GO

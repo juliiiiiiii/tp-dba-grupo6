@@ -29,11 +29,12 @@ IF OBJECT_ID('[gestion].[Parque]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Parque (
 		id INT IDENTITY(1,1) PRIMARY KEY,
-		nombre VARCHAR(50) NOT NULL UNIQUE,
+		nombre VARCHAR(100) NOT NULL UNIQUE,
 		tipo VARCHAR(50) NOT NULL,
-		ubicacion VARCHAR(50) NOT NULL,
 		superficie INT CHECK(superficie > 0),
-		estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo'))
+		estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo')),
+		id_ubicacion INT,
+		CONSTRAINT fk_ubicacion_parque FOREIGN KEY (id_ubicacion) REFERENCES gestion.Ubicacion(id)
 	);
 END
 GO
@@ -74,6 +75,28 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'[guia].[Acreditacion]', N'U') IS NULL
+BEGIN
+    CREATE TABLE guia.Acreditacion (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        fecha_vencimiento DATE NOT NULL,
+        estado CHAR(7) CHECK(estado IN ('vigente', 'vencido'))
+    )
+END
+GO
+
+IF OBJECT_ID(N'[gestion].[Guia]', N'U') IS NULL 
+BEGIN
+    CREATE TABLE gestion.Guia (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+        nombre VARCHAR(30) NOT NULL,
+        apellido VARCHAR(30) NOT NULL,
+        id_acreditacion INT REFERENCES guia.Acreditacion(id) NOT NULL UNIQUE
+    )
+END
+GO
+
 IF OBJECT_ID('[gestion].[Actividad]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Actividad (
@@ -95,16 +118,6 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Acreditacion]', N'U') IS NULL
-BEGIN
-    CREATE TABLE guia.Acreditacion (
-        id INT IDENTITY(1,1) PRIMARY KEY,
-        fecha_vencimiento DATE NOT NULL,
-        estado CHAR(7) CHECK(estado IN ('vigente', 'vencido'))
-    )
-END
-GO
-
 IF OBJECT_ID(N'[guia].[Titulo]', N'U') IS NULL
 BEGIN
     CREATE TABLE guia.Titulo (
@@ -121,18 +134,6 @@ BEGIN
     CREATE TABLE guia.Especialidad (
         id INT IDENTITY(1,1) PRIMARY KEY,
         descripcion VARCHAR(50) NOT NULL UNIQUE
-    )
-END
-GO
-
-IF OBJECT_ID(N'[gestion].[Guia]', N'U') IS NULL 
-BEGIN
-    CREATE TABLE gestion.Guia (
-        id INT IDENTITY(1,1) PRIMARY KEY,
-        dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
-        nombre VARCHAR(30) NOT NULL,
-        apellido VARCHAR(30) NOT NULL,
-        id_acreditacion INT REFERENCES guia.Acreditacion(id) NOT NULL UNIQUE
     )
 END
 GO
@@ -169,6 +170,37 @@ BEGIN
 END
 GO
 
+IF object_id('concesiones.Empresa', 'U') IS NULL
+BEGIN
+    create table concesiones.Empresa (
+	    id int not null primary key identity(1, 1),
+	    nombre varchar(25) not null unique,
+	    tipo varchar(100) not null,
+	    cuit varchar(15) not null unique,
+        constraint check_cuit_formato check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
+    )
+END
+GO
+
+if object_id('concesiones.Concesion', 'U') IS NULL
+BEGIN
+    CREATE TABLE concesiones.Concesion (
+	    id INT NOT NULL PRIMARY KEY IDENTITY(1, 1),
+	    fecha_inicio DATE NOT NULL,
+	    fecha_fin DATETIME,
+	    canon_mensual NUMERIC(10, 2),
+	    estado CHAR(8) CONSTRAINT check_estado_concesion check(estado = 'ACTIVO' or estado = 'INACTIVO'),
+	    id_empresa INT NOT NULL,
+	    id_parque INT NOT NULL,
+	    id_actividad INT NULL, -- aca deberia ser null?
+	    CONSTRAINT fk_concesion_empresa FOREIGN KEY (id_empresa) REFERENCES concesiones.Empresa(id),
+	    CONSTRAINT fk_concesion_parque FOREIGN KEY (id_parque) REFERENCES gestion.Parque(id),
+	    CONSTRAINT fk_concesion_actividad FOREIGN KEY(id_actividad) REFERENCES gestion.Actividad(id),
+        CONSTRAINT uq_concesion_empresa_parque_inicio UNIQUE (id_empresa, id_parque, fecha_inicio)
+    );
+END
+GO
+
 if object_id('concesiones.Canon_pagar', 'U') is null
 begin
     create table concesiones.Canon_pagar (
@@ -181,35 +213,6 @@ begin
         id_concesion int not null,
         constraint fk_canon_concesion foreign key (id_concesion) references concesiones.Concesion(id),
         constraint uq_canon_concesion_fecha unique (id_concesion, fecha_generacion)
-    );
-end
-go
-
-if object_id('concesiones.Empresa', 'U') is null then
-    create table concesiones.Empresa (
-	    id int not null primary key identity(1, 1),
-	    nombre varchar(25) not null unique,
-	    tipo varchar(100) not null,
-	    cuit varchar(15) not null unique,
-        constraint check_cuit_formato check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
-    );
-end
-go
-
-if object_id('concesiones.Concesion', 'U') is null
-    create table concesiones.Concesion (
-	    id int not null primary key identity(1, 1),
-	    fecha_inicio date not null,
-	    fecha_fin datetime,
-	    canon_mensual numeric(10, 2),
-	    estado char(8) constraint check_estado_concesion check(estado = 'ACTIVO' or estado = 'INACTIVO'),
-	    id_empresa int not null,
-	    id_parque int not null,
-	    id_actividad int null,
-	    constraint fk_concesion_empresa foreign key (id_empresa) references concesiones.Empresa(id),
-	    constraint fk_concesion_parque foreign key (id_parque) references concesiones.Parque(id),
-	    constraint fk_concesion_actividad foreign key (id_actividad) references concesiones.Actividad(id),
-        constraint uq_concesion_empresa_parque_inicio unique (id_empresa, id_parque, fecha_inicio)
     );
 end
 go

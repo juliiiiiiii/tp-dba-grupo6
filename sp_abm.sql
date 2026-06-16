@@ -22,7 +22,7 @@ GO
 -- Registrar parque
 
 CREATE OR ALTER PROCEDURE gestion.sp_registrar_parque
-	@nombre VARCHAR(50),
+	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
 	@ubicacion VARCHAR(50),
 	@superficie INT
@@ -31,11 +31,21 @@ BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @errores VARCHAR(100);
+    DECLARE @id_ubicacion INT = NULL;
 	SET @errores = '';
 
 	IF EXISTS (SELECT nombre FROM gestion.Parque WHERE nombre = @nombre)
 	BEGIN
-		SET @errores += 'El nombre del parque ya se encuentra registrado' + CHAR(10);
+		SET @errores += 'El nombre del parque ya se encuentra registrado.' + CHAR(10);
+	END
+
+    IF @ubicacion IS NOT NULL AND LTRIM(RTRIM(@ubicacion)) != ''
+    BEGIN
+        SELECT @id_ubicacion = id FROM gestion.Ubicacion 
+        WHERE UPPER(provincia) COLLATE Latin1_General_CI_AI = UPPER(@ubicacion) COLLATE Latin1_General_CI_AI;
+
+        IF @id_ubicacion = 0
+            SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
 	END
 
 	IF @superficie <= 0
@@ -47,8 +57,8 @@ BEGIN
 		RETURN;
 	END
 
-	INSERT INTO gestion.Parque (nombre, tipo, ubicacion, superficie, estado)
-	VALUES (@nombre, @tipo, @ubicacion, @superficie, 'Activo');
+	INSERT INTO gestion.Parque (nombre, tipo, superficie, estado, id_ubicacion)
+	VALUES (@nombre, @tipo, @superficie, 'Activo', @id_ubicacion);
 END
 GO
 
@@ -344,7 +354,7 @@ GO
 
 CREATE OR ALTER PROCEDURE gestion.sp_modificar_parque
 	@id INT,
-	@nombre VARCHAR(50),
+	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
 	@ubicacion VARCHAR(50),
 	@superficie INT
@@ -353,6 +363,7 @@ BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @errores VARCHAR(100);
+    DECLARE @id_ubicacion INT = NULL;
 	SET @errores = '';
 
 	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id)
@@ -360,6 +371,15 @@ BEGIN
 
     IF EXISTS (SELECT id FROM gestion.Parque WHERE nombre = @nombre AND id != @id)
         SET @errores += 'El nombre ingresado ya esta en uso por otro parque.' + CHAR(10);
+
+    IF @ubicacion IS NOT NULL AND LTRIM(RTRIM(@ubicacion)) != ''
+    BEGIN
+        SELECT @id_ubicacion = id FROM gestion.Ubicacion 
+        WHERE UPPER(provincia) COLLATE Latin1_General_CI_AI = UPPER(@ubicacion) COLLATE Latin1_General_CI_AI;
+
+        IF @id_ubicacion = 0
+            SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
+	END
 
     IF @superficie <= 0
         SET @errores += 'La superficie debe ser un valor positivo.' + CHAR(10);
@@ -370,7 +390,7 @@ BEGIN
         RETURN;
     END
  
-    UPDATE gestion.Parque SET nombre = @nombre, tipo = @tipo, ubicacion = @ubicacion, superficie = @superficie WHERE id = @id;
+    UPDATE gestion.Parque SET nombre = @nombre, tipo = @tipo, superficie = @superficie, id_ubicacion = @id_ubicacion WHERE id = @id;
 END
 GO
 
@@ -493,7 +513,7 @@ BEGIN
     ELSE
     BEGIN
         IF NOT EXISTS (SELECT g.id FROM gestion.Guia g
-            INNER JOIN gestion.Acreditacion a ON g.id_acreditacion = a.id
+            INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
             WHERE g.id = @id_guia
               AND a.estado = 'Activo'
               AND a.fecha_vencimiento >= GETDATE()
@@ -796,7 +816,7 @@ create or alter procedure concesiones.sp_validacion_concesion(
     @id_concesion int output
 ) as begin
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
-    declare @id_parque int = (select top 1 id from concesiones.Parque where nombre = @parque);
+    declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
 
     if @id_empresa is null begin
         set @errores += 'No se encontro la empresa.' + char(10);
@@ -831,7 +851,7 @@ create or alter procedure concesiones.sp_alta_concesion(
 ) as begin
 
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
-    declare @id_parque int = (select top 1 id from concesiones.Parque where nombre = @parque);
+    declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
     declare @errores varchar(4000) = '';
 
 	if @fecha_inicio is null begin
@@ -912,7 +932,7 @@ create or alter procedure concesiones.sp_modificacion_concesion(
     end
 
     if @parque_nuevo is not null begin
-        select @id_parque = id from concesiones.Parque where nombre = @parque_nuevo;
+        select @id_parque = id from gestion.Parque where nombre = @parque_nuevo;
         if @id_parque is null begin
             set @errores += 'No se encontro el parque nuevo.' + char(10)
         end
