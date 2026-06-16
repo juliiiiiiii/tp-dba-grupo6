@@ -555,3 +555,4 @@ create or alter procedure concesiones.sp_baja_canon (
     where id = @id;
 end
 go
+

@@ -170,8 +170,7 @@ BEGIN
 END
 GO
 
-IF object_id('concesiones.Empresa', 'U') IS NULL
-BEGIN
+if object_id('concesiones.Empresa', 'U') is null begin
     create table concesiones.Empresa (
 	    id int not null primary key identity(1, 1),
 	    nombre varchar(25) not null unique,
@@ -198,8 +197,26 @@ BEGIN
 	    CONSTRAINT fk_concesion_actividad FOREIGN KEY(id_actividad) REFERENCES gestion.Actividad(id),
         CONSTRAINT uq_concesion_empresa_parque_inicio UNIQUE (id_empresa, id_parque, fecha_inicio)
     );
-END
-GO
+end
+go
+
+if object_id('concesiones.Concesion', 'U') is null begin
+    create table concesiones.Concesion (
+	    id int not null primary key identity(1, 1),
+	    fecha_inicio date not null,
+	    fecha_fin datetime,
+	    canon_mensual numeric(10, 2),
+	    estado char(8) constraint check_estado_concesion check(estado = 'ACTIVO' or estado = 'INACTIVO'),
+	    id_empresa int not null,
+	    id_parque int not null,
+	    id_actividad int null,
+	    constraint fk_concesion_empresa foreign key (id_empresa) references concesiones.Empresa(id),
+	    constraint fk_concesion_parque foreign key (id_parque) references gestion.Parque(id),
+	    constraint fk_concesion_actividad foreign key (id_actividad) references gestion.Actividad(id),
+        constraint uq_concesion_empresa_parque_inicio unique (id_empresa, id_parque, fecha_inicio)
+    );
+end
+go
 
 if object_id('concesiones.Canon_pagar', 'U') is null
 begin
@@ -216,6 +233,7 @@ begin
     );
 end
 go
+
 --Creación de tabla para los tipos de visitantes, los cuales definen el precio de las entradas
 IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
 CREATE TABLE ventas.tipo_visitante
@@ -290,3 +308,4 @@ CREATE TABLE ventas.item_venta
 	CONSTRAINT fk_item_a_venta FOREIGN KEY (venta) REFERENCES ventas.venta(id)
 )
 GO
+

@@ -770,7 +770,7 @@ GO
 print '--- Test 14.1: sp_alta_canon_pagar (exito) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Canon 1', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Canon 1', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Canon Test 1', @tipo = 'tienda', @cuit = '30123456789';
     declare @e1 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 1' order by id desc);
@@ -799,7 +799,7 @@ if @@trancount > 0 rollback;
 print '--- Test 14.2: sp_modificacion_canon_pagar (exito) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Canon 2', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Canon 2', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Canon Test 2', @tipo = 'tienda', @cuit = '30123456789';
     declare @e2 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 2' order by id desc);
@@ -828,8 +828,8 @@ if @@trancount > 0 rollback;
 print '--- Test 14.3: sp_pagar_canon (exito) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Canon 3', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Canon 3', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Canon Test 3', @tipo = 'tienda', @cuit = '30123456789';
     declare @e3 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 3' order by id desc);
@@ -858,8 +858,8 @@ if @@trancount > 0 rollback;
 print '--- Test 14.4: sp_baja_canon (exito, baja logica) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Canon 4', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Canon 4', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Canon Test 4', @tipo = 'tienda', @cuit = '30123456789';
     declare @e4 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 4' order by id desc);
@@ -886,8 +886,8 @@ if @@trancount > 0 rollback;
 print '--- Test 14.5: sp_alta_canon_pagar con empresa inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Canon 5', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Canon 5', 'Test', 100.00);
 
     exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Empresa inexistente', @parque = 'Parque Test Canon 5', @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 14.5: se esperaba error por empresa inexistente y no ocurrio.';
@@ -922,8 +922,8 @@ if @@trancount > 0 rollback;
 print '--- Test 14.7: sp_alta_canon_pagar con concesion inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Canon 7', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Canon 7', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Canon Test 7', @tipo = 'tienda', @cuit = '30123456789';
 
@@ -946,8 +946,8 @@ if @@trancount > 0 rollback;
 print '--- Test 15.1: sp_alta_concesion (exito) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 1', 'NACIONAL', 'Test', 100.00);
-    declare @idParque1 int = (select top 1 id from concesiones.Parque where nombre = 'Parque Test Concesion 1');
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 1', 'Test', 100.00);
+    declare @idParque1 int = (select top 1 id from gestion.Parque where nombre = 'Parque Test Concesion 1');
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 1', @tipo = 'restaurante', @cuit = '30123456789';
     declare @idEmp1 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 1');
@@ -978,7 +978,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.2: sp_modificacion_concesion (exito) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 2', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 2', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 2', @tipo = 'tienda', @cuit = '30123456789';
     declare @idEmp2 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 2' order by id desc);
@@ -1010,8 +1010,8 @@ if @@trancount > 0 rollback;
 print '--- Test 15.3: sp_baja_concesion (exito, baja logica) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Concesion 3', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Concesion 3', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 3', @tipo = 'tienda', @cuit = '30123456789';
     declare @idEmp3 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 3' order by id desc);
@@ -1037,7 +1037,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.4: sp_alta_concesion con canon negativo (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 4', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 4', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 4', @tipo = 'tienda', @cuit = '30123456789';
     declare @idEmp4 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 4' order by id desc);
@@ -1060,7 +1060,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.5: sp_alta_concesion con empresa inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 5', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 5', 'Test', 100.00);
 
     exec concesiones.sp_alta_concesion @empresa = 'Empresa inexistente', @parque = 'Parque Test Concesion 5', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 15.5: se esperaba error por empresa inexistente y no ocurrio.';
@@ -1094,8 +1094,8 @@ if @@trancount > 0 rollback;
 print '--- Test 15.7: sp_baja_concesion con concesion inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
-    values ('Parque Test Concesion 7', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie)
+    values ('Parque Test Concesion 7', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 7', @tipo = 'tienda', @cuit = '30123456789';
 
@@ -1114,7 +1114,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.8: sp_modificacion_concesion con estado invalido (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 8', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 8', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 8', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
@@ -1134,7 +1134,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.9: sp_modificacion_concesion con empresa nueva inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 9', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 9', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 9', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
@@ -1154,7 +1154,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.10: sp_modificacion_concesion con parque nuevo inexistente (validacion) ---';
 begin tran;
 begin try
-    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 10', 'NACIONAL', 'Test', 100.00);
+    insert into gestion.Parque (nombre, tipo, superficie) values ('Parque Test Concesion 10', 'Test', 100.00);
 
     exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 10', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
