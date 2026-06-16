@@ -757,3 +757,582 @@ EXEC gestion.sp_asignar_guia
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
 GO
+
+-- ============================================================
+-- SECCION 14: Canon a pagar
+-- ============================================================
+
+
+-------------------------------------------------------------------------------
+-- Test 14.1: Alta exito
+-- Esperado: se crea un canon con estado 'PENDIENTE' y fecha_pagado NULL.
+-------------------------------------------------------------------------------
+print '--- Test 14.1: sp_alta_canon_pagar (exito) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Canon 1', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 1', @tipo = 'tienda', @cuit = '30123456789';
+    declare @e1 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 1' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Canon Test 1', @parque = 'Parque Test Canon 1', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @c1 int = (select top 1 id from concesiones.Concesion where id_empresa = @e1 order by id desc);
+
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 1', @parque = 'Parque Test Canon 1', @fecha_inicio = '2026-01-01';
+
+    select * from concesiones.Canon_pagar where id_concesion = @c1;
+
+    if exists (select 1 from concesiones.Canon_pagar
+               where id_concesion = @c1 and estado = 'PENDIENTE' and fecha_pagado is null and monto = 1000.00)
+        print 'OK - Test 14.1: canon generado en estado PENDIENTE.';
+    else
+        print 'FALLO - Test 14.1: no se genero el canon esperado.';
+end try
+begin catch
+    print 'FALLO - Test 14.1: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.2: Modificacion exito
+-- Esperado: monto = 1500.00 y periodo = 'Enero 2026 (ajustado)'.
+-------------------------------------------------------------------------------
+print '--- Test 14.2: sp_modificacion_canon_pagar (exito) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Canon 2', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 2', @tipo = 'tienda', @cuit = '30123456789';
+    declare @e2 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 2' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @c2 int = (select top 1 id from concesiones.Concesion where id_empresa = @e2 order by id desc);
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_modificacion_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026 (ajustado)', @monto = 1500.00, @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
+
+    select * from concesiones.Canon_pagar where id_concesion = @c2;
+
+    if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c2 and monto = 1500.00 and periodo = 'Enero 2026 (ajustado)')
+        print 'OK - Test 14.2: canon modificado correctamente.';
+    else
+        print 'FALLO - Test 14.2: la modificacion no quedo como se esperaba.';
+end try
+begin catch
+    print 'FALLO - Test 14.2: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.3: Pagar exito
+-- Esperado: estado pasa a 'PAGADO' y fecha_pagado = '2026-02-05'.
+-------------------------------------------------------------------------------
+print '--- Test 14.3: sp_pagar_canon (exito) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Canon 3', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 3', @tipo = 'tienda', @cuit = '30123456789';
+    declare @e3 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 3' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @c3 int = (select top 1 id from concesiones.Concesion where id_empresa = @e3 order by id desc);
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_pagar_canon @fecha_pago = '2026-02-05', @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
+
+    select * from concesiones.Canon_pagar where id_concesion = @c3;
+
+    if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c3 and estado = 'PAGADO' and fecha_pagado = '2026-02-05')
+        print 'OK - Test 14.3: canon marcado como PAGADO.';
+    else
+        print 'FALLO - Test 14.3: el pago no se registro como se esperaba.';
+end try
+begin catch
+    print 'FALLO - Test 14.3: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.4: Baja exito
+-- Esperado: el canon queda con estado 'INVALIDO'.
+-------------------------------------------------------------------------------
+print '--- Test 14.4: sp_baja_canon (exito, baja logica) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Canon 4', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 4', @tipo = 'tienda', @cuit = '30123456789';
+    declare @e4 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 4' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @c4 int = (select top 1 id from concesiones.Concesion where id_empresa = @e4 order by id desc);
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_baja_canon @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
+
+    if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c4 and estado = 'INVALIDO')
+        print 'OK - Test 4: el canon quedo INVALIDO (baja logica).';
+    else
+        print 'FALLO - Test 14.4: la baja logica no se aplico.';
+end try
+begin catch
+    print 'FALLO - Test 14.4: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.5: Empresa inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
+-------------------------------------------------------------------------------
+print '--- Test 14.5: sp_alta_canon_pagar con empresa inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Canon 5', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Empresa inexistente', @parque = 'Parque Test Canon 5', @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 14.5: se esperaba error por empresa inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 14.5: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.6: Parque inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra el parque.
+-------------------------------------------------------------------------------
+print '--- Test 14.6: sp_alta_canon_pagar con parque inexistente (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 6', @tipo = 'tienda', @cuit = '30123456789';
+
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 6', @parque = 'Parque inexistente', @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 14.6: se esperaba error por parque inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 14.6: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 14.7: Concesion inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la concesion para
+--           la empresa, parque y fecha de inicio indicados.
+-------------------------------------------------------------------------------
+print '--- Test 14.7: sp_alta_canon_pagar con concesion inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Canon 7', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Canon Test 7', @tipo = 'tienda', @cuit = '30123456789';
+
+    exec concesiones.sp_alta_canon_pagar @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026', @empresa = 'Canon Test 7', @parque = 'Parque Test Canon 7', @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 14.7: se esperaba error por concesion inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 14.7: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-- ============================================================
+-- SECCION 15: Concesion
+-- ============================================================
+
+-------------------------------------------------------------------------------
+-- Test 15.1: Alta exito
+-- Esperado: se crea una Concesion con estado 'ACTIVO' para la empresa creada.
+-------------------------------------------------------------------------------
+print '--- Test 15.1: sp_alta_concesion (exito) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 1', 'NACIONAL', 'Test', 100.00);
+    declare @idParque1 int = (select top 1 id from concesiones.Parque where nombre = 'Parque Test Concesion 1');
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 1', @tipo = 'restaurante', @cuit = '30123456789';
+    declare @idEmp1 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 1');
+
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 1', @parque = 'Parque Test Concesion 1', @canon_mensual = 1500.00, @fecha_inicio = '2026-01-01';
+
+    select * from concesiones.Concesion where id_empresa = @idEmp1;
+
+    if exists (select 1 from concesiones.Concesion
+               where id_empresa = @idEmp1
+                 and id_parque = @idParque1
+                 and fecha_inicio = '2026-01-01'
+                 and rtrim(estado) = 'ACTIVO'
+                 and canon_mensual = 1500.00)
+        print 'OK - Test 15.1: concesion creada con estado ACTIVO.';
+    else
+        print 'FALLO - Test 15.1: no se creo la concesion esperada.';
+end try
+begin catch
+    print 'FALLO - Test 15.1: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.2: Modificacion exito
+-- Esperado: cambia canon, estado y fecha_fin buscando por empresa/parque/fecha.
+-------------------------------------------------------------------------------
+print '--- Test 15.2: sp_modificacion_concesion (exito) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 2', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 2', @tipo = 'tienda', @cuit = '30123456789';
+    declare @idEmp2 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 2' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 2', @parque = 'Parque Test Concesion 2', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @idCon2 int = (select top 1 id from concesiones.Concesion where id_empresa = @idEmp2 order by id desc);
+
+    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 2', @parque = 'Parque Test Concesion 2', @fecha_inicio = '2026-01-01', @fecha_fin = '2026-12-31', @estado = 'INACTIVO', @canon = 999.99;
+
+    select * from concesiones.Concesion where id = @idCon2;
+
+    if exists (select 1 from concesiones.Concesion
+               where id = @idCon2
+                 and canon_mensual = 999.99
+                 and rtrim(estado) = 'INACTIVO'
+                 and fecha_fin = '2026-12-31')
+        print 'OK - Test 15.2: concesion modificada correctamente.';
+    else
+        print 'FALLO - Test 15.2: la modificacion no quedo como se esperaba.';
+end try
+begin catch
+    print 'FALLO - Test 15.2: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.3: Baja exito
+-- Esperado: la concesion queda con estado 'INACTIVO'.
+-------------------------------------------------------------------------------
+print '--- Test 15.3: sp_baja_concesion (exito, baja logica) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Concesion 3', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 3', @tipo = 'tienda', @cuit = '30123456789';
+    declare @idEmp3 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 3' order by id desc);
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 3', @parque = 'Parque Test Concesion 3', @canon_mensual = 1200.00, @fecha_inicio = '2026-01-01';
+    declare @idCon3 int = (select top 1 id from concesiones.Concesion where id_empresa = @idEmp3 order by id desc);
+
+    exec concesiones.sp_baja_concesion @empresa = 'Concesionaria Test 3', @parque = 'Parque Test Concesion 3', @fecha_inicio = '2026-01-01';
+
+    if exists (select 1 from concesiones.Concesion where id = @idCon3 and estado = 'INACTIVO')
+        print 'OK - Test 15.3: la concesion quedo INACTIVO (baja logica).';
+    else
+        print 'FALLO - Test 15.3: la baja logica no se aplico.';
+end try
+begin catch
+    print 'FALLO - Test 15.3: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.4: Alta con canon mensual negativo
+-- Esperado: el SP rechaza la operacion y no inserta ninguna concesion.
+-------------------------------------------------------------------------------
+print '--- Test 15.4: sp_alta_concesion con canon negativo (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 4', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 4', @tipo = 'tienda', @cuit = '30123456789';
+    declare @idEmp4 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 4' order by id desc);
+
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 4', @parque = 'Parque Test Concesion 4', @canon_mensual = -50.00, @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 15.4: se esperaba error por canon negativo y no ocurrio.';
+end try
+begin catch
+    if not exists (select 1 from concesiones.Concesion where id_empresa = @idEmp4)
+        print 'OK - Test 15.4: rechazado como se esperaba. Detalle: ' + error_message();
+    else
+        print 'FALLO - Test 15.4: se inserto una concesion pese al canon negativo.';
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.5: Alta con empresa inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
+-------------------------------------------------------------------------------
+print '--- Test 15.5: sp_alta_concesion con empresa inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 5', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_concesion @empresa = 'Empresa inexistente', @parque = 'Parque Test Concesion 5', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 15.5: se esperaba error por empresa inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.5: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.6: Alta con parque inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra el parque.
+-------------------------------------------------------------------------------
+print '--- Test 15.6: sp_alta_concesion con parque inexistente (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 6', @tipo = 'tienda', @cuit = '30123456789';
+
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 6', @parque = 'Parque inexistente', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 15.6: se esperaba error por parque inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.6: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.7: Baja con concesion inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la concesion.
+-------------------------------------------------------------------------------
+print '--- Test 15.7: sp_baja_concesion con concesion inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie)
+    values ('Parque Test Concesion 7', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 7', @tipo = 'tienda', @cuit = '30123456789';
+
+    exec concesiones.sp_baja_concesion @empresa = 'Concesionaria Test 7', @parque = 'Parque Test Concesion 7', @fecha_inicio = '2026-01-01';
+    print 'FALLO - Test 15.7: se esperaba error por concesion inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.7: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.8: Modificacion con estado invalido
+-- Esperado: el constraint check_estado_concesion rechaza el update.
+-------------------------------------------------------------------------------
+print '--- Test 15.8: sp_modificacion_concesion con estado invalido (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 8', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 8', @tipo = 'tienda', @cuit = '30123456789';
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @fecha_inicio = '2026-01-01', @estado = 'RARO';
+    print 'FALLO - Test 15.8: se esperaba error de CHECK por estado invalido y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.8: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.9: Modificacion con empresa nueva inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa nueva.
+-------------------------------------------------------------------------------
+print '--- Test 15.9: sp_modificacion_concesion con empresa nueva inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 9', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 9', @tipo = 'tienda', @cuit = '30123456789';
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @fecha_inicio = '2026-01-01', @empresa_nueva = 'Empresa nueva inexistente';
+    print 'FALLO - Test 15.9: se esperaba error por empresa nueva inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.9: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 15.10: Modificacion con parque nuevo inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra el parque nuevo.
+-------------------------------------------------------------------------------
+print '--- Test 15.10: sp_modificacion_concesion con parque nuevo inexistente (validacion) ---';
+begin tran;
+begin try
+    insert into concesiones.Parque (nombre, tipo, ubicacion, superficie) values ('Parque Test Concesion 10', 'NACIONAL', 'Test', 100.00);
+
+    exec concesiones.sp_alta_empresa @nombre = 'Concesionaria Test 10', @tipo = 'tienda', @cuit = '30123456789';
+    exec concesiones.sp_alta_concesion @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
+
+    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @fecha_inicio = '2026-01-01', @parque_nuevo = 'Parque nuevo inexistente';
+    print 'FALLO - Test 15.10: se esperaba error por parque nuevo inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 15.10: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+
+-- ============================================================
+-- SECCION 16: Empresa
+-- ============================================================
+
+
+-------------------------------------------------------------------------------
+-- Test 16.1: Alta exito
+-- Esperado: se inserta una empresa con los datos dados. EXISTS = verdadero.
+-------------------------------------------------------------------------------
+print '--- Test 16.1: sp_alta_empresa (exito) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Resto del Lago SA', @tipo = 'restaurante', @cuit = '30123456789';
+
+    -- evidencia
+    select * from concesiones.Empresa where nombre = 'Resto del Lago SA';
+
+    if exists (select 1 from concesiones.Empresa where nombre = 'Resto del Lago SA' and cuit = '30123456789')
+        print 'OK - Test 16.1: empresa dada de alta correctamente.';
+    else
+        print 'FALLO - Test 16.1: no se encontro la empresa esperada.';
+end try
+begin catch
+    print 'FALLO - Test 16.1: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 16.2: Modificacion exito
+-- Esperado: nombre cambia a 'Resto del Lago SRL'; tipo y cuit quedan igual.
+-------------------------------------------------------------------------------
+print '--- Test 16.2: sp_modificacion_empresa (exito, modificacion parcial) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa 1', @tipo = 'restaurante', @cuit = '30123456789';
+    declare @idEmp int = (select top 1 id from concesiones.Empresa where nombre = 'Empresa 1' order by id desc);
+
+    exec concesiones.sp_modificacion_empresa @nombre = 'Empresa 1', @nuevo_nombre = 'Empresa 2';
+
+    select * from concesiones.Empresa where id = @idEmp;
+
+    if exists (select 1 from concesiones.Empresa
+               where id = @idEmp and nombre = 'Empresa 2'
+                 and tipo = 'restaurante' and cuit = '30123456789')
+        print 'OK - Test 16.2: modificacion parcial respeto los campos no enviados.';
+    else
+        print 'FALLO - Test 16.2: la modificacion no quedo como se esperaba.';
+end try
+begin catch
+    print 'FALLO - Test 16.2: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 16.3: Baja exito (delete fisico)
+-- Esperado: la empresa deja de existir tras sp_baja_empresa.
+-------------------------------------------------------------------------------
+print '--- Test 16.3: sp_baja_empresa (exito) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa a Borrar', @tipo = 'tienda', @cuit = '30999999998';
+    declare @idBaja int = (select top 1 id from concesiones.Empresa where nombre = 'Empresa a Borrar' order by id desc);
+
+    exec concesiones.sp_baja_empresa @nombre = 'Empresa a Borrar';
+
+    if not exists (select 1 from concesiones.Empresa where id = @idBaja)
+        print 'OK - Test 16.3: la empresa fue eliminada.';
+    else
+        print 'FALLO - Test 16.3: la empresa todavia existe.';
+end try
+begin catch
+    print 'FALLO - Test 16.3: error inesperado: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 16.4: CUIT con formato invalido
+-- Esperado: el SP o el constraint check_cuit_formato rechaza el insert.
+-------------------------------------------------------------------------------
+print '--- Test 16.4: sp_alta_empresa con CUIT invalido (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'CUIT Malo', @tipo = 'tienda', @cuit = '123';
+    print 'FALLO - Test 16.4: se esperaba un error de CHECK por CUIT invalido y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.4: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 16.5: nombre NULL
+-- Esperado: el insert falla por la restriccion NOT NULL de nombre.
+-------------------------------------------------------------------------------
+print '--- Test 16.5: sp_alta_empresa con nombre NULL (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = null, @tipo = 'tienda', @cuit = '30123456789';
+    print 'FALLO - Test 16.5: se esperaba error por nombre NULL y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.5: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 6: nombre duplicado
+-- Esperado: el alta falla por la restriccion UNIQUE de nombre.
+-------------------------------------------------------------------------------
+print '--- Test 16.6: sp_alta_empresa con nombre duplicado (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa Duplicada', @tipo = 'tienda', @cuit = '30123456789';
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa Duplicada', @tipo = 'tienda', @cuit = '30123456780';
+    print 'FALLO - Test 16.6: se esperaba error por nombre duplicado y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.6: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 16.7: Baja con empresa inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
+-------------------------------------------------------------------------------
+print '--- Test 16.7: sp_baja_empresa con empresa inexistente (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_baja_empresa @nombre = 'Empresa inexistente';
+    print 'FALLO - Test 16.7: se esperaba error por empresa inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.7: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 8: Modificacion con empresa inexistente
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
+-------------------------------------------------------------------------------
+print '--- Test 16.8: sp_modificacion_empresa con empresa inexistente (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_modificacion_empresa @nombre = 'Empresa inexistente', @nuevo_nombre = 'Empresa Nueva';
+    print 'FALLO - Test 16.8: se esperaba error por empresa inexistente y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.8: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
+
+-------------------------------------------------------------------------------
+-- Test 9: Modificacion con nombre nuevo duplicado
+-- Esperado: el SP rechaza la operacion porque el nombre nuevo ya existe.
+-------------------------------------------------------------------------------
+print '--- Test 16.9: sp_modificacion_empresa con nombre duplicado (validacion) ---';
+begin tran;
+begin try
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa Original', @tipo = 'tienda', @cuit = '30123456789';
+    exec concesiones.sp_alta_empresa @nombre = 'Empresa Existente', @tipo = 'tienda', @cuit = '30123456780';
+
+    exec concesiones.sp_modificacion_empresa @nombre = 'Empresa Original', @nuevo_nombre = 'Empresa Existente';
+    print 'FALLO - Test 16.9: se esperaba error por nombre duplicado y no ocurrio.';
+end try
+begin catch
+    print 'OK - Test 16.9: rechazado como se esperaba. Detalle: ' + error_message();
+end catch
+if @@trancount > 0 rollback;
