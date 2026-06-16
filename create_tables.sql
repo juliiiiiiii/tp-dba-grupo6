@@ -200,24 +200,6 @@ BEGIN
 end
 go
 
-if object_id('concesiones.Concesion', 'U') is null begin
-    create table concesiones.Concesion (
-	    id int not null primary key identity(1, 1),
-	    fecha_inicio date not null,
-	    fecha_fin datetime,
-	    canon_mensual numeric(10, 2),
-	    estado char(8) constraint check_estado_concesion check(estado = 'ACTIVO' or estado = 'INACTIVO'),
-	    id_empresa int not null,
-	    id_parque int not null,
-	    id_actividad int null,
-	    constraint fk_concesion_empresa foreign key (id_empresa) references concesiones.Empresa(id),
-	    constraint fk_concesion_parque foreign key (id_parque) references gestion.Parque(id),
-	    constraint fk_concesion_actividad foreign key (id_actividad) references gestion.Actividad(id),
-        constraint uq_concesion_empresa_parque_inicio unique (id_empresa, id_parque, fecha_inicio)
-    );
-end
-go
-
 if object_id('concesiones.Canon_pagar', 'U') is null
 begin
     create table concesiones.Canon_pagar (
@@ -308,4 +290,3 @@ CREATE TABLE ventas.item_venta
 	CONSTRAINT fk_item_a_venta FOREIGN KEY (venta) REFERENCES ventas.venta(id)
 )
 GO
-
