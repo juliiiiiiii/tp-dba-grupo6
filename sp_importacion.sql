@@ -154,4 +154,206 @@ BEGIN
         nombre VARCHAR(50) '$.nombre'
     )
 END
-Go
+GO
+
+-----------------------------------------------------------
+-- Importar parques de un csv
+
+CREATE OR ALTER PROCEDURE gestion.sp_importar_parques
+    @archivo_dir VARCHAR(260)
+AS
+BEGIN
+    SET NOCOUNT ON;
+ 
+    DECLARE @error VARCHAR(500) = '';
+    DECLARE @sql VARCHAR(MAX);
+    DECLARE @consulta VARCHAR(320);
+    DECLARE @archivo_existe VARCHAR(5);
+    DECLARE @tabla_archivo TABLE (linea VARCHAR(5));
+ 
+    EXEC sp_configure 'show advanced options', 1;
+    RECONFIGURE;
+
+    EXEC sp_configure 'xp_cmdshell', 1;
+    RECONFIGURE;
+ 
+    SET @consulta = 'IF EXIST "' + @archivo_dir + '" (ECHO True) ELSE (ECHO False)';
+    INSERT INTO @tabla_archivo EXEC xp_cmdshell @consulta;
+    SET @archivo_existe = (SELECT TOP 1 linea FROM @tabla_archivo WHERE linea IS NOT NULL);
+ 
+    IF @archivo_existe = 'False'
+        THROW 50001, 'El archivo no existe o no se encuentra en la ruta indicada.', 1;
+ 
+    CREATE TABLE #temp_csv (
+        provincia VARCHAR(50),
+        nombre VARCHAR(100),
+        anio VARCHAR(5),
+        region VARCHAR(60),
+        superficie VARCHAR(20),
+        latitud VARCHAR(10),
+        longitud VARCHAR(10),
+        ley VARCHAR(100),
+        ecorregiones VARCHAR(100),
+        categoria_intern VARCHAR(100),
+        especies VARCHAR(20),
+        animales VARCHAR(20),
+        bacterias VARCHAR(20),
+        hongos VARCHAR(20),
+        plantas VARCHAR(20)
+    );
+ 
+    BEGIN TRY
+        SET @sql =
+            'BULK INSERT #temp_csv
+             FROM ''' + @archivo_dir + '''
+             WITH (
+                FIRSTROW        = 3,
+                FIELDTERMINATOR = '','',
+                FIELDQUOTE      = ''"'',
+                ROWTERMINATOR   = ''0x0d0a'',
+                CODEPAGE        = ''1252''
+             );';
+        EXEC (@sql);
+    END TRY
+    BEGIN CATCH
+        SET @error = 'Error en BULK INSERT: ' + ERROR_MESSAGE();
+        RAISERROR(@error, 16, 1);
+        RETURN;
+    END CATCH
+ 
+    CREATE TABLE #errores (
+        nombre VARCHAR(200),
+        provincia VARCHAR(100),
+        motivo VARCHAR(300)
+    );
+ 
+    INSERT INTO #errores (nombre, provincia, motivo)
+    SELECT nombre, provincia, 'Nombre nulo o vacío'
+    FROM #temp_csv
+    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) = '';
+ 
+    INSERT INTO #errores (nombre, provincia, motivo)
+    SELECT nombre, provincia, 'Superficie nula, vacía o no positiva'
+    FROM #temp_csv
+    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) != ''
+      AND (
+            TRY_CAST(superficie AS FLOAT) IS NULL
+         OR TRY_CAST(superficie AS FLOAT) <= 0
+          );
+ 
+    INSERT INTO #errores (nombre, provincia, motivo)
+    SELECT nombre, provincia, 'Tipo de área protegida no reconocido según el nombre'
+    FROM #temp_csv
+    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) != ''
+      AND nombre NOT LIKE 'Parque Nacional%'
+      AND nombre NOT LIKE 'Parque Interjurisdiccional Marino Costero%'
+      AND nombre NOT LIKE 'Parque Interjurisdiccional Marino%'
+      AND nombre NOT LIKE 'Área Marina Protegida%'
+      AND nombre NOT LIKE 'Area Marina Protegida%'
+      AND nombre NOT LIKE 'Reserva Natural Silvestre%'
+      AND nombre NOT LIKE 'Reserva Natural Educativa%'
+      AND nombre NOT LIKE 'Reserva Natural Estricta%'
+      AND nombre NOT LIKE 'Reserva Natural%'
+      AND nombre NOT LIKE 'Reserva Nacional%'
+      AND nombre NOT LIKE 'Monumento Natural%';
+ 
+    CREATE TABLE #temp_parques (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        nombre NVARCHAR(200),
+        ubicacion NVARCHAR(100),
+        superficie INT,
+        tipo VARCHAR(50)
+    );
+
+    INSERT INTO #temp_parques (nombre, ubicacion, superficie, tipo)
+    SELECT
+        LTRIM(RTRIM(nombre)),
+        ISNULL(NULLIF(LTRIM(RTRIM(provincia)), ''), 'Sin provincia asignada'),
+        TRY_CAST(TRY_CAST(superficie AS FLOAT) AS INT),
+        CASE
+            WHEN nombre LIKE 'Parque Nacional%'                            THEN 'Parque nacional'
+            WHEN nombre LIKE 'Parque Interjurisdiccional Marino Costero%'  THEN 'Parque interjurisdiccional marino costero'
+            WHEN nombre LIKE 'Parque Interjurisdiccional Marino%'          THEN 'Parque interjurisdiccional marino'
+            WHEN nombre LIKE 'Área Marina Protegida%'
+              OR nombre LIKE 'Area Marina Protegida%'                      THEN 'Area marina protegida'
+            WHEN nombre LIKE 'Reserva Natural Silvestre%'                  THEN 'Reserva natural silvestre'
+            WHEN nombre LIKE 'Reserva Natural Educativa%'                  THEN 'Reserva natural educativa'
+            WHEN nombre LIKE 'Reserva Natural Estricta%'                   THEN 'Reserva natural estricta'
+            WHEN nombre LIKE 'Reserva Natural%'                            THEN 'Reserva natural'
+            WHEN nombre LIKE 'Reserva Nacional%'                           THEN 'Reserva nacional'
+            WHEN nombre LIKE 'Monumento Natural%'                          THEN 'Monumento natural'
+        END
+    FROM #temp_csv
+    WHERE nombre NOT IN (SELECT ISNULL(nombre, '') FROM #errores)
+      AND TRY_CAST(TRY_CAST(superficie AS FLOAT) AS INT) > 0;
+
+    DECLARE @id_max INT = (SELECT MAX(id) FROM #temp_parques);
+    DECLARE @id_act INT = 1;
+    DECLARE @c_nombre NVARCHAR(200);
+    DECLARE @c_ubicacion NVARCHAR(100);
+    DECLARE @c_superficie INT;
+    DECLARE @c_tipo VARCHAR(50);
+    DECLARE @id_existente INT;
+
+    WHILE @id_act <= @id_max
+    BEGIN
+        SELECT @c_nombre = nombre, @c_ubicacion = ubicacion, @c_superficie = superficie, @c_tipo = tipo
+        FROM #temp_parques WHERE id = @id_act;
+
+        SELECT @id_existente = id FROM gestion.Parque WHERE nombre = @c_nombre;
+
+        IF @id_existente IS NULL
+        BEGIN
+            BEGIN TRY
+                EXEC gestion.sp_registrar_parque
+                    @nombre     = @c_nombre,
+                    @tipo       = @c_tipo,
+                    @ubicacion  = @c_ubicacion,
+                    @superficie = @c_superficie;
+            END TRY
+            BEGIN CATCH
+                INSERT INTO #errores (nombre, provincia, motivo)
+                VALUES (@c_nombre, @c_ubicacion, 'Error al registrar: ' + ERROR_MESSAGE());
+            END CATCH
+        END
+        ELSE
+        BEGIN
+            BEGIN TRY
+                EXEC gestion.sp_modificar_parque
+                    @id         = @id_existente,
+                    @nombre     = @c_nombre,
+                    @tipo       = @c_tipo,
+                    @ubicacion  = @c_ubicacion,
+                    @superficie = @c_superficie;
+            END TRY
+            BEGIN CATCH
+                INSERT INTO #errores (nombre, provincia, motivo)
+                VALUES (@c_nombre, @c_ubicacion, 'Error al modificar: ' + ERROR_MESSAGE());
+            END CATCH
+        END
+        SET @id_act += 1;
+    END
+ 
+    IF EXISTS (SELECT 1 FROM #errores)
+    BEGIN
+        PRINT 'Se encontraron errores de validación:';
+        SELECT nombre, provincia, motivo FROM #errores ORDER BY motivo, nombre;
+    END
+    ELSE
+        PRINT 'Importación completada sin errores de validación.';
+ 
+    SELECT COUNT(*) AS filas_en_csv FROM #temp_csv;
+    SELECT COUNT(*) AS filas_con_errores FROM #errores;
+    SELECT COUNT(*) AS filas_validas FROM #temp_csv
+ 
+    EXEC sp_configure 'xp_cmdshell', 0;
+    RECONFIGURE;
+
+    EXEC sp_configure 'show advanced options', 0;
+    RECONFIGURE;
+
+    DROP TABLE #temp_csv;
+    DROP TABLE #errores;
+    DROP TABLE #temp_parques;
+END;
+GO

@@ -32,7 +32,7 @@ BEGIN
 		nombre VARCHAR(50) NOT NULL UNIQUE,
 		tipo VARCHAR(50) NOT NULL,
 		ubicacion VARCHAR(50) NOT NULL,
-		superficie INT NOT NULL CHECK(superficie > 0),
+		superficie INT CHECK(superficie > 0),
 		estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo'))
 	);
 END
@@ -69,7 +69,7 @@ IF OBJECT_ID('[gestion].[Tipo_actividad]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Tipo_actividad (
 		id INT IDENTITY(1,1) PRIMARY KEY,
-		descripcion CHAR(25) NOT NULL
+		descripcion CHAR(25) NOT NULL UNIQUE
 	);
 END
 GO

@@ -139,6 +139,19 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+    DECLARE @errores VARCHAR(50);
+    SET @errores = '';
+
+    IF EXISTS (SELECT descripcion FROM gestion.Tipo_actividad WHERE descripcion = @descripcion)
+        SET @errores += 'El tipo de actividad ya existe.' + CHAR(10);
+
+    IF @errores != ''
+    BEGIN
+        RAISERROR(@errores, 16, 1);
+        RETURN;
+    END
+
+
 	INSERT INTO gestion.Tipo_actividad (descripcion) VALUES (@descripcion);
 END
 GO
