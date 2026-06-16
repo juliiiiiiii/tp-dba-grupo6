@@ -1116,3 +1116,422 @@ create or alter procedure concesiones.sp_baja_canon (
     where id = @id;
 end
 go
+/*
+====================================================
+		ABMS DE TABLA TIPO_VISITANTE
+====================================================
+*/
+--ALTA VISITANTE--
+CREATE OR ALTER PROCEDURE ventas.sp_alta_tipo_visitante (@descripcion VARCHAR(20))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+	IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion)
+		SET @errores = @errores + 'El tipo de visitante ya existe. '
+	
+	IF LEN(@errores) > 0
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		INSERT INTO ventas.tipo_visitante
+		VALUES (@descripcion)
+END
+GO
+
+--BAJA VISITANTE--
+
+
+CREATE OR ALTER PROCEDURE ventas.sp_baja_tipo_visitante (@descripcion VARCHAR(20))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+	IF EXISTS (SELECT 1 FROM ventas.entrada WHERE tipo = @descripcion)
+		SET @errores = @errores + 'No se puede eliminar ya que existen entradas para este tipo de visitante. '
+	IF LEN(@errores) > 0
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		DELETE FROM ventas.tipo_visitante
+		WHERE descripcion = @descripcion
+END
+GO
+
+--MODIFICACIÓN VISITANTE--
+
+
+CREATE OR ALTER PROCEDURE
+ventas.sp_modificacion_tipo_visitante (@descripcion VARCHAR(20), @nueva_descripcion VARCHAR(20))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+	IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @nueva_descripcion)
+		SET @errores = @errores + 'No se puede actualizar ya que el nuevo tipo de visitante ya existe.'
+	IF LEN(@errores) > 0
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		UPDATE ventas.tipo_visitante
+		SET descripcion = @nueva_descripcion
+		WHERE descripcion = @descripcion
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA PUNTO_DE_VENTA
+====================================================
+*/
+--ALTA--
+CREATE OR ALTER PROCEDURE ventas.sp_alta_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+
+	DECLARE @id_parque INT;
+	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
+	IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE parque = @id_parque AND descripcion = @pov)
+		SET @errores = @errores + 'El punto de venta para ese parque ya existe. '
+	
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		INSERT INTO ventas.punto_de_venta VALUES (@id_parque, @pov)
+
+END
+GO
+--BAJA--
+
+CREATE OR ALTER PROCEDURE ventas.sp_baja_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30))
+AS
+BEGIN
+	DECLARE @parque_id VARCHAR(50)
+	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque)
+
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+
+	IF EXISTS (SELECT 1 FROM ventas.venta WHERE punto_de_venta = @pov AND parque = @parque_id)
+		SET @errores = @errores + 'No se puede eliminar el punto de venta ya que existen ventas asociadas. '
+
+
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		DELETE FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @parque_id
+END
+GO
+
+--MODIFICACION--
+
+CREATE OR ALTER PROCEDURE ventas.sp_modificacion_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30), @nueva_descripcion VARCHAR(30))
+AS
+BEGIN
+	DECLARE @parque_id VARCHAR(50)
+	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque)
+
+	
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+	IF EXISTS (SELECT 1 FROM punto_de_venta WHERE descripcion = @nueva_descripcion AND parque = @parque_id)
+		SET @errores = @errores + 'El cambio de nombre no se puede realizar ya que ya existe un punto de venta con ese nombre. '
+	
+	
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		UPDATE ventas.punto_de_venta
+		SET descripcion = @nueva_descripcion
+		WHERE descripcion = @pov AND parque = @parque_id
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA METODO DE PAGO
+====================================================
+*/
+--ALTA--
+CREATE OR ALTER PROCEDURE ventas.sp_alta_metodo_de_pago(@descripcion VARCHAR(25))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+
+
+	IF EXISTS (SELECT 1 FROM metodo_de_pago WHERE descripcion = @descripcion)
+		SET @errores = @errores + 'El metodo de pago ya existe. '
+
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		INSERT INTO ventas.metodo_de_pago
+		VALUES (@descripcion)
+END
+GO
+
+--BAJA--
+CREATE OR ALTER PROCEDURE ventas.sp_baja_metodo_de_pago(@descripcion VARCHAR(25))
+AS
+BEGIN
+	DECLARE @errores VARCHAR(200), @id_metodo INT
+	SET @errores = ''
+	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @descripcion)
+
+	IF EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @id_metodo)
+		SET @errores = @errores + 'El punto de venta para ese parque ya existe. '
+
+
+		IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		DELETE FROM ventas.metodo_de_pago
+		WHERE descripcion = @descripcion
+END
+GO
+
+--MODIFICACION--
+CREATE OR ALTER PROCEDURE ventas.sp_modificacion_metodo_de_pago(@descripcion VARCHAR(25), @nueva_descripcion VARCHAR(25))
+AS
+BEGIN
+	UPDATE ventas.metodo_de_pago
+	SET descripcion = @nueva_descripcion
+	WHERE descripcion = @descripcion
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA TIPOS DE ENTRADA
+====================================================
+*/
+
+
+CREATE OR ALTER PROCEDURE ventas.sp_alta_tipo_entrada (@parque varchar(50), @tipo varchar(20), @precio DECIMAL(10,2), @vigencia DATE = NULL)
+AS
+BEGIN
+	DECLARE @parque_id INT, @tipo_id INT
+	IF @vigencia IS NULL SET @vigencia = GETDATE() --Si no se especifica una fecha de inicio, se asume el día presente
+	
+	DECLARE @errores VARCHAR(200)
+	SET @errores = ''
+
+
+	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
+	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
+
+	IF EXISTS ( SELECT 1 FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+		SET @errores = @errores + 'Ya hay una entrada vigente. Si desea terminar su vigencia, utilice modificación. '
+	IF @tipo_id IS NULL
+		SET @errores = @errores + 'No existe el tipo de visitante. Debe darlo de alta para proseguir. '
+	IF @parque_id IS NULL
+		SET @errores = @errores + 'No hay un parque con ese nombre.  '
+
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+	ELSE
+		INSERT INTO ventas.entrada(parque, tipo, precio, fecha_desde)
+		VALUES(
+			@parque_id,
+			@tipo_id,
+			@precio,
+			@vigencia
+			)
+END
+GO
+
+--BAJA--
+CREATE OR ALTER PROCEDURE ventas.sp_baja_tipo_entrada (@parque varchar(50), @tipo varchar(20))
+AS
+BEGIN
+	DECLARE @parque_id INT, @tipo_id INT
+	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
+	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo)
+	DELETE FROM ventas.entrada
+	WHERE parque = @parque_id AND tipo = @tipo_id
+END
+GO
+
+-- MODIFICACION --
+/* Modifica el precio según el parque y tipo de visitante. Cuando se modifica, el precio actual pasa al histórico.
+Ej: (Iguazu, estudiante, 3000) --> (Iguazu, estudiante, 4500)
+*/
+
+CREATE OR ALTER PROCEDURE ventas.sp_modificacion_tipo_entrada
+(
+	@parque varchar(50),
+	@tipo varchar(20),
+	@nuevo_precio DECIMAL(10,2),
+	@fecha_comienzo DATE
+)
+AS
+BEGIN
+	DECLARE @parque_id INT, @tipo_id INT;
+	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
+	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
+
+	DECLARE @errores VARCHAR(200)
+	DECLARE @fecha_desde_actual DATE;
+
+	SET @fecha_desde_actual = (SELECT fecha_desde FROM ventas.entrada WHERE tipo = @tipo_id AND parque = @parque_id and fecha_hasta IS NULL)
+	
+	IF @fecha_comienzo < @fecha_desde_actual
+		SET @errores = (SELECT CONCAT(@errores, 'La fecha de comienzo de la nueva vigencia debe ser posterior a la vigencia actual. '))
+	IF NOT EXISTS (SELECT 1 FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+		SET @errores = @errores + 'No existe una entrada vigente. Debe darla de alta antes de modificarla. '
+
+
+	BEGIN TRY
+		BEGIN TRANSACTION
+			UPDATE ventas.entrada
+			SET fecha_hasta = DATEADD(day, -1, @fecha_comienzo)
+			WHERE tipo = @tipo_id AND parque = @parque_id AND fecha_hasta IS NULL;
+			EXEC ventas.sp_alta_tipo_entrada @parque = @parque, @tipo = @tipo, @precio = @nuevo_precio, @vigencia = @fecha_comienzo;
+		COMMIT;
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <> 0 --IF @@TRANCOUNT > 0?
+			ROLLBACK
+	END CATCH
+	IF @errores <> ''
+		RAISERROR(@errores, 16, 1)
+END
+GO
+/*
+====================================================
+		ABMS DE TABLA VENTAS
+====================================================
+*/
+
+GO
+-- Alta de ventas --
+
+CREATE OR ALTER PROCEDURE ventas.sp_alta_venta(@parque VARCHAR(50), @fecha DATE = NULL, @pov VARCHAR(25), @metodo VARCHAR(30), @id_creado INT OUTPUT)
+AS
+BEGIN
+	IF @fecha IS NULL SET @fecha = GETDATE() --Si no se especifica fecha, asumimos que es del día
+
+	DECLARE @id_parque VARCHAR(50), @id_pov VARCHAR(25), @id_metodo VARCHAR(25);
+
+	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
+	SET @id_pov = (SELECT id FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @id_parque)
+	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
+
+	INSERT INTO ventas.venta
+	VALUES(@id_parque, @fecha, @id_pov, @id_metodo, 0)
+	
+	SET @id_creado = (SELECT SCOPE_IDENTITY())
+
+
+END
+GO
+
+--BAJA--
+
+CREATE OR ALTER PROCEDURE ventas.sp_baja_venta(@venta INT)
+AS
+BEGIN
+	--Primero tengo que eliminar los items asociados a esa venta
+	BEGIN TRANSACTION
+		BEGIN TRY
+			DELETE FROM ventas.item_venta
+			WHERE venta = @venta
+
+			DELETE FROM ventas.venta
+			WHERE id = @venta
+			COMMIT
+		END TRY
+		BEGIN CATCH
+			IF XACT_STATE() <> 0
+				ROLLBACK
+		END CATCH
+END
+GO
+
+
+--MODIFICACION--
+CREATE OR ALTER PROCEDURE ventas.sp_modificacion_venta(@id_venta INT, @metodo VARCHAR(30))
+AS
+BEGIN
+	UPDATE ventas.venta
+	SET metodo_de_pago = @metodo
+	WHERE id = @id_venta
+END
+GO
+/*
+====================================================
+		ABMS DE TABLA ITEMS DE VENTA
+====================================================
+*/
+
+--ALTA--
+CREATE OR ALTER PROCEDURE ventas.sp_alta_item_venta(@venta INT, @concepto VARCHAR(20), @cantidad INT, @fecha_acceso DATE)
+AS
+BEGIN
+	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @id_parque INT;
+	DECLARE @parque VARCHAR(50)
+
+	SET @id_parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
+	SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
+	SET @id_concepto = (SELECT id_visitante FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+	SET @precio = (SELECT precio FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+	
+	BEGIN TRANSACTION
+		BEGIN TRY
+			INSERT INTO ventas.item_venta
+			VALUES (@venta, @id_concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
+
+			UPDATE ventas.venta
+			SET total = total + @cantidad * @precio
+			WHERE id = @venta
+			
+			COMMIT
+		END TRY
+		BEGIN CATCH
+			IF XACT_STATE() <>0
+				ROLLBACK
+		END CATCH
+END
+GO
+
+--BAJA--
+CREATE OR ALTER PROCEDURE ventas.sp_baja_item_venta(@venta INT, @item INT)
+AS
+BEGIN
+	DELETE FROM ventas.item_venta
+	WHERE venta = @venta
+	AND
+	id = @item
+END
+GO
+
+--Modificacion--
+
+CREATE OR ALTER PROCEDURE ventas.sp_modificar_item_venta(@venta INT, @item INT, @nuevo_concepto INT, @nueva_cantidad INT)
+AS
+BEGIN
+	DECLARE @subtotal_actualizado DECIMAL(10,2), @subtotal DECIMAL (10,2);
+	SET @subtotal = (SELECT subotal FROM ventas.item_id WHERE id = @item)
+	SET @subtotal_actualizado = (SELECT precio FROM ventas.entrada WHERE id = @nuevo_concepto) * @nueva_cantidad
+
+
+	BEGIN TRANSACTION
+		BEGIN TRY
+			UPDATE ventas.item_venta
+			SET concepto = @nuevo_concepto, cantidad = @nueva_cantidad,
+			subtotal = @nueva_cantidad * @subtotal_actualizado
+			WHERE venta = @venta
+			AND id = @item
+
+			UPDATE ventas.venta
+			SET total = (total - @subtotal) + @subtotal_actualizado
+			WHERE id = @venta
+			COMMIT
+		END TRY
+		BEGIN CATCH
+			IF XACT_STATE() <> 0
+				ROLLBACK
+		END CATCH
+	
+END
+GO
