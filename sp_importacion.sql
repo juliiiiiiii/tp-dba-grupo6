@@ -207,6 +207,7 @@ BEGIN
             'BULK INSERT #temp_csv
              FROM ''' + @archivo_dir + '''
              WITH (
+                FORMAT = ''CSV'',
                 FIRSTROW = 3,
                 FIELDTERMINATOR = '','',
                 FIELDQUOTE = ''"'',
