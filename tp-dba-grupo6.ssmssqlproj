@@ -3,7 +3,7 @@
   <Items>
     <LogicalFolder Name="Conexiones" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="DESKTOP-PKP4HHQ\SQLEXPRESS01:DESKTOP-PKP4HHQ\Ponchis">
+        <ConnectionNode Name="DESKTOP-PKP4HHQ\SQLEXPRESS01:DESKTOP-F2AHUDD\debel">
           <Created>2026-06-14T20:29:22.9188039-03:00</Created>
           <Type>SQL</Type>
           <Server>DESKTOP-PKP4HHQ\SQLEXPRESS01</Server>
@@ -22,59 +22,65 @@
     </LogicalFolder>
     <LogicalFolder Name="Consultas" Type="0" Sorted="true">
       <Items>
-        <FileNode Name="creacion_views.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="01_create_db_scheme.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>creacion_views.sql</FullPath>
+          <FullPath>01_create_db_scheme.sql</FullPath>
         </FileNode>
-        <FileNode Name="create_db_scheme.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="02_create_tables.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>create_db_scheme.sql</FullPath>
+          <FullPath>02_create_tables.sql</FullPath>
         </FileNode>
-        <FileNode Name="create_tables.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="03_sp_abm.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>create_tables.sql</FullPath>
+          <FullPath>03_sp_abm.sql</FullPath>
         </FileNode>
-        <FileNode Name="reportes.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="04_sp_abm_testing.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>reportes.sql</FullPath>
+          <FullPath>04_sp_abm_testing.sql</FullPath>
         </FileNode>
-        <FileNode Name="sp.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="05_sp.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>sp.sql</FullPath>
+          <FullPath>05_sp.sql</FullPath>
         </FileNode>
-        <FileNode Name="sp_abm.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="06_sp_test.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>sp_abm.sql</FullPath>
+          <FullPath>06_sp_test.sql</FullPath>
         </FileNode>
-        <FileNode Name="sp_abm_testing.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="07_creacion_views.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>sp_abm_testing.sql</FullPath>
+          <FullPath>07_creacion_views.sql</FullPath>
         </FileNode>
-        <FileNode Name="sp_importacion.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="08_reportes.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>sp_importacion.sql</FullPath>
+          <FullPath>08_reportes.sql</FullPath>
         </FileNode>
-        <FileNode Name="sp_test.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+        <FileNode Name="09_sp_importacion.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>sp_test.sql</FullPath>
+          <FullPath>09_sp_importacion.sql</FullPath>
+        </FileNode>
+        <FileNode Name="10_poblacion.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>10_poblacion.sql</FullPath>
         </FileNode>
       </Items>
     </LogicalFolder>
