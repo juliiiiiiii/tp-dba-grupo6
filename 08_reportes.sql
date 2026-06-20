@@ -227,6 +227,8 @@ AS
 GO
 --EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
 
+
+
 CREATE OR ALTER FUNCTION concesiones.identificar_concesion(@ids VARCHAR(MAX)) RETURNS TABLE AS
 RETURN (
     SELECT 
@@ -256,7 +258,7 @@ fecha_pagado is null
 -- otras opciones eran:
 -- string_agg <- era muy manual y no me copo
 -- select con joins <- no cumplia con la idea de vector que pide el reporte
-select p.id as id, (
+select p.id as id, p.nombre, (
     select 
         c.fecha_inicio as inicio
         , e.nombre as titular
@@ -264,7 +266,7 @@ select p.id as id, (
     from concesiones.Concesion as c
     join concesiones.Empresa as e on c.id_empresa=e.id
     left join gestion.Actividad as a on c.id_actividad=a.id
-    where p.id=c.id_empresa and c.estado = 'ACTIVO' 
+    where p.id=c.id_empresa
     for json path -- for xml path
 )
 from gestion.Parque as p 
