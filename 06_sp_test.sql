@@ -61,26 +61,50 @@ GO
 
 -- TEST 1.7: Especialidad duplicada (debe fallar)
 PRINT '--- TEST 1.7: Especialidad ya registrada (debe fallar) ---';
-EXEC guia.sp_registrar_especialidad
-	@descripcion = 'Flora nativa';
+BEGIN TRY
+    EXEC guia.sp_registrar_especialidad
+    @descripcion = 'Flora nativa';
+    PRINT 'FALLO - Test 1.7: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 1.7: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 1.8: Descripción vacía (debe fallar)
 PRINT '--- TEST 1.8: Descripción vacía (debe fallar) ---';
-EXEC guia.sp_registrar_especialidad
-	@descripcion = '';
+BEGIN TRY
+    EXEC guia.sp_registrar_especialidad
+    @descripcion = '';
+    PRINT 'FALLO - Test 1.8: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 1.8: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 1.9: Descripción NULL (debe fallar)
 PRINT '--- TEST 1.9: Descripción NULL (debe fallar) ---';
-EXEC guia.sp_registrar_especialidad
-	@descripcion = NULL;
+BEGIN TRY
+    EXEC guia.sp_registrar_especialidad
+    @descripcion = NULL;
+    PRINT 'FALLO - Test 1.9: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 1.9: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 1.10: Descripción con solo espacios (debe fallar)
 PRINT '--- TEST 1.10: Descripción con solo espacios (debe fallar) ---';
-EXEC guia.sp_registrar_especialidad
-	@descripcion = '   ';
+BEGIN TRY
+    EXEC guia.sp_registrar_especialidad
+    @descripcion = '   ';
+    PRINT 'FALLO - Test 1.10: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 1.10: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- ============================================================
@@ -92,23 +116,41 @@ GO
 
 -- TEST 2.1: Especialidad inexistente (debe fallar)
 PRINT '--- TEST 2.1: Especialidad no registrada (debe fallar) ---';
-EXEC guia.sp_asignar_especializacion
-	@dni = '25123456',
-	@especialidad = 'Fauna marina';
+BEGIN TRY
+    EXEC guia.sp_asignar_especializacion
+    @dni = '25123456',
+    @especialidad = 'Fauna marina';
+    PRINT 'FALLO - Test 2.1: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 2.1: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 2.2: Especialidad NULL (debe fallar)
 PRINT '--- TEST 2.2: Falta especificar la especialidad (debe fallar) ---';
-EXEC guia.sp_asignar_especializacion
-	@dni = '25123456',
-	@especialidad = NULL;
+BEGIN TRY
+    EXEC guia.sp_asignar_especializacion
+    @dni = '25123456',
+    @especialidad = NULL;
+    PRINT 'FALLO - Test 2.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 2.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 2.3: DNI NULL (debe fallar)
 PRINT '--- TEST 2.3: Falta especificar el DNI del guía (debe fallar) ---';
-EXEC guia.sp_asignar_especializacion
-	@dni = NULL,
-	@especialidad = 'Fauna silvestre';
+BEGIN TRY
+    EXEC guia.sp_asignar_especializacion
+    @dni = NULL,
+    @especialidad = 'Fauna silvestre';
+    PRINT 'FALLO - Test 2.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 2.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 2.4: Asignación exitosa
@@ -120,9 +162,15 @@ GO
 
 -- TEST 2.5: Especialidad ya asignada al guía (debe fallar)
 PRINT '--- TEST 2.5: El guía ya posee esa especialidad (debe fallar) ---';
-EXEC guia.sp_asignar_especializacion
-	@dni = '25123456',
-	@especialidad = 'Fauna silvestre';
+BEGIN TRY
+    EXEC guia.sp_asignar_especializacion
+    @dni = '25123456',
+    @especialidad = 'Fauna silvestre';
+    PRINT 'FALLO - Test 2.5: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 2.5: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 2.6: Asignación exitosa
@@ -141,23 +189,41 @@ GO
 
 -- TEST 3.1: DNI NULL (debe fallar)
 PRINT '--- TEST 3.1: Falta especificar el DNI del guía (debe fallar) ---';
-EXEC guia.sp_actualizar_acreditacion
-	@dni = NULL,
-	@fecha_vencimiento_acreditacion = '2026-06-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_acreditacion
+    @dni = NULL,
+    @fecha_vencimiento_acreditacion = '2026-06-15';
+    PRINT 'FALLO - Test 3.1: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.1: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 3.2: Guía inexistente (debe fallar)
 PRINT '--- TEST 3.2: DNI no pertenece a ningún guía (debe fallar) ---';
-EXEC guia.sp_actualizar_acreditacion
-	@dni = '25128779',
-	@fecha_vencimiento_acreditacion = '2026-06-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_acreditacion
+    @dni = '25128779',
+    @fecha_vencimiento_acreditacion = '2026-06-15';
+    PRINT 'FALLO - Test 3.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 3.3: Fecha de vencimiento NULL (debe fallar)
 PRINT '--- TEST 3.3: Falta especificar la fecha de vencimiento (debe fallar) ---';
-EXEC guia.sp_actualizar_acreditacion
-	@dni = '38912345',
-	@fecha_vencimiento_acreditacion = NULL;
+BEGIN TRY
+    EXEC guia.sp_actualizar_acreditacion
+    @dni = '38912345',
+    @fecha_vencimiento_acreditacion = NULL;
+    PRINT 'FALLO - Test 3.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 3.4: Actualización exitosa
@@ -176,38 +242,62 @@ GO
 
 -- TEST 4.1: DNI NULL (debe fallar)
 PRINT '--- TEST 4.1: Falta especificar el DNI del guía (debe fallar) ---';
-EXEC guia.sp_asignar_titulacion_guia
-	@dni = NULL,
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_asignar_titulacion_guia
+    @dni = NULL,
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 4.1: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.1: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.2: Descripción del título NULL (debe fallar)
 PRINT '--- TEST 4.2: Falta especificar el título (debe fallar) ---';
-EXEC guia.sp_asignar_titulacion_guia
-	@dni = '25123456',
-	@descripcion = NULL,
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_asignar_titulacion_guia
+    @dni = '25123456',
+    @descripcion = NULL,
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 4.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.3: Institución NULL (debe fallar)
 PRINT '--- TEST 4.3: Falta especificar la institución (debe fallar) ---';
-EXEC guia.sp_asignar_titulacion_guia
-	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = NULL,
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_asignar_titulacion_guia
+    @dni = '25123456',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = NULL,
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 4.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.4: Fecha de emisión NULL (debe fallar)
 PRINT '--- TEST 4.4: Falta especificar la fecha de emisión (debe fallar) ---';
-EXEC guia.sp_asignar_titulacion_guia
-	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = NULL;
+BEGIN TRY
+    EXEC guia.sp_asignar_titulacion_guia
+    @dni = '25123456',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = NULL;
+    PRINT 'FALLO - Test 4.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.5: Asignación exitosa
@@ -221,11 +311,17 @@ GO
 
 -- TEST 4.6: Título ya asignado al guía (debe fallar)
 PRINT '--- TEST 4.6: El guía ya posee esa titulación (debe fallar) ---';
-EXEC guia.sp_asignar_titulacion_guia
-	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-09-15';
+BEGIN TRY
+    EXEC guia.sp_asignar_titulacion_guia
+    @dni = '25123456',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-09-15';
+    PRINT 'FALLO - Test 4.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.7: Asignación exitosa
@@ -246,38 +342,62 @@ GO
 
 -- TEST 5.1: DNI NULL (debe fallar)
 PRINT '--- TEST 5.1: Falta especificar el DNI del guía (debe fallar) ---';
-EXEC guia.sp_actualizar_titulo_guia
-	@dni = NULL,
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_titulo_guia
+    @dni = NULL,
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 5.1: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.1: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 5.2: Descripción del título NULL (debe fallar)
 PRINT '--- TEST 5.2: Falta especificar el título (debe fallar) ---';
-EXEC guia.sp_actualizar_titulo_guia
-	@dni = '25123456',
-	@descripcion = NULL,
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_titulo_guia
+    @dni = '25123456',
+    @descripcion = NULL,
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 5.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 5.3: Institución NULL (debe fallar)
 PRINT '--- TEST 5.3: Falta especificar la institución (debe fallar) ---';
-EXEC guia.sp_actualizar_titulo_guia
-	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = NULL,
-	@fecha_emision = '2020-04-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_titulo_guia
+    @dni = '25123456',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = NULL,
+    @fecha_emision = '2020-04-15';
+    PRINT 'FALLO - Test 5.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 5.4: Fecha de emisión NULL (debe fallar)
 PRINT '--- TEST 5.4: Falta especificar la fecha de emisión (debe fallar) ---';
-EXEC guia.sp_actualizar_titulo_guia
-	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = NULL;
+BEGIN TRY
+    EXEC guia.sp_actualizar_titulo_guia
+    @dni = '25123456',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = NULL;
+    PRINT 'FALLO - Test 5.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 5.5: Actualizacion exitosa
@@ -291,9 +411,15 @@ GO
 
 -- TEST 5.6: Título no asignado al guía (debe fallar)
 PRINT '--- TEST 5.6: El guía no posee esa titulación (debe fallar) ---';
-EXEC guia.sp_actualizar_titulo_guia
-	@dni = '30456789',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
-	@fecha_emision = '2020-09-15';
+BEGIN TRY
+    EXEC guia.sp_actualizar_titulo_guia
+    @dni = '30456789',
+    @descripcion = 'Especializado en flora nativa Argentina',
+    @institucion = 'UNLAM',
+    @fecha_emision = '2020-09-15';
+    PRINT 'FALLO - Test 5.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
