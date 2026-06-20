@@ -1,4 +1,3 @@
-
 -- Universidad: Universidad de la Matanza
 -- Materia: Bases de Datos Aplicadas
  
@@ -37,11 +36,17 @@ GO
  
 -- TEST 1.2: nombre duplicado
 PRINT '--- TEST 1.2: Nombre de parque duplicado (debe fallar) ---';
-EXEC gestion.sp_registrar_parque
+BEGIN TRY
+    EXEC gestion.sp_registrar_parque
     @nombre    = 'Parque Iguazu',
     @tipo      = 'Nacional',
     @ubicacion = 'Misiones',
     @superficie = 67620;
+    PRINT 'FALLO - Test 1.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 1.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -64,10 +69,16 @@ GO
  
 -- TEST 2.2: DNI duplicado
 PRINT '--- TEST 2.2: DNI duplicado (debe fallar) ---';
-EXEC gestion.sp_registrar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_registrar_guardaparque
     @dni      = 30123456,
     @nombre   = 'Otro',
     @apellido = 'Nombre';
+    PRINT 'FALLO - Test 2.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 2.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- Registrar un segundo guardaparque para tests posteriores
@@ -99,23 +110,41 @@ GO
  
 -- TEST 3.2: parque inexistente
 PRINT '--- TEST 3.2: Parque inexistente (debe fallar) ---';
-EXEC gestion.sp_asignar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_asignar_guardaparque
     @id_parque       = 999,
     @id_guardaparque = 2;
+    PRINT 'FALLO - Test 3.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 3.3: guardaparque inexistente y ya hay guardaparque en ese parque
 PRINT '--- TEST 3.3: Guardaparque inexistente (debe fallar) ---';
-EXEC gestion.sp_asignar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_asignar_guardaparque
     @id_parque       = 1,
     @id_guardaparque = 999;
+    PRINT 'FALLO - Test 3.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 3.4: parque ya tiene guardaparque activo
 PRINT '--- TEST 3.4: Parque ya ocupado (debe fallar) ---';
-EXEC gestion.sp_asignar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_asignar_guardaparque
     @id_parque       = 1,
     @id_guardaparque = 2;
+    PRINT 'FALLO - Test 3.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 3.5: guardaparque ya asignado en otro parque
@@ -128,9 +157,15 @@ EXEC gestion.sp_registrar_parque
 GO
  
 PRINT '--- TEST 3.5: Guardaparque ya asignado en otro parque (debe fallar) ---';
-EXEC gestion.sp_asignar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_asignar_guardaparque
     @id_parque       = 2,
     @id_guardaparque = 1   -- guardaparque 1 ya esta asignado al parque 1;
+    PRINT 'FALLO - Test 3.5: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 3.5: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -171,7 +206,8 @@ GO
  
 -- TEST 4.2: parque inexistente
 PRINT '--- TEST 4.2: Parque inexistente (debe fallar) ---';
-EXEC gestion.sp_registrar_actividad
+BEGIN TRY
+    EXEC gestion.sp_registrar_actividad
     @id_parque   = 999,
     @id_guia     = 1,
     @nombre      = 'Test',
@@ -181,11 +217,17 @@ EXEC gestion.sp_registrar_actividad
     @fecha       = '2026-08-15',
     @duracion    = 60,
     @cupo        = 10;
+    PRINT 'FALLO - Test 4.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 4.3: guia con acreditacion vencida
 PRINT '--- TEST 4.3: Guia con acreditacion vencida (debe fallar) ---';
-EXEC gestion.sp_registrar_actividad
+BEGIN TRY
+    EXEC gestion.sp_registrar_actividad
     @id_parque   = 1,
     @id_guia     = 2,
     @nombre      = 'Test',
@@ -195,11 +237,17 @@ EXEC gestion.sp_registrar_actividad
     @fecha       = '2026-08-15',
     @duracion    = 60,
     @cupo        = 10;
+    PRINT 'FALLO - Test 4.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 4.4: guia con acreditacion inactiva
 PRINT '--- TEST 4.4: Guia con acreditacion inactiva (debe fallar) ---';
-EXEC gestion.sp_registrar_actividad
+BEGIN TRY
+    EXEC gestion.sp_registrar_actividad
     @id_parque   = 1,
     @id_guia     = 3,
     @nombre      = 'Test',
@@ -209,11 +257,17 @@ EXEC gestion.sp_registrar_actividad
     @fecha       = '2026-08-15',
     @duracion    = 60,
     @cupo        = 10;
+    PRINT 'FALLO - Test 4.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 4.5: fecha pasada
 PRINT '--- TEST 4.5: Fecha pasada (debe fallar) ---';
-EXEC gestion.sp_registrar_actividad
+BEGIN TRY
+    EXEC gestion.sp_registrar_actividad
     @id_parque   = 1,
     @id_guia     = 1,
     @nombre      = 'Test',
@@ -223,20 +277,31 @@ EXEC gestion.sp_registrar_actividad
     @fecha       = '2020-01-01',
     @duracion    = 60,
     @cupo        = 10;
+    PRINT 'FALLO - Test 4.5: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.5: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 4.6: multiples errores en una sola llamada
 PRINT '--- TEST 4.6: Multiples errores acumulados (debe mostrar todos juntos) ---';
-EXEC gestion.sp_registrar_actividad
-    @id_parque   = 999, -- parque no existe
-    @id_guia     = 999, -- guia no existe
-    @nombre      = 'Test',
-    @descripcion = 'Test',
-    @tipo        = 'Tour no guiado', -- tipo invalido
-    @costo       = 0,
-    @fecha       = '2020-01-01', -- fecha pasada
-    @duracion    = 60,
-    @cupo        = 10;
+BEGIN TRY
+    EXEC gestion.sp_registrar_actividad
+        @id_parque   = 999, -- parque no existe
+        @id_guia     = 999, -- guia no existe
+        @nombre      = 'Test',
+        @descripcion = 'Test',
+        @tipo        = 'Tour no guiado', -- tipo invalido
+        @costo       = 0,
+        @fecha       = '2020-01-01', -- fecha pasada
+        @duracion    = 60,
+        @cupo        = 10;
+    PRINT 'FALLO - Test 4.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 4.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -258,8 +323,14 @@ GO
  
 -- TEST 5.2: guardaparque inexistente
 PRINT '--- TEST 5.2: Guardaparque inexistente (debe fallar) ---';
-EXEC gestion.sp_baja_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_baja_guardaparque
     @id      = 999;
+    PRINT 'FALLO - Test 5.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 5.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -284,22 +355,34 @@ GO
  
 -- TEST 6.2: parque inexistente
 PRINT '--- TEST 6.2: Parque inexistente (debe fallar) ---';
-EXEC gestion.sp_modificar_parque
+BEGIN TRY
+    EXEC gestion.sp_modificar_parque
     @id         = 999,
     @nombre     = 'Test',
     @tipo       = 'Test',
     @ubicacion  = 'Test',
     @superficie = 100;
+    PRINT 'FALLO - Test 6.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 6.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 6.3: nombre en uso por otro parque
 PRINT '--- TEST 6.3: Nombre duplicado en modificacion (debe fallar) ---';
-EXEC gestion.sp_modificar_parque
+BEGIN TRY
+    EXEC gestion.sp_modificar_parque
     @id         = 2,
     @nombre     = 'Parque Nacional Iguazu',  -- nombre que ya usa el parque 1
     @tipo       = 'Nacional',
     @ubicacion  = 'Rio Negro',
     @superficie = 717261;
+    PRINT 'FALLO - Test 6.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 6.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -323,11 +406,17 @@ GO
  
 -- TEST 7.2: estado invalido
 PRINT '--- TEST 7.2: Estado invalido (debe fallar) ---';
-EXEC gestion.sp_modificar_guardaparque
+BEGIN TRY
+    EXEC gestion.sp_modificar_guardaparque
     @id       = 2,
     @nombre   = 'Laura',
     @apellido = 'Gomez',
     @estado   = 'Suspendido';
+    PRINT 'FALLO - Test 7.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 7.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -356,9 +445,15 @@ GO
  
 -- TEST 8.2: asignacion ya cerrada
 PRINT '--- TEST 8.2: Asignacion ya cerrada (debe fallar) ---';
-EXEC gestion.sp_modificar_asignacion
+BEGIN TRY
+    EXEC gestion.sp_modificar_asignacion
     @id           = 2,
     @motivo       = 'Test';
+    PRINT 'FALLO - Test 8.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 8.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- ============================================================
@@ -388,7 +483,8 @@ GO
  
 -- TEST 9.2: guia con acreditacion vencida
 PRINT '--- TEST 9.2: Cambiar guia por uno con acreditacion vencida (debe fallar) ---';
-EXEC gestion.sp_modificar_actividad
+BEGIN TRY
+    EXEC gestion.sp_modificar_actividad
     @id          = 1,
     @id_guia     = 2,
     @nombre      = 'Test',
@@ -399,21 +495,32 @@ EXEC gestion.sp_modificar_actividad
     @duracion    = 60,
     @cupo        = 10,
     @estado = 'Programado';
+    PRINT 'FALLO - Test 9.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 9.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
 -- TEST 9.3: multiples errores en modificacion
 PRINT '--- TEST 9.3: Multiples errores en modificacion (debe mostrar todos) ---';
-EXEC gestion.sp_modificar_actividad
-    @id          = 999,   -- no existe
-    @id_guia     = 999,   -- no existe
-    @nombre      = 'Test',
-    @descripcion = 'Test',
-    @tipo        = 'Tour guiado',
-    @costo       = -100,       -- negativo
-    @fecha       = '2020-01-01', -- pasada
-    @duracion    = -1,         -- invalido
-    @cupo        = 0,          -- invalido
-    @estado = 'En espera'; --invalido
+BEGIN TRY
+    EXEC gestion.sp_modificar_actividad
+        @id          = 999,   -- no existe
+        @id_guia     = 999,   -- no existe
+        @nombre      = 'Test',
+        @descripcion = 'Test',
+        @tipo        = 'Tour guiado',
+        @costo       = -100,       -- negativo
+        @fecha       = '2020-01-01', -- pasada
+        @duracion    = -1,         -- invalido
+        @cupo        = 0,          -- invalido
+        @estado = 'En espera'; --invalido
+    PRINT 'FALLO - Test 9.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 9.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- ============================================================
@@ -435,16 +542,28 @@ GO
 
 -- TEST 10.2: actividad inexistente
 PRINT '--- TEST 10.2: Actividad inexistente (debe fallar) ---';
-EXEC gestion.sp_baja_actividad
+BEGIN TRY
+    EXEC gestion.sp_baja_actividad
     @id     = 999,
     @motivo = 'Test';
+    PRINT 'FALLO - Test 10.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 10.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 10.3: actividad ya cancelada (debe fallar)
 PRINT '--- TEST 10.3: Actividad ya cancelada (debe fallar) ---';
-EXEC gestion.sp_baja_actividad
+BEGIN TRY
+    EXEC gestion.sp_baja_actividad
     @id     = 1,
     @motivo = 'Intento duplicado';
+    PRINT 'FALLO - Test 10.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 10.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- ============================================================
@@ -474,65 +593,107 @@ GO
 
 -- TEST 11.3: DNI duplicado (debe fallar)
 PRINT '--- TEST 11.3: DNI duplicado (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = '30456789',
     @nombre = 'Lucas',
     @apellido = 'Perez',
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.4: DNI duplicado y nombre inválido (debe fallar)
 PRINT '--- TEST 11.4: DNI duplicado y falta de nombre/apellido (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez',
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.5: Formato de DNI inválido (debe fallar)
 PRINT '--- TEST 11.5: DNI con formato inválido (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = 'ABC12',
     @nombre = 'Lucas',
     @apellido = 'Perez',
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.5: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.5: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 11.6: Falta apellido (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '',
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 11.7: Apellido NULL (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL,
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.7: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.7: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.8: Fecha de vencimiento NULL (debe fallar)
 PRINT '--- TEST 11.8: Falta fecha de vencimiento de la acreditacion (debe fallar) ---';
-EXEC gestion.sp_registrar_guia
+BEGIN TRY
+    EXEC gestion.sp_registrar_guia
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = 'Perez',
     @fecha_vencimiento_acreditacion = NULL;
+    PRINT 'FALLO - Test 11.8: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.8: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.9: DNI NULL (debe fallar)
 PRINT '--- TEST 11.9: Falta DNI (debe fallar) ---';
+BEGIN TRY
     EXEC gestion.sp_registrar_guia
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez',
     @fecha_vencimiento_acreditacion = '2030-03-29';
+    PRINT 'FALLO - Test 11.9: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 11.9: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 11.10: Registro exitoso
@@ -569,42 +730,72 @@ GO
 
 -- TEST 12.3: DNI sin guia (debe fallar)
 PRINT '--- TEST 12.3: DNI sin guia (debe fallar) ---';
-EXEC gestion.sp_actualizar_guia
+BEGIN TRY
+    EXEC gestion.sp_actualizar_guia
     @dni = '32000000',
     @nombre = 'Lucas',
     @apellido = 'Perez';
+    PRINT 'FALLO - Test 12.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 12.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 12.4: Nombre inválido (debe fallar)
 PRINT '--- TEST 12.4: Falta de nombre/apellido (debe fallar) ---';
-EXEC gestion.sp_actualizar_guia
+BEGIN TRY
+    EXEC gestion.sp_actualizar_guia
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez';
+    PRINT 'FALLO - Test 12.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 12.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 12.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 12.6: Falta apellido (debe fallar) ---';
-EXEC gestion.sp_actualizar_guia
+BEGIN TRY
+    EXEC gestion.sp_actualizar_guia
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '';
+    PRINT 'FALLO - Test 12.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 12.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 12.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 12.7: Apellido NULL (debe fallar) ---';
-EXEC gestion.sp_actualizar_guia
+BEGIN TRY
+    EXEC gestion.sp_actualizar_guia
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL;
+    PRINT 'FALLO - Test 12.7: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 12.7: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 12.8: DNI NULL (debe fallar)
 PRINT '--- TEST 12.8: Falta DNI (debe fallar) ---';
+BEGIN TRY
     EXEC gestion.sp_actualizar_guia
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez';
+    PRINT 'FALLO - Test 12.8: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 12.8: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- ============================================================
@@ -639,6 +830,7 @@ GO
 
 -- TEST 13.2: Actividad inexistente en el parque (debe fallar)
 PRINT '--- TEST 13.2: Actividad inexistente en el parque (debe fallar) ---';
+BEGIN TRY
     EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -646,76 +838,118 @@ PRINT '--- TEST 13.2: Actividad inexistente en el parque (debe fallar) ---';
     @fecha_actividad = '2026-06-16 00:00:00',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.2: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
  
  -- TEST 13.3: DNI NULL (debe fallar)
 PRINT '--- TEST 13.3: Falta especificar DNI del guía (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = NULL,
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.3: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.4: Guía inexistente (debe fallar)
 PRINT '--- TEST 13.4: DNI de guía inexistente (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '11122345',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.4: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.5: Nombre de actividad inexistente (debe fallar)
 PRINT '--- TEST 13.5: Actividad inexistente (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Escalda',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.5: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.5: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.6: Fecha de actividad incorrecta (debe fallar)
 PRINT '--- TEST 13.6: Fecha de actividad inexistente (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-17 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.6: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.7: Nombre de actividad NULL (debe fallar)
 PRINT '--- TEST 13.7: Falta nombre de actividad (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = NULL,
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.7: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.7: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.8: Fecha de actividad NULL (debe fallar)
 PRINT '--- TEST 13.8: Falta fecha de actividad (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = NULL,
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.8: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.8: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.9: Fecha desde NULL (debe fallar)
 PRINT '--- TEST 13.9: Falta fecha desde (debe fallar) ---';
+BEGIN TRY
     EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
@@ -723,39 +957,62 @@ PRINT '--- TEST 13.9: Falta fecha desde (debe fallar) ---';
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = NULL,
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.9: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.9: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.10: Fecha hasta NULL (debe fallar)
 PRINT '--- TEST 13.10: Falta fecha hasta (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = NULL;
+    PRINT 'FALLO - Test 13.10: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.10: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.11: Asignación duplicada (debe fallar)
 PRINT '--- TEST 13.11: La actividad ya está asignada al guía (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.11: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.11: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- TEST 13.12: Guía con acreditación vencida (debe fallar)
 PRINT '--- TEST 13.12: Guía con acreditación vencida (debe fallar) ---';
-EXEC gestion.sp_asignar_guia
+BEGIN TRY
+    EXEC gestion.sp_asignar_guia
     @dni = '25123456',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
+    PRINT 'FALLO - Test 13.12: se esperaba error y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 13.12: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
 GO
 
 -- ============================================================
