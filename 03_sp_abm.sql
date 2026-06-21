@@ -725,7 +725,7 @@ GO
 
 -----------------------------------------------------------
 -- Crea una empresa
-create or alter procedure concesiones.sp_alta_empresa (@nombre varchar(25), @tipo varchar(100), @cuit varchar(15)) as begin
+create or alter procedure concesiones.empresa_alta (@nombre varchar(25), @tipo varchar(100), @cuit varchar(15)) as begin
 	-- vale la pena una funcion para ver si el cuit es valido? -> si + raiserror con un solo mensaje
     declare @errores varchar(4000) = '';
 
@@ -737,10 +737,8 @@ create or alter procedure concesiones.sp_alta_empresa (@nombre varchar(25), @tip
         set @errores += 'El cuit no tiene el formato de una empresa.' + char(10)
     end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
 	insert into concesiones.Empresa (nombre, tipo, cuit) values (@nombre, @tipo, @cuit);
 end;
@@ -748,7 +746,7 @@ go
 
 -----------------------------------------------------------
 -- Baja de una empresa
-create or alter procedure concesiones.sp_baja_empresa (@nombre varchar(25)) as begin
+create or alter procedure concesiones.empresa_baja (@nombre varchar(25)) as begin
     declare @id int;
     declare @errores varchar(4000) = '';
 
@@ -758,10 +756,8 @@ create or alter procedure concesiones.sp_baja_empresa (@nombre varchar(25)) as b
         set @errores = 'No se encontro la empresa.' + char(10)
     end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end;
+    if @errores <> ''
+        throw 16, @errores, 1;
 
 	delete from concesiones.Empresa where id=@id
 end;
@@ -769,7 +765,7 @@ go
 
 -----------------------------------------------------------
 -- Modifica una empresa
-create or alter procedure concesiones.sp_modificacion_empresa (
+create or alter procedure concesiones.empresa_modificacion (
     @nombre varchar(25),
     @nuevo_nombre varchar(25) = null,
     @tipo varchar(100) = null,
@@ -796,10 +792,8 @@ create or alter procedure concesiones.sp_modificacion_empresa (
         set @errores += 'El cuit no tiene el formato de una empresa.' + char(10)
     end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end;
+    if @errores <> ''
+        throw 16, @errores, 1;
 
 	update concesiones.Empresa set nombre=isnull(@nuevo_nombre, nombre), tipo=isnull(@tipo, tipo), cuit=isnull(@cuit, cuit) where id = @id
 end;
@@ -808,7 +802,7 @@ go
 -----------------------------------------------------------
 -- Valida la existencia de una concesion para una empresa 
 -- en un parque y en una fecha.
-create or alter procedure concesiones.sp_validacion_concesion(
+create or alter procedure concesiones.concesion_validacion(
     @empresa varchar(100),
     @parque varchar(100),
     @fecha_inicio date,
@@ -842,7 +836,7 @@ go
 
 -----------------------------------------------------------
 -- Crea una concesion
-create or alter procedure concesiones.sp_alta_concesion(
+create or alter procedure concesiones.concesion_alta(
     @empresa varchar(25),
     @parque varchar(100),
     @canon_mensual numeric(10, 2),
@@ -870,10 +864,8 @@ create or alter procedure concesiones.sp_alta_concesion(
         set @errores += 'El canon mensual no puede ser negativo.' + CHAR(10)
 	end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
 	insert into concesiones.Concesion (fecha_inicio, canon_mensual, estado, id_empresa, id_parque, id_actividad) values (@fecha_inicio, @canon_mensual, 'ACTIVO', @id_empresa, @id_parque, @actividad)
 end;
@@ -881,7 +873,7 @@ go
 
 -----------------------------------------------------------
 -- Invalida una concesion
-create or alter procedure concesiones.sp_baja_concesion (
+create or alter procedure concesiones.concesion_baja (
     @empresa varchar(100),
     @parque varchar(100),
     @fecha_inicio datetime
@@ -890,12 +882,10 @@ create or alter procedure concesiones.sp_baja_concesion (
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
 
-    execute concesiones.sp_validacion_concesion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
+    execute concesiones.concesion_validacion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
 	update concesiones.Concesion set estado='INACTIVO' where id = @id_concesion
 end;
@@ -904,7 +894,7 @@ go
 -----------------------------------------------------------
 -- Modifica una concesion. Se puede especificar que valores editar
 -- si se quiere invalidar la fecha de fin se tiene que pasar la fecha '1900-01-01'
-create or alter procedure concesiones.sp_modificacion_concesion(
+create or alter procedure concesiones.concesion_modificacion(
         @empresa varchar(100),
         @parque varchar(100), 
         @fecha_inicio datetime, 
@@ -919,7 +909,7 @@ create or alter procedure concesiones.sp_modificacion_concesion(
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
 
-    execute concesiones.sp_validacion_concesion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
+    execute concesiones.concesion_validacion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
 
     declare @id_empresa int = null;
     declare @id_parque int = null;
@@ -954,10 +944,8 @@ create or alter procedure concesiones.sp_modificacion_concesion(
     end
 
     
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1)
-        return
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
     update concesiones.Concesion
 	set
@@ -976,27 +964,25 @@ go
 
 -----------------------------------------------------------
 -- Crea un canon a pagar
-create or alter procedure concesiones.sp_alta_canon_pagar (
+create or alter procedure concesiones.canon_pagar_alta (
     @fecha_generacion date,
-    @periodo varchar(50),
     @empresa varchar(25),
     @parque varchar(100),
     @fecha_inicio date
 ) as begin
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
+    declare @periodo varchar(50) = concat(year(@fecha_generacion), '-', right('0' + cast(month(@fecha_generacion) as varchar(2)), 2));
 
-    execute concesiones.sp_validacion_concesion
+    execute concesiones.concesion_validacion
         @empresa,
         @parque,
         @fecha_inicio,
         @errores output,
         @id_concesion output;
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1);
-        return;
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
     declare @monto numeric(10, 2) = (
         select top 1 canon_mensual
@@ -1010,7 +996,7 @@ go
 
 -----------------------------------------------------------
 -- Modifica un canon a pagar
-create or alter procedure concesiones.sp_modificacion_canon_pagar (
+create or alter procedure concesiones.canon_pagar_modificacion (
     @fecha_generacion date,
     @periodo varchar(50),
     @monto decimal(10, 2),
@@ -1021,7 +1007,7 @@ create or alter procedure concesiones.sp_modificacion_canon_pagar (
     declare @errores varchar(4000) = '';
     declare @id_concesion int = null;
 
-    execute concesiones.sp_validacion_concesion
+    execute concesiones.concesion_validacion
         @empresa,
         @parque,
         @fecha_inicio,
@@ -1041,10 +1027,8 @@ create or alter procedure concesiones.sp_modificacion_canon_pagar (
         set @errores += 'El monto no puede ser negativo.' + char(10);
     end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1);
-        return;
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
     update concesiones.Canon_pagar
     set monto = @monto,
@@ -1055,49 +1039,8 @@ end
 go
 
 -----------------------------------------------------------
--- Paga un canon de una concesion en una fecha en especifico
-create or alter procedure concesiones.sp_pagar_canon (
-    @fecha_pago date,
-    @fecha_generacion date,
-    @empresa varchar(100),
-    @parque varchar(100),
-    @fecha_inicio date
-) as begin
-    declare @id int;
-    declare @errores varchar(4000) = '';
-    declare @id_concesion int = null;
-
-    execute concesiones.sp_validacion_concesion
-        @empresa,
-        @parque,
-        @fecha_inicio,
-        @errores output,
-        @id_concesion output;
-
-    select top 1 @id = id
-    from concesiones.Canon_pagar
-    where id_concesion = @id_concesion
-      and fecha_generacion = @fecha_generacion;
-
-    if @id is null begin
-        set @errores += 'No en encontro el canon a pagar.' + char(10);
-    end
-
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1);
-        return;
-    end
-
-    update concesiones.Canon_pagar
-    set fecha_pagado = @fecha_pago,
-        estado = 'PAGADO'
-    where id = @id;
-end
-go
-
------------------------------------------------------------
 -- Baja de un canon a pagar
-create or alter procedure concesiones.sp_baja_canon (
+create or alter procedure concesiones.canon_pagar_baja (
     @fecha_generacion date,
     @empresa varchar(100),
     @parque varchar(100),
@@ -1107,7 +1050,7 @@ create or alter procedure concesiones.sp_baja_canon (
     declare @errores varchar(4000) = '';
     declare @id_concesion int = null;
 
-    execute concesiones.sp_validacion_concesion
+    execute concesiones.concesion_validacion
         @empresa,
         @parque,
         @fecha_inicio,
@@ -1123,16 +1066,15 @@ create or alter procedure concesiones.sp_baja_canon (
         set @errores += 'No en encontro el canon a pagar.' + char(10);
     end
 
-    if @errores <> '' begin
-        raiserror(@errores, 16, 1);
-        return;
-    end
+    if @errores <> ''
+        throw 16, @errores, 1;
 
     update concesiones.Canon_pagar
     set estado = 'INVALIDO'
     where id = @id;
 end
 go
+
 /*
 ====================================================
 		ABMS DE TABLA TIPO_VISITANTE
