@@ -19,6 +19,34 @@ GO
 -----------------------------------------------------------
 -- Alta
 -----------------------------------------------------------
+-- Registrar ubicacion
+
+CREATE OR ALTER PROCEDURE gestion.ubicacion_alta
+    @provincia VARCHAR(50)
+AS
+BEGIN
+    DECLARE @error VARCHAR(70);
+    SET @error = '';
+
+    IF @provincia IS NULL OR @provincia = ''
+        SET @error += 'Se debe especificar la provincia.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF EXISTS (SELECT id from gestion.Ubicacion WHERE provincia = @provincia)
+        SET @error += 'La provincia ya se encuentra registrada.' + CHAR(10);
+    END
+
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        INSERT INTO gestion.Ubicacion VALUES(@provincia); 
+    END 
+END
+GO
+
+
+
 -- Registrar parque
 
 CREATE OR ALTER PROCEDURE gestion.sp_registrar_parque
@@ -553,7 +581,7 @@ GO
 -----------------------------------------------------------
 -- Registrar guia
 
-CREATE OR ALTER PROCEDURE gestion.sp_registrar_guia
+CREATE OR ALTER PROCEDURE gestion.guia_alta
 @dni CHAR(8),
 @nombre VARCHAR(30),
 @apellido VARCHAR(30), 
@@ -610,7 +638,7 @@ GO
 -----------------------------------------------------------
 -- Actualizar guia
 
-CREATE OR ALTER PROCEDURE gestion.sp_actualizar_guia
+CREATE OR ALTER PROCEDURE gestion.guia_actualizar
 @dni CHAR(8),
 @nombre VARCHAR(30),
 @apellido VARCHAR(30)
@@ -649,7 +677,7 @@ GO
 -----------------------------------------------------------
 -- Asignar guia a actividad
 
-CREATE OR ALTER PROCEDURE gestion.sp_asignar_guia
+CREATE OR ALTER PROCEDURE gestion.guia_asignar
 @dni CHAR(8),
 @nombre_actividad VARCHAR(50),
 @nombre_parque VARCHAR(50),

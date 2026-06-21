@@ -15,11 +15,14 @@
 USE parques_nacionales
 GO
 
+
 -----------------------------------------------------------
 -- Importar guias de un csv
 
-CREATE OR ALTER PROCEDURE gestion.sp_importar_guias
-@archivo_dir varchar(70)
+-- Descargar archivo desde "https://datosabiertos.mendoza.gov.ar/dataset/profesionales-de-turismo/archivo/dc306ca1-f657-4f97-8b55-bfb9978366c1"
+
+CREATE OR ALTER PROCEDURE gestion.importar_guias
+@archivo_dir VARCHAR(70)
 AS
 BEGIN
     DECLARE @error VARCHAR(80);
@@ -35,68 +38,51 @@ BEGIN
         dpt VARCHAR(10),
         resolucion_inscripcion VARCHAR(10),
     );
-    
-    EXEC sp_configure 'xp_cmdshell', 1; 
-    RECONFIGURE;
 
     BEGIN TRY
-        DECLARE @archivo_existe VARCHAR(5);
-        DECLARE @importar_csv VARCHAR(150);
+        DECLARE @importar_csv NVARCHAR(200);
         DECLARE @id_max INT;
         DECLARE @id_act INT;
-        DECLARE @tabla_archivo TABLE (archivo_existe VARCHAR(5));
-        DECLARE @consulta varchar(150);
-        SET @consulta = 'IF EXIST "' + @archivo_dir + '" (ECHO True) ELSE (ECHO False)';
-
-        INSERT INTO @tabla_archivo EXEC xp_cmdshell @consulta
-        SET @archivo_existe = (SELECT archivo_existe FROM @tabla_archivo WHERE archivo_existe IS NOT NULL)
-        IF @archivo_existe = 'False'
-            THROW 50001, 'El archivo no existe o no se encuentra en esa ubicacion.', 1;
         
         SET @importar_csv = ' BULK INSERT #TempImport FROM ''' + @archivo_dir + ''' WITH (FIRSTROW = 2, 
         FIELDTERMINATOR = '';'', ROWTERMINATOR = ''0x0d0a'', CODEPAGE = ''1252'')'
 
-        EXEC (@importar_csv);
+        EXEC sp_executesql @importar_csv;
 
-        CREATE TABLE #TempGuia (
-            id INT IDENTITY(1,1) PRIMARY KEY,
-            apellido VARCHAR(50),
-            nombre VARCHAR(50),
-            titulo VARCHAR(80),
-            dni CHAR(8)
-        );
+        DELETE #TempImport WHERE dpt NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]';
+        DELETE #TempImport WHERE dpt IS NULL;
+        DELETE #TempImport WHERE CHARINDEX(',', nombre_y_apellido) = 0;
 
-        INSERT INTO #TempGuia SELECT LEFT(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) - 1)) apellido,
-                                LTRIM(SUBSTRING(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) + 1), LEN(nombre_y_apellido))) nombre,
-                                LTRIM(titulo) titulo,
-                                dpt dni
-                                from #TempImport 
-                                where nombre_y_apellido != 'DISPONIBLE' and CHARINDEX(',', nombre_y_apellido) != 0  
-                                and dpt LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
-        SET @id_max =  (SELECT MAX(id) from #TempGuia);
+        ALTER TABLE #TempImport ADD id INT IDENTITY(1,1) NOT NULL;
+
+        SET @id_max =  (SELECT MAX(id) from #TempImport);
         SET @id_act = 1;
         
         DECLARE @apellido VARCHAR(50), @nombre VARCHAR(50), @dni CHAR(8), @titulo VARCHAR(80), @fecha_random DATE, @institucion VARCHAR(30);
 
         WHILE @id_act <= @id_max
         BEGIN
-            SELECT @apellido = apellido, @nombre = nombre, @dni = dni, @titulo = titulo FROM #TempGuia WHERE id = @id_act;
+            SELECT @apellido =  LEFT(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) - 1)),
+                   @nombre = LTRIM(SUBSTRING(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) + 1), LEN(nombre_y_apellido))), 
+                   @dni = dpt, 
+                   @titulo = titulo 
+                   FROM #TempImport WHERE id = @id_act;
             SET @fecha_random = DATEADD( DAY, ABS(CHECKSUM(NEWID())) % (DATEDIFF(DAY, '2020-01-01', '2030-12-31') + 1), '2020-01-01');
 
             BEGIN TRY
-                EXEC gestion.sp_registrar_guia
+                EXEC gestion.guia_alta
                     @dni = @dni,
                     @nombre = @nombre,
                     @apellido = @apellido,
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END TRY
             BEGIN CATCH
-                EXEC gestion.sp_actualizar_guia
+                EXEC gestion.guia_actualizar
                     @dni = @dni,
                     @nombre = @nombre,
                     @apellido = @apellido;
 
-                EXEC guia.sp_actualizar_acreditacion
+                EXEC guia.acreditacion_actualizar
                     @dni = @dni,
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END CATCH
@@ -105,14 +91,14 @@ BEGIN
             SET @institucion =  case cast(FLOOR(rand() * 3) as int) when 0 then 'UNLAM' when 1 then 'UBA' ELSE 'UTN' END;
 
             BEGIN TRY
-                EXEC guia.sp_asignar_titulacion_guia
+                EXEC guia.titulacion_asignar
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = @institucion,
                     @fecha_emision = @fecha_random;
             END TRY
             BEGIN CATCH
-                EXEC guia.sp_actualizar_titulo_guia
+                EXEC guia.titulo_actualizar
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = @institucion,
@@ -121,15 +107,10 @@ BEGIN
 
             SET @id_act += 1;
         END
-
-        DROP TABLE #TempGuia;
     END TRY
     BEGIN CATCH
         SET @error += ERROR_MESSAGE() + char(10);
     END CATCH
-
-    EXEC sp_configure 'xp_cmdshell', 0; 
-    RECONFIGURE;
 
     DROP TABLE #TempImport;
 
@@ -141,25 +122,70 @@ GO
 -----------------------------------------------------------
 -- Importar provincias de un Json
 
-CREATE OR ALTER PROCEDURE gestion.sp_importar_provincias
+-- Url de la api: "https://infra.datos.gob.ar/georef-dev/provincias.json"
+
+CREATE OR ALTER PROCEDURE gestion.importar_provincias
 AS
 BEGIN
-    DECLARE @jsonProv NVARCHAR(MAX);
+    EXEC sp_configure 'show advanced options', 1;	--Este es para poder editar los permisos avanzados.
+    RECONFIGURE;
+  
+    EXEC sp_configure 'Ole Automation Procedures', 1;	-- Aqui habilitamos esta opcion avanzada
+    RECONFIGURE;
 
-    SET @jsonProv = N'{"cantidad":24,"total":24,"inicio":0,"parametros":{},"provincias":[{"id":"02","nombre":"Ciudad Autónoma de Buenos Aires","nombre_completo":"Ciudad Autónoma de Buenos Aires","fuente":"IGN","categoria":"Ciudad Autónoma","centroide":{"lon":-58.445876325,"lat":-34.614442065},"iso_id":"AR-C","iso_nombre":"Ciudad Autónoma de Buenos Aires"},{"id":"58","nombre":"Neuquén","nombre_completo":"Provincia del Neuquén","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-70.119897224,"lat":-38.641982863},"iso_id":"AR-Q","iso_nombre":"Neuquén"},{"id":"74","nombre":"San Luis","nombre_completo":"Provincia de San Luis","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-66.025231271,"lat":-33.761103538},"iso_id":"AR-D","iso_nombre":"San Luis"},{"id":"82","nombre":"Santa Fe","nombre_completo":"Provincia de Santa Fe","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-60.950687277,"lat":-30.708822709},"iso_id":"AR-S","iso_nombre":"Santa Fe"},{"id":"46","nombre":"La Rioja","nombre_completo":"Provincia de La Rioja","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-67.181757581,"lat":-29.684937278},"iso_id":"AR-F","iso_nombre":"La Rioja"},{"id":"10","nombre":"Catamarca","nombre_completo":"Provincia de Catamarca","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-66.947897245,"lat":-27.335953796},"iso_id":"AR-K","iso_nombre":"Catamarca"},{"id":"90","nombre":"Tucumán","nombre_completo":"Provincia de Tucumán","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-65.36476558,"lat":-26.948283502},"iso_id":"AR-T","iso_nombre":"Tucumán"},{"id":"22","nombre":"Chaco","nombre_completo":"Provincia del Chaco","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-60.76511626,"lat":-26.386987184},"iso_id":"AR-H","iso_nombre":"Chaco"},{"id":"34","nombre":"Formosa","nombre_completo":"Provincia de Formosa","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-59.932190112,"lat":-24.895087176},"iso_id":"AR-P","iso_nombre":"Formosa"},{"id":"78","nombre":"Santa Cruz","nombre_completo":"Provincia de Santa Cruz","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-69.955761914,"lat":-48.815547183},"iso_id":"AR-Z","iso_nombre":"Santa Cruz"},{"id":"26","nombre":"Chubut","nombre_completo":"Provincia del Chubut","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-68.526736334,"lat":-43.788627139},"iso_id":"AR-U","iso_nombre":"Chubut"},{"id":"50","nombre":"Mendoza","nombre_completo":"Provincia de Mendoza","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-68.582945602,"lat":-34.630388707},"iso_id":"AR-M","iso_nombre":"Mendoza"},{"id":"30","nombre":"Entre Ríos","nombre_completo":"Provincia de Entre Ríos","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-59.201262616,"lat":-32.058927894},"iso_id":"AR-E","iso_nombre":"Entre Ríos"},{"id":"70","nombre":"San Juan","nombre_completo":"Provincia de San Juan","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-68.888159707,"lat":-30.865660702},"iso_id":"AR-J","iso_nombre":"San Juan"},{"id":"38","nombre":"Jujuy","nombre_completo":"Provincia de Jujuy","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-65.764423919,"lat":-23.319975062},"iso_id":"AR-Y","iso_nombre":"Jujuy"},{"id":"86","nombre":"Santiago del Estero","nombre_completo":"Provincia de Santiago del Estero","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-63.252626886,"lat":-27.783431882},"iso_id":"AR-G","iso_nombre":"Santiago del Estero"},{"id":"62","nombre":"Río Negro","nombre_completo":"Provincia de Río Negro","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-67.2296758,"lat":-40.405079631},"iso_id":"AR-R","iso_nombre":"Río Negro"},{"id":"18","nombre":"Corrientes","nombre_completo":"Provincia de Corrientes","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-57.80108186,"lat":-28.774204481},"iso_id":"AR-W","iso_nombre":"Corrientes"},{"id":"54","nombre":"Misiones","nombre_completo":"Provincia de Misiones","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-54.651570563,"lat":-26.875302599},"iso_id":"AR-N","iso_nombre":"Misiones"},{"id":"66","nombre":"Salta","nombre_completo":"Provincia de Salta","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-64.814158657,"lat":-24.299283896},"iso_id":"AR-A","iso_nombre":"Salta"},{"id":"14","nombre":"Córdoba","nombre_completo":"Provincia de Córdoba","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-63.801973467,"lat":-32.144799387},"iso_id":"AR-X","iso_nombre":"Córdoba"},{"id":"06","nombre":"Buenos Aires","nombre_completo":"Provincia de Buenos Aires","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-60.558477108,"lat":-36.677392076},"iso_id":"AR-B","iso_nombre":"Buenos Aires"},{"id":"42","nombre":"La Pampa","nombre_completo":"Provincia de La Pampa","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-65.447643999,"lat":-37.135065221},"iso_id":"AR-L","iso_nombre":"La Pampa"},{"id":"94","nombre":"Tierra del Fuego, Antártida e Islas del Atlántico Sur","nombre_completo":"Provincia de Tierra del Fuego, Antártida e Islas del Atlántico Sur","fuente":"IGN","categoria":"Provincia","centroide":{"lon":-50.742860676,"lat":-82.521134521},"iso_id":"AR-V","iso_nombre":"Tierra del Fuego"}]}';
+    DECLARE @url NVARCHAR(64) = 'https://infra.datos.gob.ar/georef-dev/provincias.json'
 
-    INSERT INTO gestion.Ubicacion SELECT nombre FROM OpenJson(@jsonProv) WITH (
+    DECLARE @Object INT
+    DECLARE @json TABLE(DATA NVARCHAR(MAX))
+    DECLARE @respuesta NVARCHAR(MAX)
+
+    EXEC sp_OACreate 'MSXML2.XMLHTTP', @Object OUT
+    EXEC sp_OAMethod @Object, 'OPEN', NULL, 'GET', @url, 'FALSE'
+    EXEC sp_OAMethod @Object, 'SEND'
+    EXEC sp_OAMethod @Object, 'RESPONSETEXT', @respuesta OUTPUT , @json OUTPUT
+    INSERT INTO @json EXEC sp_OAGetProperty @Object, 'RESPONSETEXT'
+    
+    DECLARE @jsonProv NVARCHAR(MAX) = (SELECT DATA FROM @json)
+
+    CREATE TABLE #TempImport (
+        id INT IDENTITY(1, 1) PRIMARY KEY,
+        provincia  VARCHAR(50),
+    );
+
+    INSERT INTO #TempImport SELECT nombre FROM OpenJson(@jsonProv) WITH (
         provincias NVARCHAR(MAX) '$.provincias' AS JSON
     ) CROSS APPLY OpenJson(provincias) WITH (
         nombre VARCHAR(50) '$.nombre'
     )
+    DECLARE @id_max INT;
+    DECLARE @id_act INT;
+    SET @id_max =  (SELECT MAX(id) from #TempImport);
+    SET @id_act = 1;
+        
+    DECLARE @provincia VARCHAR(50);
+
+    WHILE @id_act <= @id_max
+    BEGIN
+        SELECT @provincia = provincia FROM #TempImport WHERE id = @id_act;
+        BEGIN TRY
+            EXEC gestion.ubicacion_alta @provincia
+        END TRY
+        BEGIN CATCH
+        END CATCH
+
+        SET @id_act += 1;
+    END
+
+    DROP TABLE #TempImport
 END
 GO
 
 -----------------------------------------------------------
 -- Importar parques de un csv
 
-CREATE OR ALTER PROCEDURE gestion.sp_importar_parques
+-- Descargar archivo desde "https://sib.gob.ar/areas-protegidas"
+
+CREATE OR ALTER PROCEDURE gestion.importar_parques
     @archivo_dir VARCHAR(260)
 AS
 BEGIN

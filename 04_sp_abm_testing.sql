@@ -575,7 +575,7 @@ GO
 
 -- TEST 11.1: Registro exitoso
 PRINT '--- TEST 11.1: Registrar guía exitosamente ---';
-EXEC gestion.sp_registrar_guia
+EXEC gestion.guia_alta
     @dni = '30456789',
     @nombre = 'Lucía',
     @apellido = 'Ferreyra',
@@ -584,7 +584,7 @@ GO
 
 -- TEST 11.2: Registro exitoso
 PRINT '--- TEST 11.2: Registrar guía exitosamente ---';
-EXEC gestion.sp_registrar_guia
+EXEC gestion.guia_alta
     @dni = '25123456',
     @nombre = 'Marcos',
     @apellido = 'Villanueva',
@@ -594,7 +594,7 @@ GO
 -- TEST 11.3: DNI duplicado (debe fallar)
 PRINT '--- TEST 11.3: DNI duplicado (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = '30456789',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -609,7 +609,7 @@ GO
 -- TEST 11.4: DNI duplicado y nombre inválido (debe fallar)
 PRINT '--- TEST 11.4: DNI duplicado y falta de nombre/apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez',
@@ -624,7 +624,7 @@ GO
 -- TEST 11.5: Formato de DNI inválido (debe fallar)
 PRINT '--- TEST 11.5: DNI con formato inválido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = 'ABC12',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -639,7 +639,7 @@ GO
 -- TEST 11.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 11.6: Falta apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '',
@@ -654,7 +654,7 @@ GO
 -- TEST 11.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 11.7: Apellido NULL (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL,
@@ -669,7 +669,7 @@ GO
 -- TEST 11.8: Fecha de vencimiento NULL (debe fallar)
 PRINT '--- TEST 11.8: Falta fecha de vencimiento de la acreditacion (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -684,7 +684,7 @@ GO
 -- TEST 11.9: DNI NULL (debe fallar)
 PRINT '--- TEST 11.9: Falta DNI (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_registrar_guia
+    EXEC gestion.guia_alta
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -698,7 +698,7 @@ GO
 
 -- TEST 11.10: Registro exitoso
 PRINT '--- TEST 11.10: Registrar guía exitosamente ---';
-EXEC gestion.sp_registrar_guia
+EXEC gestion.guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -714,7 +714,7 @@ GO
 
 -- TEST 12.1: Actalizar exitoso
 PRINT '--- TEST 12.1: Actalizar guía exitosamente ---';
-EXEC gestion.sp_actualizar_guia
+EXEC gestion.guia_actualizar
     @dni = '30456789',
     @nombre = 'Luciano',
     @apellido = 'Fernandez';
@@ -722,7 +722,7 @@ GO
 
 -- TEST 12.2: Actalizar exitoso
 PRINT '--- TEST 12.2: Actalizar guía exitosamente ---';
-EXEC gestion.sp_actualizar_guia
+EXEC gestion.guia_actualizar
     @dni = '25123456',
     @nombre = 'Marcos',
     @apellido = 'Villanueva';
@@ -731,7 +731,7 @@ GO
 -- TEST 12.3: DNI sin guia (debe fallar)
 PRINT '--- TEST 12.3: DNI sin guia (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_actualizar_guia
+    EXEC gestion.guia_actualizar
     @dni = '32000000',
     @nombre = 'Lucas',
     @apellido = 'Perez';
@@ -745,7 +745,7 @@ GO
 -- TEST 12.4: Nombre inválido (debe fallar)
 PRINT '--- TEST 12.4: Falta de nombre/apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_actualizar_guia
+    EXEC gestion.guia_actualizar
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez';
@@ -759,7 +759,7 @@ GO
 -- TEST 12.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 12.6: Falta apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_actualizar_guia
+    EXEC gestion.guia_actualizar
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '';
@@ -773,7 +773,7 @@ GO
 -- TEST 12.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 12.7: Apellido NULL (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_actualizar_guia
+    EXEC gestion.guia_actualizar
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL;
@@ -787,7 +787,7 @@ GO
 -- TEST 12.8: DNI NULL (debe fallar)
 PRINT '--- TEST 12.8: Falta DNI (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_actualizar_guia
+    EXEC gestion.guia_actualizar
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez';
@@ -819,7 +819,7 @@ EXEC gestion.sp_registrar_actividad
 
 -- TEST 13.1: Asignación exitosa
 PRINT '--- TEST 13.1: Asignar guía exitosamente ---';
-EXEC gestion.sp_asignar_guia
+EXEC gestion.guia_asignar
 @dni = '30456789',
 @nombre_actividad = 'Trekking Cataratas',
 @nombre_parque = 'Parque Nacional Iguazu',
@@ -831,7 +831,7 @@ GO
 -- TEST 13.2: Actividad inexistente en el parque (debe fallar)
 PRINT '--- TEST 13.2: Actividad inexistente en el parque (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nahuel Huapi',
@@ -848,7 +848,7 @@ GO
  -- TEST 13.3: DNI NULL (debe fallar)
 PRINT '--- TEST 13.3: Falta especificar DNI del guía (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = NULL,
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -865,7 +865,7 @@ GO
 -- TEST 13.4: Guía inexistente (debe fallar)
 PRINT '--- TEST 13.4: DNI de guía inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '11122345',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -882,7 +882,7 @@ GO
 -- TEST 13.5: Nombre de actividad inexistente (debe fallar)
 PRINT '--- TEST 13.5: Actividad inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Escalda',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -899,7 +899,7 @@ GO
 -- TEST 13.6: Fecha de actividad incorrecta (debe fallar)
 PRINT '--- TEST 13.6: Fecha de actividad inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -916,7 +916,7 @@ GO
 -- TEST 13.7: Nombre de actividad NULL (debe fallar)
 PRINT '--- TEST 13.7: Falta nombre de actividad (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = NULL,
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -933,7 +933,7 @@ GO
 -- TEST 13.8: Fecha de actividad NULL (debe fallar)
 PRINT '--- TEST 13.8: Falta fecha de actividad (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -950,7 +950,7 @@ GO
 -- TEST 13.9: Fecha desde NULL (debe fallar)
 PRINT '--- TEST 13.9: Falta fecha desde (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -967,7 +967,7 @@ GO
 -- TEST 13.10: Fecha hasta NULL (debe fallar)
 PRINT '--- TEST 13.10: Falta fecha hasta (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -984,7 +984,7 @@ GO
 -- TEST 13.11: Asignación duplicada (debe fallar)
 PRINT '--- TEST 13.11: La actividad ya está asignada al guía (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',
@@ -1001,7 +1001,7 @@ GO
 -- TEST 13.12: Guía con acreditación vencida (debe fallar)
 PRINT '--- TEST 13.12: Guía con acreditación vencida (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.sp_asignar_guia
+    EXEC gestion.guia_asignar
     @dni = '25123456',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazu',

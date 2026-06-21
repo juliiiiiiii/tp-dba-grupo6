@@ -18,7 +18,7 @@ GO
 -----------------------------------------------------------
 -- Registrar especialidad
 
-CREATE OR ALTER PROCEDURE guia.sp_registrar_especialidad
+CREATE OR ALTER PROCEDURE guia.especialidad_alta
 @descripcion VARCHAR(50)
 AS
 BEGIN
@@ -45,7 +45,7 @@ GO
 -----------------------------------------------------------
 -- Asignarle especializacion a un guia
 
-CREATE OR ALTER PROCEDURE guia.sp_asignar_especializacion
+CREATE OR ALTER PROCEDURE guia.especialidad_asignar
 @dni CHAR(8),
 @especialidad VARCHAR(50)
 AS
@@ -90,7 +90,7 @@ GO
 -----------------------------------------------------------
 -- Actualizar acreditacion de guias
 
-CREATE OR ALTER PROCEDURE guia.sp_actualizar_acreditacion
+CREATE OR ALTER PROCEDURE guia.acreditacion_actualizar
 @dni CHAR(8),
 @fecha_vencimiento_acreditacion DATE
 AS
@@ -140,7 +140,7 @@ GO
 -----------------------------------------------------------
 -- Asignar titulo a un guia
 
-CREATE OR ALTER PROCEDURE guia.sp_asignar_titulacion_guia
+CREATE OR ALTER PROCEDURE guia.titulacion_asignar
 @dni CHAR(8),
 @descripcion VARCHAR(80),
 @institucion VARCHAR(30),
@@ -195,7 +195,7 @@ GO
 -----------------------------------------------------------
 -- Actualizar titulo a un guia
 
-CREATE OR ALTER PROCEDURE guia.sp_actualizar_titulo_guia
+CREATE OR ALTER PROCEDURE guia.titulo_actualizar
 @dni CHAR(8),
 @descripcion VARCHAR(80),
 @institucion VARCHAR(30),
