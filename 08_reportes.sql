@@ -227,29 +227,30 @@ AS
 GO
 --EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
 
+create or alter view concesiones.deudores
+as
+	select c.id, c.fecha_inicio, e.nombre as empresa, p.nombre as parque, cp.periodo, cp.monto
+	from concesiones.Concesion as c
+	JOIN concesiones.Empresa AS e ON c.id_empresa = e.id
+	JOIN gestion.Parque AS p ON p.id = c.id_parque
+	join concesiones.Canon_pagar as cp on cp.id_concesion = c.id
+	where 
+	--cp.estado = 'PENDIENTE'
+	fecha_pagado is null
+go
 
-CREATE OR ALTER FUNCTION concesiones.identificar_concesion(@ids VARCHAR(MAX)) RETURNS TABLE AS
-RETURN (
-    SELECT 
-        c.fecha_inicio, 
-        e.nombre AS empresa, 
-        p.nombre AS parque
-    FROM concesiones.Concesion AS c
-    JOIN concesiones.Empresa AS e ON c.id_empresa = e.id
-    JOIN gestion.Parque AS p ON p.id = c.id_parque
-    WHERE c.id IN (SELECT value FROM STRING_SPLIT(@ids, ','))
-);
-GO
+create or alter procedure concesiones.reporte_deudores (@empresa varchar(100), @parque varchar(100), @fecha_inicio date)
+as begin
+	declare @id_concesion int = null;
+    declare @errores varchar(4000) = '';
 
--- la info de inf.* es con lo que se identifica despues las concesiones para usar los sp's
-create or alter view concesiones.deudores as
-select c.id, inf.fecha_inicio, inf.empresa, inf.parque, cp.periodo, cp.monto
-from concesiones.Concesion as c
-CROSS APPLY concesiones.identificar_concesion(CAST(c.id AS VARCHAR)) AS inf
-join concesiones.Canon_pagar as cp on cp.id_concesion = c.id
-where 
---cp.estado = 'PENDIENTE'
-fecha_pagado is null
+    execute concesiones.concesion_validacion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
+   
+	if @errores <> ''
+        throw 16, @errores, 1;
+
+	select * from concesiones.deudores where id=@id_concesion
+end
 go
 
 -- 'servicios prestados' se refiere a actividad? deberia agregar un nuevo campo para servicios prestados en concesion?
@@ -257,17 +258,27 @@ go
 -- otras opciones eran:
 -- string_agg <- era muy manual y no me copo
 -- select con joins <- no cumplia con la idea de vector que pide el reporte
-create or alter view concesiones.concesiones_por_parque as
-select p.id as id, p.nombre, (
-    select 
-        c.fecha_inicio as inicio
-        , e.nombre as titular
-        , trim(a.nombre) as actividad
-    from concesiones.Concesion as c
-    join concesiones.Empresa as e on c.id_empresa=e.id
-    left join gestion.Actividad as a on c.id_actividad=a.id
-    where p.id=c.id_empresa
-    for json path -- for xml path
-) as concesiones
-from gestion.Parque as p 
+create or alter view concesiones.concesiones_por_parque
+as
+	select p.id as id, p.nombre, (
+		select 
+			c.fecha_inicio as inicio
+			, e.nombre as titular
+			, trim(a.nombre) as actividad
+		from concesiones.Concesion as c
+		join concesiones.Empresa as e on c.id_empresa=e.id
+		left join gestion.Actividad as a on c.id_actividad=a.id
+		where p.id=c.id_empresa
+		for json path -- for xml path
+	) as concesiones
+	from gestion.Parque as p 
+go
+
+create or alter procedure concesiones.reporte_concesiones (@parque varchar(50))
+as begin
+	if not exists (select 1 from gestion.Parque where nombre=@parque) 
+		throw 16, 'No existe el parque.', 1;
+
+	select * from concesiones.concesiones_por_parque where nombre=@parque
+end
 go

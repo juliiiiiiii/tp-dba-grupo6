@@ -874,6 +874,7 @@ create or alter procedure concesiones.concesion_alta(
 
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
     declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
+    declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
 
 	if @fecha_inicio is null begin
@@ -891,6 +892,17 @@ create or alter procedure concesiones.concesion_alta(
 	if @canon_mensual < 0 begin
         set @errores += 'El canon mensual no puede ser negativo.' + CHAR(10)
 	end
+
+    set @id_concesion = (select top 1 id
+        from concesiones.Concesion
+        where id_empresa = @id_empresa
+          and id_parque = @id_parque
+          and fecha_inicio = @fecha_inicio
+    );
+
+    if @id_concesion is not null
+        set @errores += 'Ya existe la concesion.' + char(10);
+
 
     if @errores <> ''
         throw 16, @errores, 1;

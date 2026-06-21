@@ -81,6 +81,7 @@ GO
 -- 2. Entidades maestras
 -----------------------------------------------------------
 
+-- TODO: Faltan 10 parques
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu')
     EXEC gestion.sp_registrar_parque
         @nombre = 'Parque Nacional Iguazu',
@@ -103,6 +104,7 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahu
         @superficie = 717261;
 GO
 
+-- TODO: Faltan 20 guardaparques
 IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = 30111222)
     EXEC gestion.sp_registrar_guardaparque @dni = 30111222, @nombre = 'Martin', @apellido = 'Perez';
 
@@ -113,6 +115,7 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = 32666777)
     EXEC gestion.sp_registrar_guardaparque @dni = 32666777, @nombre = 'Sofia', @apellido = 'Romero';
 GO
 
+-- TODO: faltan 20 guias 
 IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = '35111222')
     EXEC gestion.guia_alta
         @dni = '35111222',
@@ -207,6 +210,8 @@ GO
 -- 4. Actividades
 -----------------------------------------------------------
 
+-- TODO: faltan Actividades, hay que llegar a 30
+-- TODO: falta una Actividad(tour) con cupo completo (va de la mano con las ventas)
 DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
 DECLARE @id_glaciares INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
@@ -223,6 +228,19 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Circuito Garganta
         @descripcion = 'Recorrido por pasarelas principales',
         @tipo = 'Senderismo',
         @costo = 12000.00,
+        @fecha = '2026-10-15',
+        @duracion = 180,
+        @cupo = 30;
+
+-- actividad superpuesta a otra
+IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Circuito Cataratas' AND id_parque = @id_iguazu)
+    EXEC gestion.sp_registrar_actividad
+        @id_parque = @id_iguazu,
+        @id_guia = @id_guia_ana,
+        @nombre = 'Circuito Cataratas',
+        @descripcion = 'Atraccion principal',
+        @tipo = 'Senderismo',
+        @costo = 200000.00,
         @fecha = '2026-10-15',
         @duracion = 180,
         @cupo = 30;
@@ -269,7 +287,7 @@ GO
 -----------------------------------------------------------
 -- 5. Concesiones y canones
 -----------------------------------------------------------
-
+-- TODO: falta una concesion vencida
 IF NOT EXISTS (
     SELECT 1
     FROM concesiones.Concesion c
@@ -407,6 +425,9 @@ BEGIN
         @fecha_acceso = '2026-08-11';
 END
 GO
+
+
+select * from ventas.venta
 
 -----------------------------------------------------------
 -- 7. Ampliacion para casos obligatorios de entrega
