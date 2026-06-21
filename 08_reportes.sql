@@ -228,7 +228,6 @@ GO
 --EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
 
 
-
 CREATE OR ALTER FUNCTION concesiones.identificar_concesion(@ids VARCHAR(MAX)) RETURNS TABLE AS
 RETURN (
     SELECT 
@@ -242,8 +241,8 @@ RETURN (
 );
 GO
 
--- todo hacerlo en vistas
 -- la info de inf.* es con lo que se identifica despues las concesiones para usar los sp's
+create or alter view concesiones.deudores as
 select c.id, inf.fecha_inicio, inf.empresa, inf.parque, cp.periodo, cp.monto
 from concesiones.Concesion as c
 CROSS APPLY concesiones.identificar_concesion(CAST(c.id AS VARCHAR)) AS inf
@@ -251,13 +250,14 @@ join concesiones.Canon_pagar as cp on cp.id_concesion = c.id
 where 
 --cp.estado = 'PENDIENTE'
 fecha_pagado is null
-
+go
 
 -- 'servicios prestados' se refiere a actividad? deberia agregar un nuevo campo para servicios prestados en concesion?
 -- entiendo que titular se refiere a la empresa
 -- otras opciones eran:
 -- string_agg <- era muy manual y no me copo
 -- select con joins <- no cumplia con la idea de vector que pide el reporte
+create or alter view concesiones.concesiones_por_parque as
 select p.id as id, p.nombre, (
     select 
         c.fecha_inicio as inicio
@@ -268,5 +268,6 @@ select p.id as id, p.nombre, (
     left join gestion.Actividad as a on c.id_actividad=a.id
     where p.id=c.id_empresa
     for json path -- for xml path
-)
+) as concesiones
 from gestion.Parque as p 
+go
