@@ -7,7 +7,7 @@ Genera una view que muestra las ventas con sus respectivos visitantes
 =================
 */
 
-CREATE OR ALTER VIEW ventas.vw_ventas_con_visitantes AS
+CREATE OR ALTER VIEW ventas.ventas_con_visitantes AS
 	WITH id_por_parque(id, parque) AS (SELECT id, nombre FROM gestion.parque)
 	
 	SELECT v.parque, v.id as venta, i.id AS item, v.fecha, i.concepto, i.cantidad, v.total
@@ -24,7 +24,7 @@ GO
 Genera una view que muestra cada venta con el total de visitantes, sin discriminar el tipo.
 =================
 */
-CREATE OR ALTER VIEW ventas.vw_totales_visitas
+CREATE OR ALTER VIEW ventas.totales_visitas
 AS
 	SELECT parque, fecha, venta, SUM(cantidad) as total FROM
 	ventas.vw_ventas_con_visitantes
@@ -37,7 +37,7 @@ Genera una view que muestra el total de visitantes por dia por parque y fecha
 =================
 */
 
-CREATE OR ALTER VIEW ventas.vw_visitas_por_fecha
+CREATE OR ALTER VIEW ventas.visitas_por_fecha
 AS
 	SELECT parque, fecha, sum(total) as total from ventas.vw_totales_visitas group by parque, fecha
 GO
@@ -48,7 +48,7 @@ Genera una view que muestra el total de visitantes por dia por parque y fecha
 =================
 */
 
-CREATE OR ALTER VIEW ventas.vw_visitantes_por_mes
+CREATE OR ALTER VIEW ventas.visitantes_por_mes
 AS
 	WITH totales_por_mes(parque, mes, año, total)
 	AS
@@ -68,7 +68,7 @@ Genera una view que muestra el total de visitantes por parque y año
 =================
 */
 
-CREATE OR ALTER VIEW ventas.vw_ventas_por_año
+CREATE OR ALTER VIEW ventas.ventas_por_año
 AS
 	WITH totales_por_año(parque, año, total)
 	AS
@@ -87,7 +87,7 @@ vw_entradas_vigentes: Vista sólo con las entradas que están vigentes
 ============================================
 */
 
-CREATE OR ALTER VIEW ventas.vw_entradas_vigentes
+CREATE OR ALTER VIEW ventas.entradas_vigentes
 AS
 	SELECT p.id AS id_parque, p.nombre AS Parque, t.id AS id_visitante, t.descripcion as Visitante, precio
 	FROM ventas.entrada e

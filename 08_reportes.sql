@@ -8,7 +8,7 @@ GENERA REPORTE EN XML DE LAS VISITAS POR MES
 */
 
 
-CREATE OR ALTER PROCEDURE sp_generar_reporte_visitas_por_mes
+CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas_por_mes
 AS
 	SELECT
 		p.nombre AS 'Parque',
@@ -27,7 +27,7 @@ GO
 GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
 ============================
 */
-CREATE OR ALTER PROCEDURE sp_pivot_ventas_por_mes
+CREATE OR ALTER PROCEDURE ventas.pivot_ventas_por_mes
 AS
 	WITH ventas_por_mes(Parque, Mes, Visitas)
 	AS (
@@ -66,7 +66,7 @@ RECONFIGURE
 GO
 
 
-CREATE OR ALTER PROCEDURE sp_feriados @año CHAR(4)
+CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/feriados/';
 	SET @URL = (SELECT CONCAT(@URL, @año));
@@ -94,11 +94,11 @@ CREATE OR ALTER PROCEDURE sp_feriados @año CHAR(4)
 GO
 
 
-CREATE OR ALTER PROCEDURE sp_ventas_en_feriados @año CHAR(4)
+CREATE OR ALTER PROCEDURE ventas.ventas_en_feriados @año CHAR(4)
 AS
-	EXEC sp_feriados @año;
+	EXEC api_feriados @año;
 
-	SELECT * FROM ventas.vw_visitas_por_fecha
+	SELECT * FROM ventas.visitas_por_fecha
 	WHERE YEAR(fecha) = @año
 	AND fecha IN (SELECT Fecha FROM [dbo].[##feriados])
 	DROP TABLE [dbo].[##feriados]
@@ -112,13 +112,13 @@ VENTAS POR AÑO Y PARQUE
 =================
 */
 
-CREATE OR ALTER PROCEDURE ventas.sp_ventas_por_año @parque VARCHAR(50)
+CREATE OR ALTER PROCEDURE ventas.ventas_por_año @parque VARCHAR(50)
 AS
 BEGIN
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SELECT p.nombre, v.año, v.visitas FROM
-	ventas.vw_ventas_por_año v
+	ventas.ventas_por_año v
 	LEFT JOIN
 	gestion.parque p ON p.id = v.parque
 	WHERE p.id = @id_parque
@@ -133,11 +133,11 @@ GO
 VENTAS POR SEMANA
 =================
 */
-CREATE OR ALTER VIEW ventas.vw_visitas_por_semana
+CREATE OR ALTER VIEW ventas.visitas_por_semana
 AS
 
 	with visitas_por_semana(parque, fecha, semana, total) AS (
-	select parque, fecha, datepart(week, fecha) as semana, total from ventas.vw_visitas_por_fecha
+	select parque, fecha, datepart(week, fecha) as semana, total from ventas.visitas_por_fecha
 	)
 	select parque, semana, sum(total) as total_semana from visitas_por_semana group by parque, semana
 GO
@@ -150,7 +150,7 @@ AS
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 
 	select nombre, semana, total_semana
-	from ventas.vw_visitas_por_semana v
+	from ventas.visitas_por_semana v
 	LEFT JOIN
 	gestion.parque p
 	ON p.id = v.parque
@@ -179,7 +179,7 @@ RECONFIGURE
 GO
 
 
-CREATE OR ALTER PROCEDURE sp_dolares
+CREATE OR ALTER PROCEDURE ventas.api_dolares
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/cotizaciones/dolares';
 
@@ -211,9 +211,9 @@ GENERA REPORTE CON API DE DÓLARES PARA CONVERSIÓN DE PRECIOS
 ============================
 */
 
-CREATE OR ALTER PROCEDURE ventas.sp_evolucion_entrada_dolar(@parque VARCHAR(50), @entrada VARCHAR(20))
+CREATE OR ALTER PROCEDURE ventas.evolucion_entrada_dolar(@parque VARCHAR(50), @entrada VARCHAR(20))
 AS
-	EXEC sp_dolares
+	EXEC api_dolares
 	DECLARE @parque_id INT, @entrada_id INT
 	SET @parque_id = (SELECT id_parque FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
 	SET @entrada_id = (SELECT id_visitante FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)

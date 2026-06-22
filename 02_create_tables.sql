@@ -217,31 +217,34 @@ end
 go
 
 --Creación de tabla para los tipos de visitantes, los cuales definen el precio de las entradas
-IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.tipo_visitante','U') IS NULL
 CREATE TABLE ventas.tipo_visitante
 (
 	id INT IDENTITY(1,1) PRIMARY KEY,
-	descripcion VARCHAR(20) UNIQUE NOT NULL-- Jubilado, Menor, Adulto, Estudiante, Extranjero
+	descripcion VARCHAR(20) UNIQUE NOT NULL, -- Jubilado, Menor, Adulto, Estudiante, Extranjero
+	estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo'))
 )
 GO
 
 --Creación de los puntos de ventas, donde se realizan las ventas en los parques
-IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.punto_de_venta','U') IS NULL
 CREATE TABLE ventas.punto_de_venta
 (
 	id INT IDENTITY(1,1) PRIMARY KEY,
 	parque INT NOT NULL, --El punto de venta tiene que estar asociado a algún parque
 	descripcion VARCHAR(30) NOT NULL,
+	estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo')),
 	CONSTRAINT fk_parque_pov FOREIGN KEY (parque) REFERENCES gestion.parque(id),
 )
 GO
 
 --Creación de tabla para los métodos de pago como puede ser Efectivo, débito, crédito, transferencia, etc.
-IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.metodo_de_pago','U') IS NULL
 CREATE TABLE ventas.metodo_de_pago
 (
 	id INT IDENTITY (1,1) PRIMARY KEY,
-	descripcion VARCHAR(25) NOT NULL UNIQUE
+	descripcion VARCHAR(25) NOT NULL UNIQUE,
+	estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo'))
 )
 GO
 
