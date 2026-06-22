@@ -6,19 +6,47 @@ GO
 GENERA REPORTE EN XML DE LAS VISITAS POR MES
 ============================
 */
-
-
 CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas_por_mes
 AS
 	SELECT
 		p.nombre AS 'Parque',
 		FORMAT(mes, '00') + '/' + cast(año as char(4)) as 'Mes',
 		visitas as 'Visitantes'
-	FROM ventas.vw_visitantes_por_mes v
+	FROM ventas.visitas_por_mes v
 	LEFT JOIN
 	gestion.parque p ON p.id = v.parque
 	ORDER BY parque, mes, año
 	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
+GO
+
+CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
+AS
+	DECLARE @parque int, @año CHAR(4)
+	SET @parque = 1
+	SET @año = '2025';
+	SELECT DISTINCT p.nombre, mes, total_mes AS visitas FROM ventas.visitas_anuales v
+	LEFT JOIN
+	gestion.parque p
+	ON v.parque = p.id
+	WHERE p.id = @parque AND año = @año
+	ORDER BY mes
+	FOR XML PATH(CAST(@año AS text)), ROOT('Reporte')
+GO
+
+CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas @parque
+AS
+	DECLARE @parque VARCHAR(50)
+	set @parque = 'Iguazu'
+	SELECT
+		p.nombre AS 'Parque',
+		FORMAT(mes, '00') + '/' + cast(año as char(4)) as 'Mes',
+		visitas as 'Visitantes'
+	FROM ventas.visitas_por_mes v
+	LEFT JOIN
+	gestion.parque p ON p.id = v.parque
+	WHERE p.nombre = @parque
+	ORDER BY parque, mes, año
+	for XML AUTO -- o AUTO?
 GO
 
 --EXEC sp_generar_reporte_visitas_por_mes
@@ -27,21 +55,30 @@ GO
 GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
 ============================
 */
-CREATE OR ALTER PROCEDURE ventas.pivot_ventas_por_mes
+
+CREATE OR ALTER PROCEDURE ventas.pivot_ventas_por_mes @año int
 AS
-	WITH ventas_por_mes(Parque, Mes, Visitas)
-	AS (
-		SELECT
-		p.nombre AS 'Parque',
-		FORMAT(MONTH(fecha), '00') + '-' + cast(YEAR(fecha) as char(4)) as 'Mes',
-		total  as 'Visitas'
-		FROM ventas.vw_visitas_por_fecha v
+	DECLARE @cadenaSQL nvarchar(max)
+
+	SET @cadenaSQL = '
+	with visitas(parque, mes, visitas) as (SELECT 
+		p.nombre as Parque, mes, visitas
+		FROM ventas.visitas_anuales v
 		LEFT JOIN
 		gestion.parque p ON p.id = v.parque
-	)
-	SELECT * FROM ventas_por_mes
-	PIVOT (max(visitas) for Parque in (Aconquija, Calilegua, Copo, "El Rey", Glaciares, Ibera, Iguazu)) c
---exec sp_pivot_ventas_por_mes
+		where año = ' + CAST(@año AS CHAR(4)) + ')
+		SELECT * FROM visitas
+		PIVOT (SUM(visitas) for mes in ('
+	SELECT  @cadenaSQL =  @cadenaSQL  + '[' + CAST((mes) AS CHAR(2)) + + ']' + ','
+	FROM ventas.visitas_anuales
+	GROUP BY mes
+	SET @cadenaSQL = left(@cadenaSQL,len(@cadenaSQL)-1)
+	SET @cadenaSQL = @cadenaSQL + ')) c'
+	--print(@cadenaSQL)
+	execute sp_executesql @cadenaSQL;
+
+
+--exec ventas.pivot_ventas_por_mes @año = 2026
 
 /*
 =================

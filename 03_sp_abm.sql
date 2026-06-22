@@ -1499,7 +1499,7 @@ GO
 */
 
 --ALTA--
-CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(20), @cantidad INT, @fecha_acceso DATE)
+CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
 AS
 BEGIN
 	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque INT
@@ -1528,7 +1528,7 @@ BEGIN
 	BEGIN TRANSACTION
 		BEGIN TRY
 			INSERT INTO ventas.item_venta
-			VALUES (@venta, @id_concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
+			VALUES (@venta, @id_concepto, @concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
 
 			UPDATE ventas.venta
 			SET total = total + @cantidad * @precio

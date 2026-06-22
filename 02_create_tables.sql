@@ -286,6 +286,7 @@ CREATE TABLE ventas.item_venta
 	id INT IDENTITY(1, 1) PRIMARY KEY,
 	venta INT NOT NULL, --El item representa el detalle dentro de cada venta
 	concepto INT NOT NULL,
+	detalle VARCHAR(50) NOT NULL,
 	cantidad INT CHECK(cantidad > 0) NOT NULL,
 	precio INT CHECK(precio >= 0) NOT NULL,
 	subtotal DECIMAL (10, 2),
