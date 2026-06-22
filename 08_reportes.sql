@@ -62,10 +62,8 @@ AS
 
 	SET @cadenaSQL = '
 	with visitas(parque, mes, visitas) as (SELECT 
-		p.nombre as Parque, mes, visitas
-		FROM ventas.visitas_anuales v
-		LEFT JOIN
-		gestion.parque p ON p.id = v.parque
+		parque, mes, visitas
+		FROM ventas.visitas_anuales
 		where año = ' + CAST(@año AS CHAR(4)) + ')
 		SELECT * FROM visitas
 		PIVOT (SUM(visitas) for mes in ('
@@ -78,7 +76,7 @@ AS
 	execute sp_executesql @cadenaSQL;
 
 
---exec ventas.pivot_ventas_por_mes @año = 2026
+-- 
 
 /*
 =================
