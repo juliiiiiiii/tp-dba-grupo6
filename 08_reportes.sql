@@ -21,22 +21,18 @@ GO
 
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
 AS
-	DECLARE @parque int, @año CHAR(4)
-	SET @parque = 1
-	SET @año = '2025';
+	SET @año = '225';
 	SELECT DISTINCT p.nombre, mes, total_mes AS visitas FROM ventas.visitas_anuales v
 	LEFT JOIN
 	gestion.parque p
 	ON v.parque = p.id
 	WHERE p.id = @parque AND año = @año
 	ORDER BY mes
-	FOR XML PATH(CAST(@año AS text)), ROOT('Reporte')
+	FOR XML PATH('Visitas'), ROOT('Reporte')
 GO
 
-CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas @parque
+CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas @parque VARCHAR(50)
 AS
-	DECLARE @parque VARCHAR(50)
-	set @parque = 'Iguazu'
 	SELECT
 		p.nombre AS 'Parque',
 		FORMAT(mes, '00') + '/' + cast(año as char(4)) as 'Mes',
