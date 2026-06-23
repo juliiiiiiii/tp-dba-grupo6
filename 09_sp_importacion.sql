@@ -283,7 +283,7 @@ BEGIN
         IF @id_existente IS NULL
         BEGIN
             BEGIN TRY
-                EXEC gestion.sp_registrar_parque
+                EXEC gestion.parque_alta
                     @nombre = @c_nombre,
                     @tipo = @c_tipo,
                     @ubicacion = @c_ubicacion,
@@ -295,7 +295,7 @@ BEGIN
         ELSE
         BEGIN
             BEGIN TRY
-                EXEC gestion.sp_modificar_parque
+                EXEC gestion.parque_modificacion
                     @id = @id_existente,
                     @nombre = @c_nombre,
                     @tipo = @c_tipo,

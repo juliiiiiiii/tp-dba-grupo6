@@ -407,7 +407,7 @@ GO
 -----------------------------------------------------------
 -- Modificar parque
 
-CREATE OR ALTER PROCEDURE gestion.parque_modificar
+CREATE OR ALTER PROCEDURE gestion.parque_modificacion
 	@id INT,
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
