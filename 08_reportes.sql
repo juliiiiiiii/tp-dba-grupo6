@@ -276,6 +276,27 @@ RETURN (
 );
 GO
 
+-- Ingresos por anio, mes y semana por parque
+
+-- por semana se guarda el n° de semana del anio, capaz hay que preguntar si tiene que ser el n° semana del mes?
+
+-- solo se generan de los registros que existen, capaz quiere mostrar todas las semanas aunque el monto sea 0?
+
+CREATE OR ALTER PROCEDURE gestion.generar_reporte_ingresos
+	@parque VARCHAR(100)
+AS
+BEGIN
+	SELECT parque, YEAR(fecha) AS anio, MONTH(fecha) AS mes, DATEPART(WEEK, fecha) AS semana, SUM(ingresos_dia) AS ingresos_totales
+	FROM gestion.ingresos_por_fecha
+	WHERE parque = @parque COLLATE Latin1_General_CI_AI
+	GROUP BY parque, YEAR(fecha), MONTH(fecha), DATEPART(WEEK, fecha)
+	ORDER BY anio, mes, semana
+	FOR XML PATH('Ingresos'), ROOT('Reporte');
+END
+GO
+
+--EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+
 -- la info de inf.* es con lo que se identifica despues las concesiones para usar los sp's
 create or alter view concesiones.deudores as
 select c.id, inf.fecha_inicio, inf.empresa, inf.parque, cp.periodo, cp.monto

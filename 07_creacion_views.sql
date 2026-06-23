@@ -112,3 +112,28 @@ AS
 	WHERE fecha_hasta IS NULL
 GO
 
+-- Vista para filtrar los ingresos totales por parque por fecha
+
+CREATE OR ALTER VIEW gestion.ingresos_por_fecha
+AS
+	WITH cte AS
+	(
+		SELECT id_parque, CAST(fecha AS DATE) AS fecha_operacion, costo AS monto_operacion FROM gestion.Actividad
+
+		UNION ALL
+
+		SELECT c.id_parque, CAST(fecha_pagado AS DATE) AS fecha_operacion, monto AS monto_operacion FROM concesiones.Concesion c
+		INNER JOIN concesiones.Canon_pagar cp ON c.id = cp.id_concesion
+
+		UNION ALL
+
+		SELECT parque, CAST(fecha AS DATE) AS fecha_operacion, total AS monto_operacion FROM ventas.Venta
+	)
+
+	SELECT p.nombre AS parque, cte.fecha_operacion AS fecha, SUM(cte.monto_operacion) AS ingresos
+	FROM cte
+	INNER JOIN gestion.Parque p ON p.id = cte.id_parque
+	GROUP BY nombre, fecha_operacion
+GO
+
+-- SELECT * FROM gestion.ingresos_por_fecha

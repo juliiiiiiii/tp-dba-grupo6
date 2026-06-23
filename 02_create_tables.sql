@@ -103,7 +103,7 @@ BEGIN
 		id INT IDENTITY(1,1) PRIMARY KEY,
 		nombre CHAR(50) NOT NULL,
 		descripcion VARCHAR(100) NOT NULL,
-		costo DECIMAL(9,2) NOT NULL CHECK(costo >= 0),
+		costo DECIMAL(10,2) NOT NULL CHECK(costo >= 0),
 		fecha DATETIME NOT NULL,
 		duracion INT NOT NULL CHECK(duracion > 0),
 		cupo INT NOT NULL CHECK(cupo > 0),
