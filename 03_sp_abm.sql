@@ -1109,37 +1109,44 @@ go
 ====================================================
 */
 --ALTA VISITANTE--
-CREATE OR ALTER PROCEDURE ventas.sp_alta_tipo_visitante (@descripcion VARCHAR(20))
+CREATE OR ALTER PROCEDURE ventas.tipo_visitante_alta (@descripcion VARCHAR(20))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
-	IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion)
-		SET @errores = @errores + 'El tipo de visitante ya existe. '
-	
+	IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion AND estado = 'Activo')
+		SET @errores += 'El tipo de visitante ya está dado de alta. '
+
 	IF LEN(@errores) > 0
-		RAISERROR(@errores, 16, 1)
+		THROW 50000, @errores, 1
+
+    IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion)
+            UPDATE ventas.tipo_visitante
+            SET estado = 'Activo'
+            WHERE descripcion = @descripcion
 	ELSE
-		INSERT INTO ventas.tipo_visitante
-		VALUES (@descripcion)
+        INSERT INTO ventas.tipo_visitante VALUES (@descripcion, 'Activo')
 END
 GO
 
 --BAJA VISITANTE--
 
 
-CREATE OR ALTER PROCEDURE ventas.sp_baja_tipo_visitante (@descripcion VARCHAR(20))
+CREATE OR ALTER PROCEDURE ventas.tipo_visitante_baja (@descripcion VARCHAR(20))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
-	IF EXISTS (SELECT 1 FROM ventas.entrada WHERE tipo = @descripcion)
-		SET @errores = @errores + 'No se puede eliminar ya que existen entradas para este tipo de visitante. '
+	IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion)
+		SET @errores += 'No existe el tipo de visitante. ' + CHAR(10)
+    IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion AND estado = 'Inactivo')
+		SET @errores += 'El tipo de visitante ya está dado de baja. '
+
 	IF LEN(@errores) > 0
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		DELETE FROM ventas.tipo_visitante
-		WHERE descripcion = @descripcion
+		THROW 50000, @errores, 1
+	UPDATE ventas.tipo_visitante
+    SET estado = 'Inactivo'
+    WHERE descripcion = @descripcion
 END
 GO
 
@@ -1147,19 +1154,20 @@ GO
 
 
 CREATE OR ALTER PROCEDURE
-ventas.sp_modificacion_tipo_visitante (@descripcion VARCHAR(20), @nueva_descripcion VARCHAR(20))
+ventas.tipo_visitante_modificacion (@descripcion VARCHAR(20), @nueva_descripcion VARCHAR(20))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
+    IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @descripcion)
+		SET @errores += 'No existe el tipo de visitante.'
 	IF EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = @nueva_descripcion)
-		SET @errores = @errores + 'No se puede actualizar ya que el nuevo tipo de visitante ya existe.'
+		SET @errores += 'No se puede actualizar ya que el nuevo tipo de visitante ya existe.'
 	IF LEN(@errores) > 0
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		UPDATE ventas.tipo_visitante
-		SET descripcion = @nueva_descripcion
-		WHERE descripcion = @descripcion
+		THROW 50000, @errores, 1
+	UPDATE ventas.tipo_visitante
+	SET descripcion = @nueva_descripcion
+	WHERE descripcion = @descripcion
 END
 GO
 
@@ -1169,7 +1177,7 @@ GO
 ====================================================
 */
 --ALTA--
-CREATE OR ALTER PROCEDURE ventas.sp_alta_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30))
+CREATE OR ALTER PROCEDURE ventas.punto_de_venta_alta (@parque VARCHAR(50), @pov VARCHAR(30))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
@@ -1177,19 +1185,21 @@ BEGIN
 
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
-	IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE parque = @id_parque AND descripcion = @pov)
-		SET @errores = @errores + 'El punto de venta para ese parque ya existe. '
+	IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE parque = @id_parque AND descripcion = @pov AND estado = 'Activo')
+		SET @errores = @errores + 'El punto de venta para ese parque ya está dado de alta. '
 	
 	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		INSERT INTO ventas.punto_de_venta VALUES (@id_parque, @pov)
+		THROW 50000, @errores, 1
+    IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE parque = @id_parque AND descripcion = @pov)
+	    UPDATE ventas.punto_de_venta SET estado = 'Activo' WHERE parque = @id_parque AND descripcion = @pov
+    ELSE
+        INSERT INTO ventas.punto_de_venta VALUES (@id_parque, @pov, 'Activo')
 
 END
 GO
 --BAJA--
 
-CREATE OR ALTER PROCEDURE ventas.sp_baja_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30))
+CREATE OR ALTER PROCEDURE ventas.punto_de_venta_baja (@parque VARCHAR(50), @pov VARCHAR(30))
 AS
 BEGIN
 	DECLARE @parque_id VARCHAR(50)
@@ -1198,20 +1208,22 @@ BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
 
-	IF EXISTS (SELECT 1 FROM ventas.venta WHERE punto_de_venta = @pov AND parque = @parque_id)
-		SET @errores = @errores + 'No se puede eliminar el punto de venta ya que existen ventas asociadas. '
+    IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @parque_id)
+		SET @errores += 'No existe el punto de venta. ' + CHAR(10)
+	IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @parque_id AND estado = 'Activo')
+		SET @errores += 'El puesto ya está dado de baja. '
 
 
 	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		DELETE FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @parque_id
+		THROW 50000, @errores, 1
+	UPDATE ventas.punto_de_venta SET estado = 'Inactivo'
+    WHERE descripcion = @pov
 END
 GO
 
 --MODIFICACION--
 
-CREATE OR ALTER PROCEDURE ventas.sp_modificacion_punto_de_venta (@parque VARCHAR(50), @pov VARCHAR(30), @nueva_descripcion VARCHAR(30))
+CREATE OR ALTER PROCEDURE ventas.punto_de_venta_modificacion (@parque VARCHAR(50), @pov VARCHAR(30), @nueva_descripcion VARCHAR(30))
 AS
 BEGIN
 	DECLARE @parque_id VARCHAR(50)
@@ -1225,11 +1237,10 @@ BEGIN
 	
 	
 	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		UPDATE ventas.punto_de_venta
-		SET descripcion = @nueva_descripcion
-		WHERE descripcion = @pov AND parque = @parque_id
+		THROW 50000, @errores, 1
+	UPDATE ventas.punto_de_venta
+	SET descripcion = @nueva_descripcion
+	WHERE descripcion = @pov AND parque = @parque_id
 END
 GO
 
@@ -1239,48 +1250,59 @@ GO
 ====================================================
 */
 --ALTA--
-CREATE OR ALTER PROCEDURE ventas.sp_alta_metodo_de_pago(@descripcion VARCHAR(25))
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_alta(@descripcion VARCHAR(25))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
 
 
-	IF EXISTS (SELECT 1 FROM metodo_de_pago WHERE descripcion = @descripcion)
+	IF EXISTS (SELECT 1 FROM metodo_de_pago WHERE descripcion = @descripcion AND estado = 'Activo')
 		SET @errores = @errores + 'El metodo de pago ya existe. '
 
 	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
+		THROW 50000, @errores, 1
+    IF EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = @descripcion)
+        UPDATE ventas.metodo_de_pago SET estado = 'Activo' WHERE descripcion = @descripcion
 	ELSE
-		INSERT INTO ventas.metodo_de_pago
-		VALUES (@descripcion)
+        INSERT INTO ventas.metodo_de_pago VALUES (@descripcion, 'Activo')
 END
 GO
 
 --BAJA--
-CREATE OR ALTER PROCEDURE ventas.sp_baja_metodo_de_pago(@descripcion VARCHAR(25))
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_baja(@descripcion VARCHAR(25))
 AS
 BEGIN
-	DECLARE @errores VARCHAR(200), @id_metodo INT
+	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
-	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @descripcion)
 
-	IF EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @id_metodo)
-		SET @errores = @errores + 'El punto de venta para ese parque ya existe. '
+	IF EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = @descripcion AND estado = 'Inactivo')
+		SET @errores += 'El punto de venta ya está dado de baja. '
+    IF NOT EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = @descripcion)
+        SET @errores += 'El punto de venta no existe'
 
-
-		IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		DELETE FROM ventas.metodo_de_pago
-		WHERE descripcion = @descripcion
+	IF @errores <> ''
+		THROW 50000, @errores, 1
+	UPDATE ventas.metodo_de_pago SET estado = 'Inactivo' WHERE descripcion = @descripcion
 END
 GO
 
 --MODIFICACION--
-CREATE OR ALTER PROCEDURE ventas.sp_modificacion_metodo_de_pago(@descripcion VARCHAR(25), @nueva_descripcion VARCHAR(25))
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_modificacion(@descripcion VARCHAR(25), @nueva_descripcion VARCHAR(25))
 AS
 BEGIN
+    DECLARE @errores VARCHAR(200);
+    SET @errores = ''
+	
+
+	IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @descripcion)
+        SET @errores += 'No existe el método de pago'
+    IF EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @nueva_descripcion)
+        SET @errores += 'El nuevo método de pago ya existe'
+
+    IF @errores <> ''
+		THROW 50000, @errores, 1
+
 	UPDATE ventas.metodo_de_pago
 	SET descripcion = @nueva_descripcion
 	WHERE descripcion = @descripcion
@@ -1294,48 +1316,54 @@ GO
 */
 
 
-CREATE OR ALTER PROCEDURE ventas.sp_alta_tipo_entrada (@parque varchar(50), @tipo varchar(20), @precio DECIMAL(10,2), @vigencia DATE = NULL)
+CREATE OR ALTER PROCEDURE ventas.tipo_entrada_alta (@parque varchar(50), @tipo varchar(20), @precio DECIMAL(10,2), @vigencia DATE = NULL)
 AS
 BEGIN
 	DECLARE @parque_id INT, @tipo_id INT
-	IF @vigencia IS NULL SET @vigencia = GETDATE() --Si no se especifica una fecha de inicio, se asume el día presente
-	
-	DECLARE @errores VARCHAR(200)
+    DECLARE @errores VARCHAR(200)
 	SET @errores = ''
 
-
+	IF @vigencia IS NULL SET @vigencia = GETDATE() --Si no se especifica una fecha de inicio, se asume el día presente
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-	IF EXISTS ( SELECT 1 FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
-		SET @errores = @errores + 'Ya hay una entrada vigente. Si desea terminar su vigencia, utilice modificación. '
+    IF EXISTS ( SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+		SET @errores += 'Ya existe la entrada. Utilice modificación. ' + CHAR(10)
 	IF @tipo_id IS NULL
-		SET @errores = @errores + 'No existe el tipo de visitante. Debe darlo de alta para proseguir. '
+		SET @errores += 'No existe el tipo de visitante. Debe darlo de alta para proseguir. ' + CHAR(10)
 	IF @parque_id IS NULL
-		SET @errores = @errores + 'No hay un parque con ese nombre.  '
+		SET @errores += 'No hay un parque con ese nombre.  ' + CHAR(10)
 
 	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
-	ELSE
-		INSERT INTO ventas.entrada(parque, tipo, precio, fecha_desde)
-		VALUES(
-			@parque_id,
-			@tipo_id,
-			@precio,
-			@vigencia
-			)
+		THROW 50000, @errores, 1
+
+	INSERT INTO ventas.entrada(parque, tipo, precio, fecha_desde)
+	VALUES(
+		@parque_id,
+		@tipo_id,
+		@precio,
+		@vigencia
+		)
 END
 GO
 
 --BAJA--
-CREATE OR ALTER PROCEDURE ventas.sp_baja_tipo_entrada (@parque varchar(50), @tipo varchar(20))
+CREATE OR ALTER PROCEDURE ventas.tipo_entrada_baja (@parque varchar(50), @tipo varchar(20))
 AS
 BEGIN
+    DECLARE @errores VARCHAR(200)
+	SET @errores = ''
 	DECLARE @parque_id INT, @tipo_id INT
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo)
-	DELETE FROM ventas.entrada
-	WHERE parque = @parque_id AND tipo = @tipo_id
+
+    IF NOT EXISTS ( SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+		SET @errores += 'No existe la entrada seleccionada. ' + CHAR(10)
+
+    IF @errores <> ''
+		THROW 50000, @errores, 1
+
+	UPDATE ventas.entrada SET fecha_hasta = DATEADD(DAY, -1, GETDATE()) WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL
 END
 GO
 
@@ -1344,44 +1372,34 @@ GO
 Ej: (Iguazu, estudiante, 3000) --> (Iguazu, estudiante, 4500)
 */
 
-CREATE OR ALTER PROCEDURE ventas.sp_modificacion_tipo_entrada
+CREATE OR ALTER PROCEDURE ventas.tipo_entrada_modificacion
 (
 	@parque varchar(50),
 	@tipo varchar(20),
-	@nuevo_precio DECIMAL(10,2),
-	@fecha_comienzo DATE
+	@nuevo_precio DECIMAL(10,2)
 )
 AS
 BEGIN
-	DECLARE @parque_id INT, @tipo_id INT;
+	DECLARE @parque_id INT, @tipo_id INT, @errores VARCHAR(200);
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-	DECLARE @errores VARCHAR(200)
-	DECLARE @fecha_desde_actual DATE;
+	IF NOT EXISTS (SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+		SET @errores += 'No existe una entrada vigente. Debe darla de alta antes de modificarla. '
 
-	SET @fecha_desde_actual = (SELECT fecha_desde FROM ventas.entrada WHERE tipo = @tipo_id AND parque = @parque_id and fecha_hasta IS NULL)
-	
-	IF @fecha_comienzo < @fecha_desde_actual
-		SET @errores = (SELECT CONCAT(@errores, 'La fecha de comienzo de la nueva vigencia debe ser posterior a la vigencia actual. '))
-	IF NOT EXISTS (SELECT 1 FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
-		SET @errores = @errores + 'No existe una entrada vigente. Debe darla de alta antes de modificarla. '
-
+    IF @errores <> ''
+        THROW 50000, @errores, 1
 
 	BEGIN TRY
 		BEGIN TRANSACTION
-			UPDATE ventas.entrada
-			SET fecha_hasta = DATEADD(day, -1, @fecha_comienzo)
-			WHERE tipo = @tipo_id AND parque = @parque_id AND fecha_hasta IS NULL;
-			EXEC ventas.sp_alta_tipo_entrada @parque = @parque, @tipo = @tipo, @precio = @nuevo_precio, @vigencia = @fecha_comienzo;
+			EXEC ventas.tipo_entrada_baja @parque = @parque, @tipo = @tipo;
+			EXEC ventas.tipo_entrada_alta @parque = @parque, @tipo = @tipo, @precio = @nuevo_precio;
 		COMMIT;
 	END TRY
 	BEGIN CATCH
 		IF XACT_STATE() <> 0 --IF @@TRANCOUNT > 0?
 			ROLLBACK
 	END CATCH
-	IF @errores <> ''
-		RAISERROR(@errores, 16, 1)
 END
 GO
 /*
@@ -1389,36 +1407,57 @@ GO
 		ABMS DE TABLA VENTAS
 ====================================================
 */
-
-GO
 -- Alta de ventas --
 
-CREATE OR ALTER PROCEDURE ventas.sp_alta_venta(@parque VARCHAR(50), @fecha DATE = NULL, @pov VARCHAR(25), @metodo VARCHAR(30), @id_creado INT OUTPUT)
+CREATE OR ALTER PROCEDURE ventas.venta_alta(@parque VARCHAR(50), @fecha DATE = NULL, @pov VARCHAR(25), @metodo VARCHAR(30), @id_creado INT OUTPUT)
 AS
 BEGIN
 	IF @fecha IS NULL SET @fecha = GETDATE() --Si no se especifica fecha, asumimos que es del día
 
-	DECLARE @id_parque VARCHAR(50), @id_pov VARCHAR(25), @id_metodo VARCHAR(25);
+	DECLARE @id_parque VARCHAR(50), @id_pov VARCHAR(25), @id_metodo VARCHAR(25), @errores VARCHAR(200);
 
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
-	SET @id_pov = (SELECT id FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @id_parque)
+    IF @id_parque IS NULL
+        SET @errores += 'No existe el parque indicado.' + CHAR(10)
+    ELSE
+        SET @id_pov = (SELECT id FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @id_parque)
+
+    IF @id_pov IS NULL
+        SET @errores += 'No existe el punto de venta indicado.' + CHAR(10)
+    ELSE
+       IF (SELECT estado FROM ventas.punto_de_venta) = 'Inactivo'
+            SET @errores += 'El punto de venta no está habilitado. ' + CHAR(10)
 	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
+    IF (SELECT 1 FROM ventas.metodo_de_pago WHERE id = @metodo) IS NULL
+        SET @errores += 'No existe el método de pago especificado.' + CHAR(10)
+    ELSE
+       IF (SELECT estado FROM ventas.metodo_de_pago) = 'Inactivo'
+            SET @errores += 'El método de pago no está permitido. ' + CHAR(10)
+    IF @errores <> ''
+        THROW 50000, @errores, 1
 
 	INSERT INTO ventas.venta
 	VALUES(@id_parque, @fecha, @id_pov, @id_metodo, 0)
 	
 	SET @id_creado = (SELECT SCOPE_IDENTITY())
 
-
 END
 GO
 
 --BAJA--
 
-CREATE OR ALTER PROCEDURE ventas.sp_baja_venta(@venta INT)
+CREATE OR ALTER PROCEDURE ventas.venta_baja(@venta INT)
 AS
 BEGIN
 	--Primero tengo que eliminar los items asociados a esa venta
+    DECLARE @errores VARCHAR(200)
+    SET @errores = ''
+    IF (SELECT 1 FROM ventas.venta WHERE id = @venta) IS NULL
+       SET @errores += 'La venta indicada no existe.'
+
+    IF @errores <> ''
+        THROW 50000, @errores, 1
+
 	BEGIN TRANSACTION
 		BEGIN TRY
 			DELETE FROM ventas.item_venta
@@ -1437,9 +1476,17 @@ GO
 
 
 --MODIFICACION--
-CREATE OR ALTER PROCEDURE ventas.sp_modificacion_venta(@id_venta INT, @metodo VARCHAR(30))
+CREATE OR ALTER PROCEDURE ventas.venta_modificacion(@id_venta INT, @metodo VARCHAR(30))
 AS
 BEGIN
+    DECLARE @errores VARCHAR(200)
+    SET @errores = ''
+    IF (SELECT 1 FROM ventas.venta WHERE id = @id_venta) IS NULL
+       SET @errores += 'La venta indicada no existe.'
+
+    IF @errores <> ''
+        THROW 50000, @errores, 1
+
 	UPDATE ventas.venta
 	SET metodo_de_pago = @metodo
 	WHERE id = @id_venta
@@ -1452,21 +1499,36 @@ GO
 */
 
 --ALTA--
-CREATE OR ALTER PROCEDURE ventas.sp_alta_item_venta(@venta INT, @concepto VARCHAR(20), @cantidad INT, @fecha_acceso DATE)
+CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
 AS
 BEGIN
-	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @id_parque INT;
-	DECLARE @parque VARCHAR(50)
-
-	SET @id_parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
-	SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
-	SET @id_concepto = (SELECT id_visitante FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
-	SET @precio = (SELECT precio FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque INT
+	SET @errores = ''
+    SET @parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
+	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
+        BEGIN
+        SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        END
+    ELSE
+        BEGIN
+        SET @id_concepto = (SELECT id FROM gestion.Actividad WHERE nombre = @concepto)
+        SET @precio = (SELECT costo FROM gestion.Actividad WHERE descripcion = @concepto)
+        END
 	
+    IF (SELECT 1 FROM ventas.venta WHERE id = @venta) IS NULL
+       SET @errores += 'La venta indicada no existe.' + CHAR(10)
+    IF (@id_concepto = NULL)
+        SET @errores += 'El concepto ingresado no existe.' + CHAR(10)
+    
+    IF @errores <> ''
+        THROW 50000, @errores, 1
+
+
 	BEGIN TRANSACTION
 		BEGIN TRY
 			INSERT INTO ventas.item_venta
-			VALUES (@venta, @id_concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
+			VALUES (@venta, @id_concepto, @concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
 
 			UPDATE ventas.venta
 			SET total = total + @cantidad * @precio
@@ -1482,9 +1544,15 @@ END
 GO
 
 --BAJA--
-CREATE OR ALTER PROCEDURE ventas.sp_baja_item_venta(@venta INT, @item INT)
+CREATE OR ALTER PROCEDURE ventas.item_venta_baja(@venta INT, @item INT)
 AS
 BEGIN
+    DECLARE @errores VARCHAR(200);
+    SET @errores = '';
+
+    IF (SELECT 1 FROM ventas.item_venta WHERE id = @item) IS NULL
+        SET @errores += 'No existe el item indicado'
+    
 	DELETE FROM ventas.item_venta
 	WHERE venta = @venta
 	AND
@@ -1494,21 +1562,25 @@ GO
 
 --Modificacion--
 
-CREATE OR ALTER PROCEDURE ventas.sp_modificar_item_venta(@venta INT, @item INT, @nuevo_concepto INT, @nueva_cantidad INT)
+CREATE OR ALTER PROCEDURE ventas.item_venta_modificacion(@venta INT, @item INT, @concepto INT, @nueva_cantidad INT)
 AS
 BEGIN
-	DECLARE @subtotal_actualizado DECIMAL(10,2), @subtotal DECIMAL (10,2);
+	DECLARE @subtotal_actualizado DECIMAL(10,2), @subtotal DECIMAL (10,2), @errores VARCHAR(200);;
 	SET @subtotal = (SELECT subotal FROM ventas.item_id WHERE id = @item)
-	SET @subtotal_actualizado = (SELECT precio FROM ventas.entrada WHERE id = @nuevo_concepto) * @nueva_cantidad
+	SET @subtotal_actualizado = (SELECT precio FROM ventas.item_venta WHERE id = @item) * @nueva_cantidad
 
+    IF (SELECT 1 FROM ventas.item_venta WHERE id = @item) IS NULL
+        SET @errores += 'No existe el item indicado'
+
+    IF @errores <> ''
+        THROW 50000, @errores, 1
 
 	BEGIN TRANSACTION
 		BEGIN TRY
 			UPDATE ventas.item_venta
-			SET concepto = @nuevo_concepto, cantidad = @nueva_cantidad,
-			subtotal = @nueva_cantidad * @subtotal_actualizado
-			WHERE venta = @venta
-			AND id = @item
+			SET cantidad = @nueva_cantidad,
+			subtotal = @nueva_cantidad * precio
+			WHERE id = @item
 
 			UPDATE ventas.venta
 			SET total = (total - @subtotal) + @subtotal_actualizado
