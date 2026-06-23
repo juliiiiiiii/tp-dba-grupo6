@@ -26,19 +26,17 @@ GO
 -- TEST 1.1: exitoso
 PRINT '--- TEST 1.1: Registrar parque exitoso ---';
 EXEC gestion.sp_registrar_parque
-    @nombre    = 'Parque Iguazu',
+    @nombre    = 'Parque Nacional Iguazú',
     @tipo      = 'Nacional',
     @ubicacion = 'Misiones',
     @superficie = 67620;
-
-SELECT id, nombre, tipo, ubicacion, superficie, estado FROM gestion.Parque WHERE nombre = 'Parque Iguazu';
 GO
  
 -- TEST 1.2: nombre duplicado
 PRINT '--- TEST 1.2: Nombre de parque duplicado (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.sp_registrar_parque
-    @nombre    = 'Parque Iguazu',
+    @nombre    = 'Parque Nacional Iguazú',
     @tipo      = 'Nacional',
     @ubicacion = 'Misiones',
     @superficie = 67620;
@@ -344,7 +342,7 @@ GO
 PRINT '--- TEST 6.1: Modificar parque exitoso ---';
 EXEC gestion.sp_modificar_parque
     @id         = 1,
-    @nombre     = 'Parque Nacional Iguazu',
+    @nombre     = 'Parque Nacional Iguazú',
     @tipo       = 'Nacional',
     @ubicacion  = 'Misiones, Argentina',
     @superficie = 70000;
@@ -374,7 +372,7 @@ PRINT '--- TEST 6.3: Nombre duplicado en modificacion (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.sp_modificar_parque
     @id         = 2,
-    @nombre     = 'Parque Nacional Iguazu',  -- nombre que ya usa el parque 1
+    @nombre     = 'Parque Nacional Iguazú',  -- nombre que ya usa el parque 1
     @tipo       = 'Nacional',
     @ubicacion  = 'Rio Negro',
     @superficie = 717261;
@@ -822,7 +820,7 @@ PRINT '--- TEST 13.1: Asignar guía exitosamente ---';
 EXEC gestion.guia_asignar
 @dni = '30456789',
 @nombre_actividad = 'Trekking Cataratas',
-@nombre_parque = 'Parque Nacional Iguazu',
+@nombre_parque = 'Parque Nacional Iguazú',
 @fecha_actividad = '2026-06-16 00:00:00',
 @f_desde = '2026-06-14',
 @f_hasta = '2026-06-17';
@@ -851,7 +849,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = NULL,
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -868,7 +866,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '11122345',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -885,7 +883,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Escalda',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -902,7 +900,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-17 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -919,7 +917,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = NULL,
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -936,7 +934,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = NULL,
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -953,7 +951,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = NULL,
     @f_hasta = '2026-06-17';
@@ -970,7 +968,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = NULL;
@@ -987,7 +985,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
@@ -1004,7 +1002,7 @@ BEGIN TRY
     EXEC gestion.guia_asignar
     @dni = '25123456',
     @nombre_actividad = 'Trekking Cataratas',
-    @nombre_parque = 'Parque Nacional Iguazu',
+    @nombre_parque = 'Parque Nacional Iguazú',
     @fecha_actividad = '2026-06-16 00:00:00.000',
     @f_desde = '2026-06-14',
     @f_hasta = '2026-06-17';
