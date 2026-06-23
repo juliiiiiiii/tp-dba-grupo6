@@ -1441,7 +1441,7 @@ AS
 BEGIN
 	IF @fecha IS NULL SET @fecha = GETDATE() --Si no se especifica fecha, asumimos que es del día
 
-	DECLARE @id_parque VARCHAR(50), @id_pov VARCHAR(25), @id_metodo VARCHAR(25), @errores VARCHAR(200);
+	DECLARE @id_parque INT, @id_pov VARCHAR(25), @id_metodo VARCHAR(25), @errores VARCHAR(200);
 
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
     IF @id_parque IS NULL
@@ -1452,13 +1452,13 @@ BEGIN
     IF @id_pov IS NULL
         SET @errores += 'No existe el punto de venta indicado.' + CHAR(10)
     ELSE
-       IF (SELECT estado FROM ventas.punto_de_venta) = 'Inactivo'
+       IF (SELECT estado FROM ventas.punto_de_venta WHERE id = @id_pov) = 'Inactivo'
             SET @errores += 'El punto de venta no está habilitado. ' + CHAR(10)
 	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
     IF (SELECT 1 FROM ventas.metodo_de_pago WHERE id = @id_metodo) IS NULL
         SET @errores += 'No existe el método de pago especificado.' + CHAR(10)
     ELSE
-       IF (SELECT estado FROM ventas.metodo_de_pago) = 'Inactivo'
+       IF (SELECT estado FROM ventas.metodo_de_pago WHERE id = @id_metodo) = 'Inactivo'
             SET @errores += 'El método de pago no está permitido. ' + CHAR(10)
     IF @errores <> ''
         THROW 50000, @errores, 1
@@ -1529,7 +1529,7 @@ GO
 CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
 AS
 BEGIN
-	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque INT
+	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque VARCHAR(50)
 	SET @errores = ''
     SET @parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
 	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
