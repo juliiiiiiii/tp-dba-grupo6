@@ -70,14 +70,14 @@ AS
 	LEFT JOIN
 	gestion.parque p
 	ON p.id = v.parque
-
+GO
 CREATE OR ALTER VIEW ventas.visitas_mensuales
 as
 	SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales
 --SELECT * from ventas.visitas_anuales ORDER BY parque, mes, año
 --SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales ORDER BY parque, mes, año
 --SELECT DISTINCT parque, año, total_año FROM ventas.visitas_anuales ORDER BY parque, año
-
+GO
 CREATE OR ALTER VIEW ventas.visitas_por_mes
 AS
 	SELECT parque, mes, año, sum(visitas) as visitas FROM ventas.visitas_por_semana GROUP BY parque, mes, año

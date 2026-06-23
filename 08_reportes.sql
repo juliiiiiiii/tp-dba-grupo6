@@ -250,8 +250,8 @@ CREATE OR ALTER PROCEDURE ventas.evolucion_entrada_dolar(@parque VARCHAR(50), @e
 AS
 	EXEC api_dolares
 	DECLARE @parque_id INT, @entrada_id INT
-	SET @parque_id = (SELECT id_parque FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
-	SET @entrada_id = (SELECT id_visitante FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
+	SET @parque_id = (SELECT id_parque FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
+	SET @entrada_id = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
 	SELECT parque, tipo, precio, precio/cotizacion as [precio en dolar], cotizacion as dolar, fecha from
 	ventas.entrada e
 	LEFT JOIN
