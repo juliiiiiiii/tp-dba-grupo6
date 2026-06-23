@@ -130,7 +130,7 @@ AS
 		SELECT parque, CAST(fecha AS DATE) AS fecha_operacion, total AS monto_operacion FROM ventas.Venta
 	)
 
-	SELECT p.nombre AS parque, cte.fecha_operacion AS fecha, SUM(cte.monto_operacion) AS ingresos
+	SELECT p.nombre AS parque, cte.fecha_operacion AS fecha, SUM(cte.monto_operacion) AS ingresos_dia
 	FROM cte
 	INNER JOIN gestion.Parque p ON p.id = cte.id_parque
 	GROUP BY nombre, fecha_operacion

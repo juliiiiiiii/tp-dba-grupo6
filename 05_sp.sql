@@ -16,33 +16,6 @@ USE parques_nacionales
 GO
 
 -----------------------------------------------------------
--- Registrar especialidad
-
-CREATE OR ALTER PROCEDURE guia.especialidad_alta
-@descripcion VARCHAR(50)
-AS
-BEGIN
-    DECLARE @error VARCHAR(70);
-    SET @error = '';
-
-    IF @descripcion IS NULL OR @descripcion = ''
-        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
-    ELSE
-    BEGIN
-        IF EXISTS (SELECT descripcion from guia.Especialidad WHERE descripcion = @descripcion)
-        SET @error += 'La especialidad ya se encuentra registrada.' + CHAR(10);
-    END
-
-    IF @error != ''
-        RAISERROR(@error, 16, 1);
-    ELSE
-    BEGIN
-        INSERT INTO guia.Especialidad VALUES(@descripcion); 
-    END 
-END
-GO
-
------------------------------------------------------------
 -- Asignarle especializacion a un guia
 
 CREATE OR ALTER PROCEDURE guia.especialidad_asignar
@@ -83,56 +56,6 @@ BEGIN
     ELSE
     BEGIN
         INSERT INTO guia.Especializado_en VALUES(@id_guia, @id_especialidad)
-    END
-END
-GO
-
------------------------------------------------------------
--- Actualizar acreditacion de guias
-
-CREATE OR ALTER PROCEDURE guia.acreditacion_actualizar
-@dni CHAR(8),
-@fecha_vencimiento_acreditacion DATE
-AS
-BEGIN
-    DECLARE @error VARCHAR(50);
-    SET @error = '';
-
-    DECLARE @estado_acreditacion CHAR(7);
-    DECLARE @id_acreditacion INT;
-    DECLARE @id_guia INT;
-
-    IF @dni IS NULL
-        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
-    ELSE
-    BEGIN
-        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
-        IF @id_guia IS NULL
-            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
-        ELSE
-        BEGIN
-            SET @id_acreditacion = (SELECT id_acreditacion FROM gestion.Guia WHERE id = @id_guia);
-            IF @id_acreditacion IS NULL
-                SET @error += 'El guia no posee una acreditacion.' + CHAR(10);
-        END
-    END
-
-    IF @fecha_vencimiento_acreditacion IS NULL
-        SET @error += 'Se debe especificar fecha de vencimiento de acriditacion.' + CHAR(10);
-    ELSE
-    BEGIN
-        IF @fecha_vencimiento_acreditacion < CAST(GETDATE() AS DATE)
-            SET @estado_acreditacion = 'vencido';
-        ELSE
-            SET @estado_acreditacion = 'vigente';
-    END
-    
-    IF @error != ''
-        RAISERROR(@error, 16, 1);
-    ELSE
-    BEGIN
-        UPDATE guia.Acreditacion SET fecha_vencimiento = @fecha_vencimiento_acreditacion, estado = @estado_acreditacion 
-            WHERE id = @id_acreditacion;
     END
 END
 GO

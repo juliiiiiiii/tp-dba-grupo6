@@ -258,6 +258,33 @@ END
 GO
 
 -----------------------------------------------------------
+-- Registrar especialidad
+
+CREATE OR ALTER PROCEDURE guia.especialidad_alta
+@descripcion VARCHAR(50)
+AS
+BEGIN
+    DECLARE @error VARCHAR(70);
+    SET @error = '';
+
+    IF @descripcion IS NULL OR @descripcion = ''
+        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF EXISTS (SELECT descripcion from guia.Especialidad WHERE descripcion = @descripcion)
+        SET @error += 'La especialidad ya se encuentra registrada.' + CHAR(10);
+    END
+
+    IF @error != ''
+        RAISERROR(@error, 16, 1);
+    ELSE
+    BEGIN
+        INSERT INTO guia.Especialidad VALUES(@descripcion); 
+    END 
+END
+GO
+
+-----------------------------------------------------------
 -- Baja
 -----------------------------------------------------------
 -- Baja Parque
