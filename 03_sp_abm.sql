@@ -49,7 +49,7 @@ GO
 
 -- Registrar parque
 
-CREATE OR ALTER PROCEDURE gestion.sp_registrar_parque
+CREATE OR ALTER PROCEDURE gestion.parque_alta
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
 	@ubicacion VARCHAR(50),
@@ -93,7 +93,7 @@ GO
 -----------------------------------------------------------
 -- Registrar guardaparque
 
-CREATE OR ALTER PROCEDURE gestion.sp_registrar_guardaparque
+CREATE OR ALTER PROCEDURE gestion.guardaparque_alta
 	@dni INT,
 	@nombre CHAR(30),
 	@apellido CHAR(30)
@@ -123,7 +123,7 @@ GO
 -----------------------------------------------------------
 -- Asignar guardaparque-parque
 
-CREATE OR ALTER PROCEDURE gestion.sp_asignar_guardaparque
+CREATE OR ALTER PROCEDURE gestion.guardaparque_asignar
 	@id_parque INT, -- podria ser nombre
 	@id_guardaparque INT -- podria ser dni
 AS
@@ -171,7 +171,7 @@ GO
 -----------------------------------------------------------
 -- Registrar tipo actividad
 
-CREATE OR ALTER PROCEDURE gestion.sp_registrar_tipo_actividad
+CREATE OR ALTER PROCEDURE gestion.actividad_alta
 	@descripcion CHAR(25)
 AS
 BEGIN
@@ -197,7 +197,7 @@ GO
 -----------------------------------------------------------
 -- Registrar actividad
 
-CREATE OR ALTER PROCEDURE gestion.sp_registrar_actividad
+CREATE OR ALTER PROCEDURE gestion.actividad_alta
 	@id_parque INT,
 	@id_guia INT,
 	@nombre CHAR(50),
@@ -262,7 +262,7 @@ GO
 -----------------------------------------------------------
 -- Baja Parque
 
-CREATE OR ALTER PROCEDURE gestion.sp_baja_parque
+CREATE OR ALTER PROCEDURE gestion.parque_baja
 	@id INT
 AS
 BEGIN
@@ -304,7 +304,7 @@ GO
 -----------------------------------------------------------
 -- Baja guardaparque
 
-CREATE OR ALTER PROCEDURE gestion.sp_baja_guardaparque
+CREATE OR ALTER PROCEDURE gestion.guardaparque_baja
 	@id INT
 AS
 BEGIN
@@ -340,7 +340,7 @@ GO
 -----------------------------------------------------------
 -- Baja actividad
 
-CREATE OR ALTER PROCEDURE gestion.sp_baja_actividad
+CREATE OR ALTER PROCEDURE gestion.actividad_baja
     @id INT,
     @motivo VARCHAR(100)
 AS
@@ -380,7 +380,7 @@ GO
 -----------------------------------------------------------
 -- Modificar parque
 
-CREATE OR ALTER PROCEDURE gestion.sp_modificar_parque
+CREATE OR ALTER PROCEDURE gestion.parque_modificar
 	@id INT,
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
@@ -425,7 +425,7 @@ GO
 -----------------------------------------------------------
 -- Modificar guardaparque
 
-CREATE OR ALTER PROCEDURE gestion.sp_modificar_guardaparque
+CREATE OR ALTER PROCEDURE gestion.guardaparque_modificacion
     @id INT,
     @nombre CHAR(30),
     @apellido CHAR(30),
@@ -460,7 +460,7 @@ GO
 -----------------------------------------------------------
 -- Modificar asignacion guardaparque
 
-CREATE OR ALTER PROCEDURE gestion.sp_modificar_asignacion
+CREATE OR ALTER PROCEDURE gestion.asignacion_modificacion
     @id INT,
     @motivo VARCHAR(100)
 AS
@@ -501,7 +501,7 @@ GO
 -----------------------------------------------------------
 -- Modificar actividad
 
-CREATE OR ALTER PROCEDURE gestion.sp_modificar_actividad
+CREATE OR ALTER PROCEDURE gestion.actividad_modificacion
     @id INT,
     @id_guia INT,
     @nombre CHAR(50),
