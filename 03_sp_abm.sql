@@ -171,7 +171,7 @@ GO
 -----------------------------------------------------------
 -- Registrar tipo actividad
 
-CREATE OR ALTER PROCEDURE gestion.actividad_alta
+CREATE OR ALTER PROCEDURE gestion.tipo_actividad_alta
 	@descripcion CHAR(25)
 AS
 BEGIN
@@ -1455,7 +1455,7 @@ BEGIN
        IF (SELECT estado FROM ventas.punto_de_venta) = 'Inactivo'
             SET @errores += 'El punto de venta no está habilitado. ' + CHAR(10)
 	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
-    IF (SELECT 1 FROM ventas.metodo_de_pago WHERE id = @metodo) IS NULL
+    IF (SELECT 1 FROM ventas.metodo_de_pago WHERE id = @id_metodo) IS NULL
         SET @errores += 'No existe el método de pago especificado.' + CHAR(10)
     ELSE
        IF (SELECT estado FROM ventas.metodo_de_pago) = 'Inactivo'

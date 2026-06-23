@@ -35,13 +35,13 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Río Negro')
 GO
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = 'Senderismo')
-    EXEC gestion.sp_registrar_tipo_actividad @descripcion = 'Senderismo';
+    EXEC gestion.tipo_actividad_alta @descripcion = 'Senderismo';
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = 'Navegacion')
-    EXEC gestion.sp_registrar_tipo_actividad @descripcion = 'Navegacion';
+    EXEC gestion.tipo_actividad_alta @descripcion = 'Navegacion';
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = 'Avistaje')
-    EXEC gestion.sp_registrar_tipo_actividad @descripcion = 'Avistaje';
+    EXEC gestion.tipo_actividad_alta @descripcion = 'Avistaje';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM guia.Especialidad WHERE descripcion = 'Flora autoctona')
@@ -55,26 +55,26 @@ IF NOT EXISTS (SELECT 1 FROM guia.Especialidad WHERE descripcion = 'Alta montana
 GO
 
 IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = 'Adulto')
-    EXEC ventas.sp_alta_tipo_visitante @descripcion = 'Adulto';
+    EXEC ventas.tipo_visitante_alta @descripcion = 'Adulto';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = 'Menor')
-    EXEC ventas.sp_alta_tipo_visitante @descripcion = 'Menor';
+    EXEC ventas.tipo_visitante_alta @descripcion = 'Menor';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = 'Jubilado')
-    EXEC ventas.sp_alta_tipo_visitante @descripcion = 'Jubilado';
+    EXEC ventas.tipo_visitante_alta @descripcion = 'Jubilado';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.tipo_visitante WHERE descripcion = 'Extranjero')
-    EXEC ventas.sp_alta_tipo_visitante @descripcion = 'Extranjero';
+    EXEC ventas.tipo_visitante_alta @descripcion = 'Extranjero';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = 'Efectivo')
-    EXEC ventas.sp_alta_metodo_de_pago @descripcion = 'Efectivo';
+    EXEC ventas.metodo_de_pago_alta @descripcion = 'Efectivo';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = 'Debito')
-    EXEC ventas.sp_alta_metodo_de_pago @descripcion = 'Debito';
+    EXEC ventas.metodo_de_pago_alta @descripcion = 'Debito';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.metodo_de_pago WHERE descripcion = 'Credito')
-    EXEC ventas.sp_alta_metodo_de_pago @descripcion = 'Credito';
+    EXEC ventas.metodo_de_pago_alta @descripcion = 'Credito';
 GO
 
 -----------------------------------------------------------
@@ -82,21 +82,21 @@ GO
 -----------------------------------------------------------
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu')
-    EXEC gestion.sp_registrar_parque
+    EXEC gestion.parque_alta
         @nombre = 'Parque Nacional Iguazu',
         @tipo = 'Parque nacional',
         @ubicacion = 'Misiones',
         @superficie = 67720;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares')
-    EXEC gestion.sp_registrar_parque
+    EXEC gestion.parque_alta
         @nombre = 'Parque Nacional Los Glaciares',
         @tipo = 'Parque nacional',
         @ubicacion = 'Santa Cruz',
         @superficie = 726927;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi')
-    EXEC gestion.sp_registrar_parque
+    EXEC gestion.parque_alta
         @nombre = 'Parque Nacional Nahuel Huapi',
         @tipo = 'Parque nacional',
         @ubicacion = 'Río Negro',
@@ -104,13 +104,13 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahu
 GO
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = 30111222)
-    EXEC gestion.sp_registrar_guardaparque @dni = 30111222, @nombre = 'Martin', @apellido = 'Perez';
+    EXEC gestion.guardaparque_alta @dni = 30111222, @nombre = 'Martin', @apellido = 'Perez';
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = 28444555)
-    EXEC gestion.sp_registrar_guardaparque @dni = 28444555, @nombre = 'Laura', @apellido = 'Gomez';
+    EXEC gestion.guardaparque_alta @dni = 28444555, @nombre = 'Laura', @apellido = 'Gomez';
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = 32666777)
-    EXEC gestion.sp_registrar_guardaparque @dni = 32666777, @nombre = 'Sofia', @apellido = 'Romero';
+    EXEC gestion.guardaparque_alta @dni = 32666777, @nombre = 'Sofia', @apellido = 'Romero';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = '35111222')
@@ -136,13 +136,13 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = '37333444')
 GO
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'EcoTur')
-    EXEC concesiones.sp_alta_empresa @nombre = 'EcoTur', @tipo = 'Servicios turisticos', @cuit = '30712345678';
+    EXEC concesiones.empresa_alta @nombre = 'EcoTur', @tipo = 'Servicios turisticos', @cuit = '30712345678';
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Patagonia Viajes')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Patagonia Viajes', @tipo = 'Transporte turistico', @cuit = '30622345678';
+    EXEC concesiones.empresa_alta @nombre = 'Patagonia Viajes', @tipo = 'Transporte turistico', @cuit = '30622345678';
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Selva Aventura')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Selva Aventura', @tipo = 'Excursiones', @cuit = '33732345678';
+    EXEC concesiones.empresa_alta @nombre = 'Selva Aventura', @tipo = 'Excursiones', @cuit = '33732345678';
 GO
 
 -----------------------------------------------------------
@@ -158,13 +158,13 @@ DECLARE @id_gp_laura INT = (SELECT id FROM gestion.Guardaparque WHERE dni = 2844
 DECLARE @id_gp_sofia INT = (SELECT id FROM gestion.Guardaparque WHERE dni = 32666777);
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque_asignado WHERE id_parque = @id_iguazu AND id_guardaparque = @id_gp_martin AND fecha_egreso IS NULL)
-    EXEC gestion.sp_asignar_guardaparque @id_parque = @id_iguazu, @id_guardaparque = @id_gp_martin;
+    EXEC gestion.guardaparque_asignar @id_parque = @id_iguazu, @id_guardaparque = @id_gp_martin;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque_asignado WHERE id_parque = @id_glaciares AND id_guardaparque = @id_gp_laura AND fecha_egreso IS NULL)
-    EXEC gestion.sp_asignar_guardaparque @id_parque = @id_glaciares, @id_guardaparque = @id_gp_laura;
+    EXEC gestion.guardaparque_asignar @id_parque = @id_glaciares, @id_guardaparque = @id_gp_laura;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque_asignado WHERE id_parque = @id_nahuel AND id_guardaparque = @id_gp_sofia AND fecha_egreso IS NULL)
-    EXEC gestion.sp_asignar_guardaparque @id_parque = @id_nahuel, @id_guardaparque = @id_gp_sofia;
+    EXEC gestion.guardaparque_asignar @id_parque = @id_nahuel, @id_guardaparque = @id_gp_sofia;
 GO
 
 IF NOT EXISTS (
@@ -216,7 +216,7 @@ DECLARE @id_guia_carlos INT = (SELECT id FROM gestion.Guia WHERE dni = '36222333
 DECLARE @id_guia_valeria INT = (SELECT id FROM gestion.Guia WHERE dni = '37333444');
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Circuito Garganta del Diablo' AND id_parque = @id_iguazu)
-    EXEC gestion.sp_registrar_actividad
+    EXEC gestion.actividad_alta
         @id_parque = @id_iguazu,
         @id_guia = @id_guia_ana,
         @nombre = 'Circuito Garganta del Diablo',
@@ -228,7 +228,7 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Circuito Garganta
         @cupo = 30;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Navegacion Lago Argentino' AND id_parque = @id_glaciares)
-    EXEC gestion.sp_registrar_actividad
+    EXEC gestion.actividad_alta
         @id_parque = @id_glaciares,
         @id_guia = @id_guia_carlos,
         @nombre = 'Navegacion Lago Argentino',
@@ -240,7 +240,7 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Navegacion Lago A
         @cupo = 40;
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Avistaje Bosque Andino' AND id_parque = @id_nahuel)
-    EXEC gestion.sp_registrar_actividad
+    EXEC gestion.actividad_alta
         @id_parque = @id_nahuel,
         @id_guia = @id_guia_valeria,
         @nombre = 'Avistaje Bosque Andino',
@@ -334,20 +334,20 @@ GO
 -----------------------------------------------------------
 
 IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Iguazu' AND pv.descripcion = 'Boleteria principal')
-    EXEC ventas.sp_alta_punto_de_venta @parque = 'Parque Nacional Iguazu', @pov = 'Boleteria principal';
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Iguazu', @pov = 'Boleteria principal';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Los Glaciares' AND pv.descripcion = 'Centro visitantes')
-    EXEC ventas.sp_alta_punto_de_venta @parque = 'Parque Nacional Los Glaciares', @pov = 'Centro visitantes';
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Los Glaciares', @pov = 'Centro visitantes';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.sp_alta_tipo_entrada @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-07-01';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
-    EXEC ventas.sp_alta_tipo_entrada @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-07-01';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Los Glaciares' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.sp_alta_tipo_entrada @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-07-01';
 GO
 
 DECLARE @id_venta_iguazu INT;
@@ -363,20 +363,20 @@ IF NOT EXISTS (
       AND v.fecha = '2026-08-10'
 )
 BEGIN
-    EXEC ventas.sp_alta_venta
+    EXEC ventas.venta_alta
         @parque = 'Parque Nacional Iguazu',
         @fecha = '2026-08-10',
         @pov = 'Boleteria principal',
         @metodo = 'Debito',
         @id_creado = @id_venta_iguazu OUTPUT;
 
-    EXEC ventas.sp_alta_item_venta
+    EXEC ventas.item_venta_alta
         @venta = @id_venta_iguazu,
         @concepto = 'Adulto',
         @cantidad = 2,
         @fecha_acceso = '2026-08-10';
 
-    EXEC ventas.sp_alta_item_venta
+    EXEC ventas.item_venta_alta
         @venta = @id_venta_iguazu,
         @concepto = 'Menor',
         @cantidad = 1,
@@ -393,14 +393,14 @@ IF NOT EXISTS (
       AND v.fecha = '2026-08-11'
 )
 BEGIN
-    EXEC ventas.sp_alta_venta
+    EXEC ventas.venta_alta
         @parque = 'Parque Nacional Los Glaciares',
         @fecha = '2026-08-11',
         @pov = 'Centro visitantes',
         @metodo = 'Credito',
         @id_creado = @id_venta_glaciares OUTPUT;
 
-    EXEC ventas.sp_alta_item_venta
+    EXEC ventas.item_venta_alta
         @venta = @id_venta_glaciares,
         @concepto = 'Adulto',
         @cantidad = 3,
@@ -429,19 +429,19 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Buenos Aires')
 GO
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Lago Puelo')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Lago Puelo', @tipo = 'Parque nacional', @ubicacion = 'Chubut', @superficie = 27674;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Lago Puelo', @tipo = 'Parque nacional', @ubicacion = 'Chubut', @superficie = 27674;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', @tipo = 'Parque nacional', @ubicacion = 'Tierra del Fuego, Antártida e Islas del Atlántico', @superficie = 68909;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', @tipo = 'Parque nacional', @ubicacion = 'Tierra del Fuego, Antártida e Islas del Atlántico', @superficie = 68909;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional El Palmar')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional El Palmar', @tipo = 'Parque nacional', @ubicacion = 'Entre Ríos', @superficie = 8500;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional El Palmar', @tipo = 'Parque nacional', @ubicacion = 'Entre Ríos', @superficie = 8500;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Ibera')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Ibera', @tipo = 'Parque nacional', @ubicacion = 'Corrientes', @superficie = 183500;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Ibera', @tipo = 'Parque nacional', @ubicacion = 'Corrientes', @superficie = 183500;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Calilegua')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Calilegua', @tipo = 'Parque nacional', @ubicacion = 'Jujuy', @superficie = 76306;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Calilegua', @tipo = 'Parque nacional', @ubicacion = 'Jujuy', @superficie = 76306;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Cardones')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Los Cardones', @tipo = 'Parque nacional', @ubicacion = 'Salta', @superficie = 64117;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Los Cardones', @tipo = 'Parque nacional', @ubicacion = 'Salta', @superficie = 64117;
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Ciervo de los Pantanos')
-    EXEC gestion.sp_registrar_parque @nombre = 'Parque Nacional Ciervo de los Pantanos', @tipo = 'Parque nacional', @ubicacion = 'Buenos Aires', @superficie = 5588;
+    EXEC gestion.parque_alta @nombre = 'Parque Nacional Ciervo de los Pantanos', @tipo = 'Parque nacional', @ubicacion = 'Buenos Aires', @superficie = 5588;
 GO
 
 DECLARE @i INT = 1;
@@ -453,7 +453,7 @@ BEGIN
     SET @dni_guia = RIGHT('00000000' + CAST(41000000 + @i AS VARCHAR(8)), 8);
 
     IF NOT EXISTS (SELECT 1 FROM gestion.Guardaparque WHERE dni = @dni_guardaparque)
-        EXEC gestion.sp_registrar_guardaparque @dni = @dni_guardaparque, @nombre = 'Guardaparque', @apellido = 'Seed';
+        EXEC gestion.guardaparque_alta @dni = @dni_guardaparque, @nombre = 'Guardaparque', @apellido = 'Seed';
 
     IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = @dni_guia)
         EXEC gestion.guia_alta @dni = @dni_guia, @nombre = 'Guia', @apellido = 'Seed', @fecha_vencimiento_acreditacion = '2029-12-31';
@@ -477,29 +477,29 @@ DECLARE @id_guia_02_seed INT = (SELECT id FROM gestion.Guia WHERE dni = '4100000
 DECLARE @id_guia_03_seed INT = (SELECT id FROM gestion.Guia WHERE dni = '41000003');
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 01' AND id_parque = @id_iguazu_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_iguazu_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 01', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 5250.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 20;
+    EXEC gestion.actividad_alta @id_parque = @id_iguazu_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 01', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 5250.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 20;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 02' AND id_parque = @id_iguazu_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_iguazu_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 02', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 5500.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 21;
+    EXEC gestion.actividad_alta @id_parque = @id_iguazu_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 02', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 5500.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 21;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 03' AND id_parque = @id_iguazu_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_iguazu_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 03', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 5750.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 22;
+    EXEC gestion.actividad_alta @id_parque = @id_iguazu_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 03', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 5750.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 22;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 04' AND id_parque = @id_glaciares_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_glaciares_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 04', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 6000.00, @fecha = '2026-09-05', @duracion = 150, @cupo = 23;
+    EXEC gestion.actividad_alta @id_parque = @id_glaciares_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 04', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 6000.00, @fecha = '2026-09-05', @duracion = 150, @cupo = 23;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 05' AND id_parque = @id_nahuel_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_nahuel_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 05', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 6250.00, @fecha = '2026-09-06', @duracion = 150, @cupo = 24;
+    EXEC gestion.actividad_alta @id_parque = @id_nahuel_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 05', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 6250.00, @fecha = '2026-09-06', @duracion = 150, @cupo = 24;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 06' AND id_parque = @id_lago_puelo_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_lago_puelo_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 06', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 6500.00, @fecha = '2026-09-07', @duracion = 150, @cupo = 25;
+    EXEC gestion.actividad_alta @id_parque = @id_lago_puelo_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 06', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 6500.00, @fecha = '2026-09-07', @duracion = 150, @cupo = 25;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 07' AND id_parque = @id_tdf_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_tdf_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 07', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 6750.00, @fecha = '2026-09-08', @duracion = 150, @cupo = 26;
+    EXEC gestion.actividad_alta @id_parque = @id_tdf_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 07', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 6750.00, @fecha = '2026-09-08', @duracion = 150, @cupo = 26;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 08' AND id_parque = @id_palmar_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_palmar_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 08', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 7000.00, @fecha = '2026-09-09', @duracion = 150, @cupo = 27;
+    EXEC gestion.actividad_alta @id_parque = @id_palmar_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 08', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 7000.00, @fecha = '2026-09-09', @duracion = 150, @cupo = 27;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 09' AND id_parque = @id_ibera_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_ibera_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 09', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 7250.00, @fecha = '2026-09-10', @duracion = 150, @cupo = 28;
+    EXEC gestion.actividad_alta @id_parque = @id_ibera_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 09', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 7250.00, @fecha = '2026-09-10', @duracion = 150, @cupo = 28;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 10' AND id_parque = @id_calilegua_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_calilegua_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 10', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 7500.00, @fecha = '2026-09-11', @duracion = 150, @cupo = 29;
+    EXEC gestion.actividad_alta @id_parque = @id_calilegua_seed, @id_guia = @id_guia_01_seed, @nombre = 'Seed Tour 10', @descripcion = 'Actividad seed para entrega', @tipo = 'Senderismo', @costo = 7500.00, @fecha = '2026-09-11', @duracion = 150, @cupo = 29;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 11' AND id_parque = @id_cardones_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_cardones_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 11', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 7750.00, @fecha = '2026-09-12', @duracion = 150, @cupo = 30;
+    EXEC gestion.actividad_alta @id_parque = @id_cardones_seed, @id_guia = @id_guia_02_seed, @nombre = 'Seed Tour 11', @descripcion = 'Actividad seed para entrega', @tipo = 'Navegacion', @costo = 7750.00, @fecha = '2026-09-12', @duracion = 150, @cupo = 30;
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Seed Tour 12' AND id_parque = @id_ciervo_seed)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_ciervo_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 12', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 8000.00, @fecha = '2026-09-13', @duracion = 150, @cupo = 31;
+    EXEC gestion.actividad_alta @id_parque = @id_ciervo_seed, @id_guia = @id_guia_03_seed, @nombre = 'Seed Tour 12', @descripcion = 'Actividad seed para entrega', @tipo = 'Avistaje', @costo = 8000.00, @fecha = '2026-09-13', @duracion = 150, @cupo = 31;
 GO
 
 DECLARE @id_parque_actividad INT;
@@ -524,7 +524,7 @@ BEGIN
     SET @id_guia_actividad = (SELECT id FROM gestion.Guia WHERE dni = RIGHT('00000000' + CAST(41000000 + (((@n - 1) % 17) + 1) AS VARCHAR(8)), 8));
 
     IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = @nombre_actividad AND id_parque = @id_parque_actividad)
-        EXEC gestion.sp_registrar_actividad
+        EXEC gestion.actividad_alta
             @id_parque = @id_parque_actividad,
             @id_guia = @id_guia_actividad,
             @nombre = @nombre_actividad,
@@ -542,26 +542,26 @@ GO
 DECLARE @id_parque_cupo INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
 DECLARE @id_guia_cupo INT = (SELECT id FROM gestion.Guia WHERE dni = '41000001');
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Tour Cupo Completo' AND id_parque = @id_parque_cupo)
-    EXEC gestion.sp_registrar_actividad @id_parque = @id_parque_cupo, @id_guia = @id_guia_cupo, @nombre = 'Tour Cupo Completo', @descripcion = 'Caso obligatorio de cupo completo', @tipo = 'Senderismo', @costo = 7500.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 1;
+    EXEC gestion.actividad_alta @id_parque = @id_parque_cupo, @id_guia = @id_guia_cupo, @nombre = 'Tour Cupo Completo', @descripcion = 'Caso obligatorio de cupo completo', @tipo = 'Senderismo', @costo = 7500.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 1;
 UPDATE gestion.Actividad SET estado = 'Cupo lleno' WHERE nombre = 'Tour Cupo Completo' AND id_parque = @id_parque_cupo;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 01')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 01', @tipo = 'Gastronomia', @cuit = '30780000001';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 01', @tipo = 'Gastronomia', @cuit = '30780000001';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 02')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 02', @tipo = 'Tienda', @cuit = '30780000002';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 02', @tipo = 'Tienda', @cuit = '30780000002';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 03')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 03', @tipo = 'Transporte', @cuit = '30780000003';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 03', @tipo = 'Transporte', @cuit = '30780000003';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 04')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 04', @tipo = 'Excursiones', @cuit = '30780000004';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 04', @tipo = 'Excursiones', @cuit = '30780000004';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 05')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 05', @tipo = 'Gastronomia', @cuit = '30780000005';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 05', @tipo = 'Gastronomia', @cuit = '30780000005';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 06')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 06', @tipo = 'Tienda', @cuit = '30780000006';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 06', @tipo = 'Tienda', @cuit = '30780000006';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 07')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 07', @tipo = 'Excursiones', @cuit = '30780000007';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 07', @tipo = 'Excursiones', @cuit = '30780000007';
 IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 08')
-    EXEC concesiones.sp_alta_empresa @nombre = 'Concesionaria 08', @tipo = 'Gastronomia', @cuit = '30780000008';
+    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 08', @tipo = 'Gastronomia', @cuit = '30780000008';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 01' AND c.fecha_inicio = '2026-07-01')
@@ -586,23 +586,23 @@ GO
 DECLARE @venta_id INT;
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-12')
 BEGIN
-    EXEC ventas.sp_alta_venta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-12', @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
-    EXEC ventas.sp_alta_item_venta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 4, @fecha_acceso = '2026-08-12';
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-12', @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 4, @fecha_acceso = '2026-08-12';
 END
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-13')
 BEGIN
-    EXEC ventas.sp_alta_venta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-13', @pov = 'Boleteria principal', @metodo = 'Debito', @id_creado = @venta_id OUTPUT;
-    EXEC ventas.sp_alta_item_venta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 5, @fecha_acceso = '2026-08-13';
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-13', @pov = 'Boleteria principal', @metodo = 'Debito', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 5, @fecha_acceso = '2026-08-13';
 END
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-14')
 BEGIN
-    EXEC ventas.sp_alta_venta @parque = 'Parque Nacional Los Glaciares', @fecha = '2026-08-14', @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_id OUTPUT;
-    EXEC ventas.sp_alta_item_venta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 6, @fecha_acceso = '2026-08-14';
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = '2026-08-14', @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 6, @fecha_acceso = '2026-08-14';
 END
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-15')
 BEGIN
-    EXEC ventas.sp_alta_venta @parque = 'Parque Nacional Los Glaciares', @fecha = '2026-08-15', @pov = 'Centro visitantes', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
-    EXEC ventas.sp_alta_item_venta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 7, @fecha_acceso = '2026-08-15';
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = '2026-08-15', @pov = 'Centro visitantes', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 7, @fecha_acceso = '2026-08-15';
 END
 GO
 
