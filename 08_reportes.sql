@@ -19,20 +19,15 @@ AS
 	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
 
-CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
+CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque VARCHAR(50), @año CHAR(4)
 AS
-	DECLARE @parque int, @año CHAR(4)
-	SET @parque = 1
-	SET @año = '2025';
-	SELECT DISTINCT p.nombre, mes, total_mes AS visitas FROM ventas.visitas_anuales v
-	LEFT JOIN
-	gestion.parque p
-	ON v.parque = p.id
-	WHERE p.id = @parque AND año = @año
+	SELECT DISTINCT parque, mes, total_mes AS visitas
+	FROM ventas.visitas_anuales
+	WHERE parque = @parque AND año = @año
 	ORDER BY mes
-	FOR XML PATH(CAST(@año AS text)), ROOT('Reporte')
+	FOR XML PATH('Visitas-mes'), ROOT('Reporte')
 GO
-
+EXEC ventas.generar_xml_visitas__mensuales_por_parque @parque = 'Iguazu', @año = 2025
 CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas @parque
 AS
 	DECLARE @parque VARCHAR(50)
@@ -119,6 +114,8 @@ CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
   
 	DECLARE @Data NVARCHAR(MAX) = (SELECT DATA FROM @Json);
 	--CREATE TABLE #feriados (fecha DATE)
+	IF OBJECT_ID('[dbo].[##feriados]', 'U') IS NOT NULL
+		DROP TABLE ##feriados
 	SELECT * INTO ##feriados FROM OPENJSON(@Data)
 	WITH
 	( 
@@ -131,7 +128,7 @@ GO
 
 CREATE OR ALTER PROCEDURE ventas.ventas_en_feriados @año CHAR(4)
 AS
-	EXEC api_feriados @año;
+	EXEC ventas.api_feriados @año;
 
 	SELECT * FROM ventas.visitas_por_fecha
 	WHERE YEAR(fecha) = @año
@@ -139,7 +136,7 @@ AS
 	DROP TABLE [dbo].[##feriados]
 GO
 
---EXEC sp_ventas_en_feriados '2026'
+--EXEC ventas.ventas_en_feriados '2026'
 
 /*
 =================
@@ -248,10 +245,10 @@ GENERA REPORTE CON API DE DÓLARES PARA CONVERSIÓN DE PRECIOS
 
 CREATE OR ALTER PROCEDURE ventas.evolucion_entrada_dolar(@parque VARCHAR(50), @entrada VARCHAR(20))
 AS
-	EXEC api_dolares
+	EXEC ventas.api_dolares
 	DECLARE @parque_id INT, @entrada_id INT
-	SET @parque_id = (SELECT id_parque FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
-	SET @entrada_id = (SELECT id_visitante FROM ventas.vw_entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
+	SET @parque_id = (SELECT id_parque FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
+	SET @entrada_id = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
 	SELECT parque, tipo, precio, precio/cotizacion as [precio en dolar], cotizacion as dolar, fecha from
 	ventas.entrada e
 	LEFT JOIN
@@ -260,8 +257,23 @@ AS
 	WHERE parque = @parque_id AND tipo = @entrada_id AND casa = 'oficial'
 	order by fecha
 GO
---EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
-
+CREATE OR ALTER PROCEDURE ventas.evolucion_precios @parque VARCHAR(50), @entrada VARCHAR(20)
+AS
+	EXEC ventas.api_dolares
+	SELECT p.nombre +'-' v.descripcion as entrada, precio, fecha_desde AS fecha, precio/cotizacion as [precio en dolar] FROM
+	ventas.entrada e
+	LEFT JOIN
+	gestion.parque p
+	ON p.id = e.parque
+	LEFT JOIN
+	ventas.tipo_visitante v
+	ON e.tipo = v.id
+	LEFT JOIN
+	##dolares d
+	ON e.fecha_desde = d.fecha
+	WHERE casa = 'oficial' AND p.nombre = @parque AND v.descripcion = @entrada
+--EXEC ventas.evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
+EXEC ventas.evolucion_precios @parque = 'Iguazu', @entrada = 'Estudiante'
 
 CREATE OR ALTER FUNCTION concesiones.identificar_concesion(@ids VARCHAR(MAX)) RETURNS TABLE AS
 RETURN (

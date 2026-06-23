@@ -1,14 +1,28 @@
 <?xml version="1.0"?>
 <SqlWorkbenchSqlProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="tp-dba-grupo6">
   <Items>
-    <LogicalFolder Name="Conexiones" Type="2" Sorted="true">
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="DESKTOP-PKP4HHQ\SQLEXPRESS01:DESKTOP-PKP4HHQ\Ponchis">
+        <ConnectionNode Name="DESKTOP-15TJ0VA:DESKTOP-15TJ0VA\Tomas">
+          <Created>2026-06-21T16:28:20.7312557-03:00</Created>
+          <Type>SQL</Type>
+          <Server>DESKTOP-15TJ0VA</Server>
+          <UserName />
+          <Authentication>Windows Authentication</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>False</TrustServerCertificate>
+          <EncryptionOption>False</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="DESKTOP-PKP4HHQ\SQLEXPRESS01:">
           <Created>2026-06-14T20:29:22.9188039-03:00</Created>
           <Type>SQL</Type>
           <Server>DESKTOP-PKP4HHQ\SQLEXPRESS01</Server>
           <UserName />
-          <Authentication>Autenticación de Windows</Authentication>
+          <Authentication>SQL</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
           <TrustServerCertificate>True</TrustServerCertificate>
@@ -20,23 +34,23 @@
         </ConnectionNode>
       </Items>
     </LogicalFolder>
-    <LogicalFolder Name="Consultas" Type="0" Sorted="true">
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="01_create_db_scheme.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>01_create_db_scheme.sql</FullPath>
         </FileNode>
         <FileNode Name="02_create_tables.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>02_create_tables.sql</FullPath>
         </FileNode>
         <FileNode Name="03_sp_abm.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>03_sp_abm.sql</FullPath>
         </FileNode>
@@ -47,8 +61,8 @@
           <FullPath>04_sp_abm_testing.sql</FullPath>
         </FileNode>
         <FileNode Name="05_sp.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>05_sp.sql</FullPath>
         </FileNode>
@@ -59,14 +73,14 @@
           <FullPath>06_sp_test.sql</FullPath>
         </FileNode>
         <FileNode Name="07_creacion_views.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>07_creacion_views.sql</FullPath>
         </FileNode>
         <FileNode Name="08_reportes.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>08_reportes.sql</FullPath>
         </FileNode>
@@ -82,9 +96,15 @@
           <AssociatedConnUserName />
           <FullPath>10_poblacion.sql</FullPath>
         </FileNode>
+        <FileNode Name="SQLQuery1.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-15TJ0VA:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-15TJ0VA</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>SQLQuery1.sql</FullPath>
+        </FileNode>
       </Items>
     </LogicalFolder>
-    <LogicalFolder Name="Varios" Type="3" Sorted="true">
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
       <Items />
     </LogicalFolder>
   </Items>
