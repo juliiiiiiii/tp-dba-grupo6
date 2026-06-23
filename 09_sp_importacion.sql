@@ -184,6 +184,7 @@ GO
 -- Importar parques de un csv
 
 -- Descargar archivo desde "https://sib.gob.ar/areas-protegidas"
+-- Descargar: "https://www.microsoft.com/en-us/download/details.aspx?id=54920"
 
 CREATE OR ALTER PROCEDURE gestion.importar_parques
     @archivo_dir VARCHAR(260)
@@ -192,132 +193,77 @@ BEGIN
     SET NOCOUNT ON;
  
     DECLARE @error VARCHAR(500) = '';
-    DECLARE @sql VARCHAR(MAX);
-    DECLARE @consulta VARCHAR(320);
-    DECLARE @archivo_existe VARCHAR(5);
-    DECLARE @tabla_archivo TABLE (linea VARCHAR(5));
- 
+    DECLARE @sql NVARCHAR(MAX);
+
     EXEC sp_configure 'show advanced options', 1;
     RECONFIGURE;
-
-    EXEC sp_configure 'xp_cmdshell', 1;
+    
+    EXEC sp_configure 'Ad Hoc Distributed Queries', 1;
     RECONFIGURE;
- 
-    SET @consulta = 'IF EXIST "' + @archivo_dir + '" (ECHO True) ELSE (ECHO False)';
-    INSERT INTO @tabla_archivo EXEC xp_cmdshell @consulta;
-    SET @archivo_existe = (SELECT TOP 1 linea FROM @tabla_archivo WHERE linea IS NOT NULL);
- 
-    IF @archivo_existe = 'False'
-        THROW 50001, 'El archivo no existe o no se encuentra en la ruta indicada.', 1;
+
+    EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'AllowInProcess', 1;
+    EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'DynamicParameters', 1;
+    
  
     CREATE TABLE #temp_csv (
-        provincia VARCHAR(50),
-        nombre VARCHAR(200),
-        anio VARCHAR(5),
-        region VARCHAR(250),
-        superficie VARCHAR(20),
-        latitud VARCHAR(10),
-        longitud VARCHAR(10),
-        ley VARCHAR(250),
-        ecorregiones VARCHAR(250),
-        categoria_intern VARCHAR(250),
-        especies VARCHAR(20),
-        animales VARCHAR(20),
-        bacterias VARCHAR(20),
-        hongos VARCHAR(20),
-        plantas VARCHAR(20)
-    );
- 
-    BEGIN TRY
-        SET @sql =
-            'BULK INSERT #temp_csv
-             FROM ''' + @archivo_dir + '''
-             WITH (
-                FORMAT = ''CSV'',
-                FIRSTROW = 3,
-                FIELDTERMINATOR = '','',
-                FIELDQUOTE = ''"'',
-                ROWTERMINATOR = ''\n'',
-                CODEPAGE = ''1252''
-             );';
-        EXEC (@sql);
-    END TRY
-    BEGIN CATCH
-        SET @error = 'Error en BULK INSERT: ' + ERROR_MESSAGE();
-        RAISERROR(@error, 16, 1);
-        RETURN;
-    END CATCH
- 
-    CREATE TABLE #errores (
-        nombre VARCHAR(200),
-        provincia VARCHAR(100),
-        motivo VARCHAR(300)
-    );
- 
-    INSERT INTO #errores (nombre, provincia, motivo)
-    SELECT nombre, provincia, 'Nombre nulo o vacío'
-    FROM #temp_csv
-    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) = '';
- 
-    INSERT INTO #errores (nombre, provincia, motivo)
-    SELECT nombre, provincia, 'Superficie nula, vacía o no positiva'
-    FROM #temp_csv
-    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) != ''
-      AND (
-            TRY_CAST(superficie AS FLOAT) IS NULL
-         OR TRY_CAST(superficie AS FLOAT) <= 0
-          );
- 
-    INSERT INTO #errores (nombre, provincia, motivo)
-    SELECT nombre, provincia, 'Tipo de área protegida no reconocido según el nombre'
-    FROM #temp_csv
-    WHERE LTRIM(RTRIM(ISNULL(nombre, ''))) != ''
-      AND nombre NOT LIKE 'Parque Nacional%'
-      AND nombre NOT LIKE 'Parque Interjurisdiccional Marino Costero%'
-      AND nombre NOT LIKE 'Parque Interjurisdiccional Marino%'
-      AND nombre NOT LIKE 'Área Marina Protegida%'
-      AND nombre NOT LIKE 'Area Marina Protegida%'
-      AND nombre NOT LIKE 'Reserva Natural Silvestre%'
-      AND nombre NOT LIKE 'Reserva Natural Educativa%'
-      AND nombre NOT LIKE 'Reserva Natural Estricta%'
-      AND nombre NOT LIKE 'Reserva Natural%'
-      AND nombre NOT LIKE 'Reserva Nacional%'
-      AND nombre NOT LIKE 'Monumento Natural%';
- 
-    CREATE TABLE #temp_parques (
         id INT IDENTITY(1,1) PRIMARY KEY,
         nombre NVARCHAR(200),
         ubicacion NVARCHAR(100),
         superficie INT,
         tipo VARCHAR(50)
     );
+ 
+    BEGIN TRY
+        SET @sql = '
+            INSERT INTO #temp_csv SELECT *
+            FROM (
+                SELECT 
+                    LTRIM(RTRIM([Área protegida])) nombre,
+                    CASE LTRIM(RTRIM(Provincia))
+                        WHEN ''Tierra Del Fuego'' THEN ''Tierra del Fuego, Antártida e Islas del Atlántico Sur''
+                        ELSE NULLIF(LTRIM(RTRIM(Provincia)), '''')
+                    END AS provincia,
+                    TRY_CAST(TRY_CAST([Superficie (HA)] AS FLOAT) AS INT) superficie,
+                    CASE
+                        WHEN [Área protegida] LIKE ''Parque Nacional%'' THEN ''Parque nacional''
+                        WHEN [Área protegida] LIKE ''Parque Interjurisdiccional Marino Costero%'' THEN ''Parque interjurisdiccional marino costero''
+                        WHEN [Área protegida] LIKE ''Parque Interjurisdiccional Marino%'' THEN ''Parque interjurisdiccional marino''
+                        WHEN [Área protegida] LIKE ''Área Marina Protegida%''
+                          OR [Área protegida] LIKE ''Area Marina Protegida%'' THEN ''Area marina protegida''
+                        WHEN [Área protegida] LIKE ''Reserva Natural Silvestre%'' THEN ''Reserva natural silvestre''
+                        WHEN [Área protegida] LIKE ''Reserva Natural Educativa%'' THEN ''Reserva natural educativa''
+                        WHEN [Área protegida] LIKE ''Reserva Natural Estricta%'' THEN ''Reserva natural estricta''
+                        WHEN [Área protegida] LIKE ''Reserva Natural%'' THEN ''Reserva natural''
+                        WHEN [Área protegida] LIKE ''Reserva Nacional%'' THEN ''Reserva nacional''
+                        WHEN [Área protegida] LIKE ''Monumento Natural%'' THEN ''Monumento natural''
+                    END tipo
+                FROM OPENROWSET(
+                   ''Microsoft.ACE.OLEDB.12.0'',
+                   ''Excel 12.0;Database=' + @archivo_dir + ';HDR=YES'',
+                   ''SELECT * FROM [Sheet1$A2:Z1000]''
+                ) AS prov
+            ) AS resultado
+            WHERE resultado.Provincia IS NOT NULL;';
 
-    INSERT INTO #temp_parques (nombre, ubicacion, superficie, tipo)
-    SELECT
-        LTRIM(RTRIM(nombre)),
-        CASE LTRIM(RTRIM(provincia))
-            WHEN 'Tierra Del Fuego' THEN 'Tierra del Fuego, Antártida e Islas del Atlántico Sur'
-            ELSE NULLIF(LTRIM(RTRIM(provincia)), '')
-        END,
-        TRY_CAST(TRY_CAST(superficie AS FLOAT) AS INT),
-        CASE
-            WHEN nombre LIKE 'Parque Nacional%' THEN 'Parque nacional'
-            WHEN nombre LIKE 'Parque Interjurisdiccional Marino Costero%' THEN 'Parque interjurisdiccional marino costero'
-            WHEN nombre LIKE 'Parque Interjurisdiccional Marino%' THEN 'Parque interjurisdiccional marino'
-            WHEN nombre LIKE 'Área Marina Protegida%'
-              OR nombre LIKE 'Area Marina Protegida%' THEN 'Area marina protegida'
-            WHEN nombre LIKE 'Reserva Natural Silvestre%' THEN 'Reserva natural silvestre'
-            WHEN nombre LIKE 'Reserva Natural Educativa%' THEN 'Reserva natural educativa'
-            WHEN nombre LIKE 'Reserva Natural Estricta%' THEN 'Reserva natural estricta'
-            WHEN nombre LIKE 'Reserva Natural%' THEN 'Reserva natural'
-            WHEN nombre LIKE 'Reserva Nacional%' THEN 'Reserva nacional'
-            WHEN nombre LIKE 'Monumento Natural%' THEN 'Monumento natural'
-        END
-    FROM #temp_csv
-    WHERE nombre NOT IN (SELECT ISNULL(nombre, '') FROM #errores)
-      AND TRY_CAST(TRY_CAST(superficie AS FLOAT) AS INT) > 0;
+        EXEC sp_executesql @sql
+    END TRY
+    BEGIN CATCH
+        SET @error = 'Error en BULK INSERT: ' + ERROR_MESSAGE();
 
-    DECLARE @id_max INT = (SELECT MAX(id) FROM #temp_parques);
+        EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'AllowInProcess', 0;
+        EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'DynamicParameters',0;
+
+        EXEC sp_configure 'Ad Hoc Distributed Queries', 0;
+        RECONFIGURE;
+
+        EXEC sp_configure 'show advanced options', 0;
+        RECONFIGURE;
+
+        RAISERROR(@error, 16, 1);
+        RETURN;
+    END CATCH
+
+    DECLARE @id_max INT = (SELECT MAX(id) FROM #temp_csv);
     DECLARE @id_act INT = 1;
     DECLARE @c_nombre NVARCHAR(200);
     DECLARE @c_ubicacion NVARCHAR(100);
@@ -330,7 +276,7 @@ BEGIN
         SET @id_existente = NULL;
 
         SELECT @c_nombre = nombre, @c_ubicacion = ubicacion, @c_superficie = superficie, @c_tipo = tipo
-        FROM #temp_parques WHERE id = @id_act;
+        FROM #temp_csv WHERE id = @id_act;
 
         SELECT @id_existente = id FROM gestion.Parque WHERE nombre = @c_nombre;
 
@@ -344,8 +290,6 @@ BEGIN
                     @superficie = @c_superficie;
             END TRY
             BEGIN CATCH
-                INSERT INTO #errores (nombre, provincia, motivo)
-                VALUES (@c_nombre, @c_ubicacion, 'Error al registrar: ' + ERROR_MESSAGE());
             END CATCH
         END
         ELSE
@@ -359,33 +303,20 @@ BEGIN
                     @superficie = @c_superficie;
             END TRY
             BEGIN CATCH
-                INSERT INTO #errores (nombre, provincia, motivo)
-                VALUES (@c_nombre, @c_ubicacion, 'Error al modificar: ' + ERROR_MESSAGE());
             END CATCH
         END
         SET @id_act += 1;
     END
  
-    IF EXISTS (SELECT 1 FROM #errores)
-    BEGIN
-        PRINT 'Se encontraron errores de validación:';
-        SELECT nombre, provincia, motivo FROM #errores ORDER BY motivo, nombre;
-    END
-    ELSE
-        PRINT 'Importación completada sin errores de validación.';
- 
-    SELECT COUNT(*) AS filas_en_csv FROM #temp_csv;
-    SELECT COUNT(*) AS filas_con_errores FROM #errores;
-    SELECT COUNT(*) AS filas_validas FROM #temp_parques
- 
-    EXEC sp_configure 'xp_cmdshell', 0;
+    EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'AllowInProcess', 0;
+    EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'DynamicParameters',0;
+
+    EXEC sp_configure 'Ad Hoc Distributed Queries', 0;
     RECONFIGURE;
 
     EXEC sp_configure 'show advanced options', 0;
     RECONFIGURE;
 
     DROP TABLE #temp_csv;
-    DROP TABLE #errores;
-    DROP TABLE #temp_parques;
 END
 GO
