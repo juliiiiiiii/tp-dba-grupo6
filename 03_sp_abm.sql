@@ -1470,7 +1470,6 @@ BEGIN
 
 END
 GO
-
 --BAJA--
 
 CREATE OR ALTER PROCEDURE ventas.venta_baja(@venta INT)
@@ -1529,9 +1528,10 @@ GO
 CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
 AS
 BEGIN
-	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque VARCHAR(50)
+	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque VARCHAR(50), @id_parque INT
 	SET @errores = ''
-    SET @parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
+    SET @id_parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
+    SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
 	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
         BEGIN
         SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
@@ -1547,18 +1547,23 @@ BEGIN
        SET @errores += 'La venta indicada no existe.' + CHAR(10)
     IF (@id_concepto = NULL)
         SET @errores += 'El concepto ingresado no existe.' + CHAR(10)
-    
     IF @errores <> ''
         THROW 50000, @errores, 1
 
-
+        print @venta
+        print @id_concepto
+        print @concepto
+        print @cantidad
+        print @precio
+        print (@cantidad * @precio)
+        print @fecha_acceso
 	BEGIN TRANSACTION
 		BEGIN TRY
 			INSERT INTO ventas.item_venta
 			VALUES (@venta, @id_concepto, @concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
 
 			UPDATE ventas.venta
-			SET total = total + @cantidad * @precio
+			SET total = total + (@cantidad * @precio)
 			WHERE id = @venta
 			
 			COMMIT
