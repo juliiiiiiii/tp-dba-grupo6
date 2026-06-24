@@ -18,6 +18,7 @@ AS
 	ORDER BY parque, mes, año
 	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
+exec ventas.generar_reporte_visitas
 
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
 AS
@@ -45,7 +46,7 @@ AS
 	for XML AUTO -- o AUTO?
 GO
 
---EXEC sp_generar_reporte_visitas_por_mes
+EXEC generar_reporte_visitas_por_mes
 /*
 ============================
 GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
@@ -71,7 +72,9 @@ AS
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
 
+GO
 
+exec ventas.pivot_ventas_por_mes 2026
 -- 
 
 /*
@@ -291,7 +294,7 @@ BEGIN
 END
 GO
 
---EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
 
 -- la info de inf.* es con lo que se identifica despues las concesiones para usar los sp's
 create or alter view concesiones.deudores as
@@ -319,7 +322,9 @@ select p.id as id, p.nombre, (
     join concesiones.Empresa as e on c.id_empresa=e.id
     left join gestion.Actividad as a on c.id_actividad=a.id
     where p.id=c.id_empresa
-    for json path -- for xml path
+    for xml path
 ) as concesiones
-from gestion.Parque as p 
+from gestion.Parque as p
 go
+
+select * from concesiones.concesiones_por_parque

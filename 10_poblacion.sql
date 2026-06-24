@@ -422,8 +422,8 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Corrientes')
     EXEC gestion.ubicacion_alta 'Corrientes';
 IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Jujuy')
     EXEC gestion.ubicacion_alta 'Jujuy';
-IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Salta')
-    EXEC gestion.ubicacion_alta 'Salta';
+IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Misiones')
+    EXEC gestion.ubicacion_alta 'Misiones';
 IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Buenos Aires')
     EXEC gestion.ubicacion_alta 'Buenos Aires';
 GO

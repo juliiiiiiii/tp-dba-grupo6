@@ -216,8 +216,8 @@ BEGIN
     END
 END
 GO
-
---TODO test de estos sp:
+-- TODO: test de registrar venta
+-- TODO: test de estos sp
 
 -- Crea una concesion para una empresa y un parque en una fecha en especifico
 -- Tambien crea un canon a pagar pendiente de pago en el periodo de la fecha de inicio
@@ -419,6 +419,8 @@ create or alter procedure concesiones.canon_pagar_abonar (
     end catch
 end;
 go
+
+-- TODO cambiar nombres SP
 
 -- Pendientes de pago de una concesion
 create or alter procedure concesiones.sp_consultar_canones_pendientes (

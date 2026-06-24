@@ -20,7 +20,7 @@ GO
 -- Alta
 -----------------------------------------------------------
 -- Registrar ubicacion
-
+-- TODO: ABM de todas las tablas
 CREATE OR ALTER PROCEDURE gestion.ubicacion_alta
     @provincia VARCHAR(50)
 AS
@@ -45,10 +45,7 @@ BEGIN
 END
 GO
 
-
-
 -- Registrar parque
-
 CREATE OR ALTER PROCEDURE gestion.parque_alta
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
