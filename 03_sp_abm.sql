@@ -1550,13 +1550,6 @@ BEGIN
     IF @errores <> ''
         THROW 50000, @errores, 1
 
-        print @venta
-        print @id_concepto
-        print @concepto
-        print @cantidad
-        print @precio
-        print (@cantidad * @precio)
-        print @fecha_acceso
 	BEGIN TRANSACTION
 		BEGIN TRY
 			INSERT INTO ventas.item_venta
