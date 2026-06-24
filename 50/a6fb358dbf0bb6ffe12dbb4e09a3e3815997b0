@@ -1,0 +1,95 @@
+src/main/resources/templates/parques/alta.vm
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-24,31-46
+  s_e743ed93a6160e::t_3e8e31efd2cb74 25-30
+src/main/java/ar/edu/unlam/parques/App.java
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-3,5-12,14,17-32
+  s_9156e32b6d9434::t_fe965381e75827 4,13
+  s_e743ed93a6160e::t_ddb20edb3f25d4 16
+10_script_carga.sql
+  s_5556f754d354d3::t_38a4ac654e7a05 413-415,430-431,446-456,458-459,461-465,505,511,528,532,540,542-545,548-549,567,585-587,589,597,608-609,613-615
+  s_377597c0273e84::t_cc011d96cb4542 1-412,616-640
+  s_5556f754d354d3::t_c07a5fda04148e 416-429,432-445,457,460,466-504,506-510,512-527,529-531,533-539,541,546-547,550-566,568-584,588,590-596,598-607,610-612
+src/main/java/ar/edu/unlam/parques/repository/ParqueRepository.java
+  s_e743ed93a6160e::t_f6ab1a08d3d7e9 4,9-10,12-13,52-76
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-3,5-8,11,14-23,25-32,34-35,37-41,43-44,46-51,77-79
+src/main/resources/public/styles.css
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-114
+src/main/resources/templates/parques/baja.vm
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-15,23-34
+  s_e743ed93a6160e::t_3e8e31efd2cb74 16-22
+.gitignore
+  s_9156e32b6d9434::t_d8ea79bef2e968 1-3
+src/main/java/ar/edu/unlam/parques/model/ParqueItem.java
+  s_e743ed93a6160e::t_f6ab1a08d3d7e9 1-10
+src/main/java/ar/edu/unlam/parques/model/UbicacionItem.java
+  s_e743ed93a6160e::t_f6ab1a08d3d7e9 1-7
+data/parques_importacion_parcial.csv
+  s_5556f754d354d3::t_fe0b6335baa397 1-6
+src/main/resources/templates/partials/header.vm
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-5
+src/main/java/ar/edu/unlam/parques/service/ParqueService.java
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-3,6,8-9,11-13,15,17,19-31,43
+  s_e743ed93a6160e::t_ddb20edb3f25d4 4-5,7,10,14,16,18,34-42
+src/main/java/ar/edu/unlam/parques/db/LazyDataSource.java
+  s_9156e32b6d9434::t_fe965381e75827 1-74
+src/main/resources/templates/partials/messages.vm
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-6
+pom.xml
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-47,54-57,63-73
+  s_9156e32b6d9434::t_87ef3d7428a072 48-53,58-62
+src/main/java/ar/edu/unlam/parques/model/ParqueForm.java
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-47
+src/main/java/ar/edu/unlam/parques/controller/ParqueController.java
+  s_e743ed93a6160e::t_9abce413358a63 4-5,12,23,26,29,37,39,47,49,57-89,91-92,94,97-109,112,117
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-3,6-11,13-22,24-25,27-28,30-36,38,40-46,48,50-56,90,93,95-96,110-111,113-116,118-137
+src/main/java/ar/edu/unlam/parques/repository/UbicacionRepository.java
+  s_e743ed93a6160e::t_f6ab1a08d3d7e9 3-47
+src/test/java/ar/edu/unlam/parques/JavalinStartupTest.java
+  s_9156e32b6d9434::t_87ef3d7428a072 1-17
+src/main/resources/templates/parques/modificacion.vm
+  s_e743ed93a6160e::t_3e8e31efd2cb74 16-27,39-44,59-84
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-15,28-38,45-58,85-86
+src/main/java/ar/edu/unlam/parques/config/DatabaseConfig.java
+  s_9156e32b6d9434::t_ab8123ac1de2bf 1-13,15-25
+  s_9156e32b6d9434::t_d6fa72f0adc8db 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.11",
+  "base_commit_sha": "50a6fb358dbf0bb6ffe12dbb4e09a3e3815997b0",
+  "prompts": {},
+  "sessions": {
+    "s_377597c0273e84": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ee5cc-37cd-76c1-8451-0ea753403611",
+        "model": "gpt-5.5"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    },
+    "s_5556f754d354d3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ee5f1-5a20-73c1-8632-bd37799526b1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    },
+    "s_9156e32b6d9434": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ef767-045d-7902-ade5-00d330df503c",
+        "model": "gpt-5.5"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    },
+    "s_e743ed93a6160e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ef78b-c2fa-7bb1-b3fa-39fc8b097f4d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    }
+  }
+}
