@@ -1,0 +1,86 @@
+#set($active = "modificacion")
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$title</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="page">
+    #parse("templates/partials/header.vm")
+
+    <form method="post" action="/parques/modificacion" class="form-grid">
+        <div class="field">
+            <label for="parqueSelector">parque</label>
+            <select id="parqueSelector" required>
+                <option value="">Seleccione un parque</option>
+                #foreach($parque in $parques)
+                    <option value="$parque.id"
+                            data-nombre="$parque.nombre"
+                            data-tipo="$parque.tipo"
+                            data-ubicacion="$parque.ubicacion"
+                            data-superficie="$parque.superficie">$parque.nombre</option>
+                #end
+            </select>
+            <input id="id" name="id" type="hidden" required>
+        </div>
+        <div class="field">
+            <label for="nombre">nombre</label>
+            <input id="nombre" name="nombre" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for="tipo">tipo</label>
+            <input id="tipo" name="tipo" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="ubicacion">ubicacion</label>
+            <select id="ubicacion" name="ubicacion" required>
+                <option value="">Seleccione una ubicacion</option>
+                #foreach($ubicacion in $ubicaciones)
+                    <option value="$ubicacion.provincia">$ubicacion.provincia</option>
+                #end
+            </select>
+        </div>
+        <div class="field">
+            <label for="superficie">superficie</label>
+            <input id="superficie" name="superficie" type="number" min="1" required>
+        </div>
+        <button type="submit">Guardar</button>
+    </form>
+
+    #parse("templates/partials/messages.vm")
+
+    <section class="panel">
+        <p>Modificacion de parques usando gestion.parque_modificacion.</p>
+    </section>
+</main>
+<script>
+    const parqueSelector = document.getElementById("parqueSelector");
+    const idInput = document.getElementById("id");
+    const nombreInput = document.getElementById("nombre");
+    const tipoInput = document.getElementById("tipo");
+    const ubicacionInput = document.getElementById("ubicacion");
+    const superficieInput = document.getElementById("superficie");
+
+    parqueSelector.addEventListener("change", () => {
+        const option = parqueSelector.selectedOptions[0];
+        if (!option || !option.value) {
+            idInput.value = "";
+            nombreInput.value = "";
+            tipoInput.value = "";
+            ubicacionInput.value = "";
+            superficieInput.value = "";
+            return;
+        }
+
+        idInput.value = option.value;
+        nombreInput.value = option.dataset.nombre;
+        tipoInput.value = option.dataset.tipo;
+        ubicacionInput.value = option.dataset.ubicacion;
+        superficieInput.value = option.dataset.superficie;
+    });
+</script>
+</body>
+</html>

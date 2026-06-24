@@ -1,0 +1,6 @@
+#if($success)
+    <div class="message success">$success</div>
+#end
+#if($error)
+    <div class="message error">$error</div>
+#end

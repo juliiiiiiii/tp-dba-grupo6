@@ -1,0 +1,34 @@
+#set($active = "baja")
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$title</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="page">
+    #parse("templates/partials/header.vm")
+
+    <form method="post" action="/parques/baja" class="form-grid">
+        <div class="field">
+            <label for="id">parque</label>
+            <select id="id" name="id" required>
+                <option value="">Seleccione un parque</option>
+                #foreach($parque in $parques)
+                    <option value="$parque.id">$parque.nombre</option>
+                #end
+            </select>
+        </div>
+        <button type="submit">Dar de baja</button>
+    </form>
+
+    #parse("templates/partials/messages.vm")
+
+    <section class="panel">
+        <p>Baja logica de parques usando gestion.parque_baja.</p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,6 @@
+provincia,nombre,anio,region,superficie,latitud,longitud,ley,ecorregiones,categoria_intern,especies,animales,bacterias,hongos,plantas
+archivo de ejemplo para importacion parcial con filas validas e invalidas
+Misiones,Parque Nacional Importacion Valida,2026,NEA,12345,-25.0,-54.0,Ley 1,Selva,,10,8,0,1,20
+Misiones,,2026,NEA,9000,-25.1,-54.1,Ley 2,Selva,,10,8,0,1,20
+Misiones,Parque Nacional Importacion Superficie Mala,2026,NEA,-10,-25.2,-54.2,Ley 3,Selva,,10,8,0,1,20
+Misiones,Area Sin Tipo Reconocido,2026,NEA,5000,-25.3,-54.3,Ley 4,Selva,,10,8,0,1,20
