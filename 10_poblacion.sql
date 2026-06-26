@@ -806,17 +806,19 @@ DECLARE @venta_reporte INT;
 DECLARE @dia INT = 0;
 WHILE @dia < 14
 BEGIN
+    declare @calculate_date DATE = DATEADD(DAY, @dia, @fecha_venta)
+
     IF NOT EXISTS (
         SELECT 1
         FROM ventas.venta v
         INNER JOIN gestion.Parque p ON p.id = v.parque
         WHERE p.nombre = 'Parque Nacional Iguazu'
-          AND v.fecha = DATEADD(DAY, @dia, @fecha_venta)
+          AND v.fecha = @calculate_date
     )
-    BEGIN
-        EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = DATEADD(DAY, @dia, @fecha_venta), @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 3 + (@dia % 5), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 1 + (@dia % 3), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
+    BEGIN  
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = @calculate_date, @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 1, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad =2, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -824,11 +826,11 @@ BEGIN
         FROM ventas.venta v
         INNER JOIN gestion.Parque p ON p.id = v.parque
         WHERE p.nombre = 'Parque Nacional Los Glaciares'
-          AND v.fecha = DATEADD(DAY, @dia, @fecha_venta)
+          AND v.fecha = @calculate_date
     )
     BEGIN
-        EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = DATEADD(DAY, @dia, @fecha_venta), @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 2 + (@dia % 4), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = @calculate_date, @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 4, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -836,12 +838,12 @@ BEGIN
         FROM ventas.venta v
         INNER JOIN gestion.Parque p ON p.id = v.parque
         WHERE p.nombre = 'Parque Nacional Nahuel Huapi'
-          AND v.fecha = DATEADD(DAY, @dia, @fecha_venta)
+          AND v.fecha =@calculate_date
     )
     BEGIN
-        EXEC ventas.venta_alta @parque = 'Parque Nacional Nahuel Huapi', @fecha = DATEADD(DAY, @dia, @fecha_venta), @pov = 'Porteria sur', @metodo = 'Debito', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 2 + (@dia % 6), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 1 + (@dia % 2), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Nahuel Huapi', @fecha = @calculate_date, @pov = 'Porteria sur', @metodo = 'Debito', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 6, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 2, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -849,12 +851,12 @@ BEGIN
         FROM ventas.venta v
         INNER JOIN gestion.Parque p ON p.id = v.parque
         WHERE p.nombre = 'Parque Nacional El Palmar'
-          AND v.fecha = DATEADD(DAY, @dia, @fecha_venta)
+          AND v.fecha = @calculate_date
     )
     BEGIN
-        EXEC ventas.venta_alta @parque = 'Parque Nacional El Palmar', @fecha = DATEADD(DAY, @dia, @fecha_venta), @pov = 'Acceso principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 1 + (@dia % 5), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 1 + (@dia % 3), @fecha_acceso = DATEADD(DAY, @dia, @fecha_venta);
+        EXEC ventas.venta_alta @parque = 'Parque Nacional El Palmar', @fecha = @calculate_date, @pov = 'Acceso principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 5, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 3, @fecha_acceso = @calculate_date;
     END
 
     SET @dia += 1;
