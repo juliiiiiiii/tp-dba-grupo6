@@ -1,0 +1,1020 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20262.26.0603.1643                               -->
+<workbook original-version='18.1' source-build='2026.2.0 (20262.26.0603.1643)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <AnimationOnByDefault />
+    <MarkAnimation />
+    <ObjectModelEncapsulateLegacy />
+    <ObjectModelRelationshipPerfOptions />
+    <ObjectModelTableType />
+    <SchemaViewerObjectModel />
+    <SheetIdentifierTracking />
+    <WindowsPersistSimpleIdentifiers />
+  </document-format-change-manifest>
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='parques_nacionales' inline='true' name='federated.05kei901or6v281h8k72b0kqk26j' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='DESKTOP-F2AHUDD\SQLEXPRESS' name='sqlserver.1vwlqd21ydwmse0zt183i0hbp319'>
+            <connection application-intent='false' authentication='sspi' class='sqlserver' dbname='parques_nacionales' multi-subnet-failover='false' odbc-native-protocol='yes' one-time-sql='' server='DESKTOP-F2AHUDD\SQLEXPRESS' />
+          </named-connection>
+        </named-connections>
+      </connection>
+      <layout dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;Argentina&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+      <object-graph />
+    </datasource>
+    <datasource caption='reporte_visitas_por_semana (parques_nacionales)' inline='true' name='federated.1qpqq270vnwafu17213jr1cjtlzc' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='DESKTOP-F2AHUDD\SQLEXPRESS' name='sqlserver.1vm4dau0sr1w1j14m7xy20raplvu'>
+            <connection application-intent='false' authentication='sspi' class='sqlserver' dbname='' multi-subnet-failover='false' odbc-native-protocol='yes' one-time-sql='' server='DESKTOP-F2AHUDD\SQLEXPRESS' />
+          </named-connection>
+        </named-connections>
+        <relation type='collection'>
+          <relation connection='sqlserver.1vm4dau0sr1w1j14m7xy20raplvu' name='vw_visitas_por_semana' table='[ventas].[vw_visitas_por_semana]' type='table' />
+          <relation connection='sqlserver.1vm4dau0sr1w1j14m7xy20raplvu' name='Parque' table='[gestion].[Parque]' type='table' />
+        </relation>
+        <cols>
+          <map key='[estado]' value='[Parque].[estado]' />
+          <map key='[id]' value='[Parque].[id]' />
+          <map key='[id_ubicacion]' value='[Parque].[id_ubicacion]' />
+          <map key='[nombre]' value='[Parque].[nombre]' />
+          <map key='[parque]' value='[vw_visitas_por_semana].[parque]' />
+          <map key='[semana (vw_visitas_por_semana)]' value='[vw_visitas_por_semana].[semana]' />
+          <map key='[superficie]' value='[Parque].[superficie]' />
+          <map key='[tipo]' value='[Parque].[tipo]' />
+          <map key='[total_semana (vw_visitas_por_semana)]' value='[vw_visitas_por_semana].[total_semana]' />
+        </cols>
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>parque</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[parque]</local-name>
+            <parent-name>[vw_visitas_por_semana]</parent-name>
+            <remote-alias>parque</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>semana</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[semana (vw_visitas_por_semana)]</local-name>
+            <parent-name>[vw_visitas_por_semana]</parent-name>
+            <remote-alias>semana</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>total_semana</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[total_semana (vw_visitas_por_semana)]</local-name>
+            <parent-name>[vw_visitas_por_semana]</parent-name>
+            <remote-alias>total_semana</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>nombre</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[nombre]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>nombre</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>100</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tipo</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[tipo]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>tipo</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>superficie</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[superficie]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>superficie</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>estado</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[estado]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>estado</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>8</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_CHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id_ubicacion</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id_ubicacion]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>id_ubicacion</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]</object-id>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Parque1' datatype='table' name='[__tableau_internal_object_id__].[Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93]' role='measure' type='quantitative' />
+      <column caption='vw_visitas_por_semana' datatype='table' name='[__tableau_internal_object_id__].[vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1]' role='measure' type='quantitative' />
+      <column caption='Estado' datatype='string' name='[estado]' role='dimension' type='nominal' />
+      <column caption='Id' datatype='integer' name='[id]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Id Ubicacion' datatype='integer' name='[id_ubicacion]' role='dimension' type='ordinal' />
+      <column caption='Nombre' datatype='string' name='[nombre]' role='dimension' type='nominal' />
+      <column caption='Parque' datatype='integer' name='[parque]' role='measure' type='quantitative' />
+      <column caption='Semana (Vw Visitas Por Semana)' datatype='integer' name='[semana (vw_visitas_por_semana)]' role='dimension' type='quantitative' />
+      <column caption='Superficie' datatype='integer' name='[superficie]' role='measure' type='quantitative' />
+      <column caption='Tipo' datatype='string' name='[tipo]' role='dimension' type='nominal' />
+      <column caption='Total Semana (Vw Visitas Por Semana)' datatype='integer' name='[total_semana (vw_visitas_por_semana)]' role='dimension' type='quantitative' />
+      <column-instance column='[parque]' derivation='Avg' name='[avg:parque:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[total_semana (vw_visitas_por_semana)]' derivation='Sum' name='[sum:total_semana (vw_visitas_por_semana):qk]' pivot='key' type='quantitative' />
+      <layout common-percentage='1' dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' user-set-layout-v2='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[:Measure Names]' type='palette'>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1qpqq270vnwafu17213jr1cjtlzc].[avg:semana:qk]&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;[federated.1qpqq270vnwafu17213jr1cjtlzc]&quot;</bucket>
+            </map>
+            <map to='#76b7b2'>
+              <bucket>&quot;[federated.1qpqq270vnwafu17213jr1cjtlzc].[sum:total_semana (vw_visitas_por_semana):qk]&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;[federated.1qpqq270vnwafu17213jr1cjtlzc].[avg:parque:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.1qpqq270vnwafu17213jr1cjtlzc].[sum:semana:qk]&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;Argentina&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+      <object-graph>
+        <objects>
+          <object caption='Parque1' id='Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93'>
+            <properties context=''>
+              <relation connection='sqlserver.1vm4dau0sr1w1j14m7xy20raplvu' name='Parque' table='[gestion].[Parque]' type='table' />
+            </properties>
+          </object>
+          <object caption='vw_visitas_por_semana' id='vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1'>
+            <properties context=''>
+              <relation connection='sqlserver.1vm4dau0sr1w1j14m7xy20raplvu' name='vw_visitas_por_semana' table='[ventas].[vw_visitas_por_semana]' type='table' />
+            </properties>
+          </object>
+        </objects>
+        <relationships>
+          <relationship>
+            <expression op='='>
+              <expression op='[parque]' />
+              <expression op='[id]' />
+            </expression>
+            <first-end-point object-id='vw_visitas_por_semana (ventas.vw_visitas_por_semana)_B00CE424EECD4C7E8C1D37341C23F3C1' />
+            <second-end-point is-db-set-unique-key='true' object-id='Parque (gestion.Parque)_765374F725B84EF5ABEAED8613840A93' unique-key='true' />
+          </relationship>
+        </relationships>
+      </object-graph>
+    </datasource>
+    <datasource caption='Parque (gestion.Parque)+ (parques_nacionales)' inline='true' name='federated.14mwaqu0y20da61d4aogg0wgu5k6' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='DESKTOP-F2AHUDD\SQLEXPRESS' name='sqlserver.12x0pic14glve31070hjp175m8oq'>
+            <connection application-intent='false' authentication='sspi' class='sqlserver' dbname='parques_nacionales' multi-subnet-failover='false' odbc-native-protocol='yes' one-time-sql='' server='DESKTOP-F2AHUDD\SQLEXPRESS' />
+          </named-connection>
+        </named-connections>
+        <relation type='collection'>
+          <relation connection='sqlserver.12x0pic14glve31070hjp175m8oq' name='Parque' table='[gestion].[Parque]' type='table' />
+          <relation connection='sqlserver.12x0pic14glve31070hjp175m8oq' name='Ubicacion' table='[gestion].[Ubicacion]' type='table' />
+        </relation>
+        <cols>
+          <map key='[estado]' value='[Parque].[estado]' />
+          <map key='[id (Ubicacion)]' value='[Ubicacion].[id]' />
+          <map key='[id]' value='[Parque].[id]' />
+          <map key='[id_ubicacion]' value='[Parque].[id_ubicacion]' />
+          <map key='[nombre]' value='[Parque].[nombre]' />
+          <map key='[provincia]' value='[Ubicacion].[provincia]' />
+          <map key='[superficie]' value='[Parque].[superficie]' />
+          <map key='[tipo]' value='[Parque].[tipo]' />
+        </cols>
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>nombre</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[nombre]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>nombre</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>100</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>tipo</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[tipo]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>tipo</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>superficie</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[superficie]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>superficie</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>estado</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[estado]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>estado</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>8</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_CHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id_ubicacion</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id_ubicacion]</local-name>
+            <parent-name>[Parque]</parent-name>
+            <remote-alias>id_ubicacion</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id (Ubicacion)]</local-name>
+            <parent-name>[Ubicacion]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[Ubicacion (gestion.Ubicacion)_CEBCF820507947DDB430321952D19B80]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>provincia</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[provincia]</local-name>
+            <parent-name>[Ubicacion]</parent-name>
+            <remote-alias>provincia</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[Ubicacion (gestion.Ubicacion)_CEBCF820507947DDB430321952D19B80]</object-id>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column datatype='string' name='[Nombre (grupo)]' role='dimension' type='nominal'>
+        <calculation class='categorical-bin' column='[nombre]' default='&quot;Otro&quot;' new-bin='true'>
+          <bin default-name='true' value='&quot;Parque Nacional Iguazu&quot;'>
+            <value>&quot;Parque Nacional Iguazu&quot;</value>
+          </bin>
+        </calculation>
+      </column>
+      <column caption='Parque' datatype='table' name='[__tableau_internal_object_id__].[Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9]' role='measure' type='quantitative' />
+      <column caption='Ubicacion' datatype='table' name='[__tableau_internal_object_id__].[Ubicacion (gestion.Ubicacion)_CEBCF820507947DDB430321952D19B80]' role='measure' type='quantitative' />
+      <column caption='Estado' datatype='string' name='[estado]' role='dimension' type='nominal' />
+      <column aggregation='Sum' datatype='integer' name='[id (Ubicacion)]' role='dimension' type='ordinal' />
+      <column caption='Id' datatype='integer' name='[id]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Id Ubicacion' datatype='integer' name='[id_ubicacion]' role='dimension' type='ordinal' />
+      <column caption='Nombre' datatype='string' name='[nombre]' role='dimension' type='nominal' />
+      <column caption='Provincia' datatype='string' name='[provincia]' role='dimension' semantic-role='[State].[Name]' type='nominal' />
+      <column caption='Superficie' datatype='integer' name='[superficie]' role='measure' type='quantitative' />
+      <column caption='Tipo' datatype='string' name='[tipo]' role='dimension' type='nominal' />
+      <layout dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;Argentina&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+      <object-graph>
+        <objects>
+          <object caption='Parque' id='Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9'>
+            <properties context=''>
+              <relation connection='sqlserver.12x0pic14glve31070hjp175m8oq' name='Parque' table='[gestion].[Parque]' type='table' />
+            </properties>
+          </object>
+          <object caption='Ubicacion' id='Ubicacion (gestion.Ubicacion)_CEBCF820507947DDB430321952D19B80'>
+            <properties context=''>
+              <relation connection='sqlserver.12x0pic14glve31070hjp175m8oq' name='Ubicacion' table='[gestion].[Ubicacion]' type='table' />
+            </properties>
+          </object>
+        </objects>
+        <relationships>
+          <relationship>
+            <expression op='='>
+              <expression op='[id_ubicacion]' />
+              <expression op='[id (Ubicacion)]' />
+            </expression>
+            <first-end-point object-id='Parque (gestion.Parque)_9F9272D001C04B959A425994D97DBAD9' />
+            <second-end-point is-db-set-unique-key='true' object-id='Ubicacion (gestion.Ubicacion)_CEBCF820507947DDB430321952D19B80' unique-key='true' />
+          </relationship>
+        </relationships>
+      </object-graph>
+    </datasource>
+    <datasource caption='DESKTOP-F2AHUDD\SQLEXPRESS' inline='true' name='federated.0fgq9c10kfqrx51fpctfw0ga8m1j' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='DESKTOP-F2AHUDD\SQLEXPRESS' name='sqlserver.12jk8780wt98f6158hc9413bm9n9'>
+            <connection application-intent='false' authentication='sspi' class='sqlserver' dbname='parques_nacionales' minimum-driver-version='SQL Server Native Client 10.0' multi-subnet-failover='false' odbc-native-protocol='yes' one-time-sql='' server='DESKTOP-F2AHUDD\SQLEXPRESS' />
+          </named-connection>
+        </named-connections>
+        <relation connection='sqlserver.12jk8780wt98f6158hc9413bm9n9' name='deudores' table='[concesiones].[deudores]' type='table' />
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>fecha_inicio</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[fecha_inicio]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>fecha_inicio</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_DATE&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_DATE&quot;</attribute>
+              <attribute datatype='boolean' name='TypeIsDateTime2orDate'>true</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>empresa</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[empresa]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>empresa</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>25</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>parque</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[parque]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>parque</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>100</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>periodo</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[periodo]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>periodo</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>50</width>
+            <contains-null>false</contains-null>
+            <padded-semantics>true</padded-semantics>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>monto</remote-name>
+            <remote-type>131</remote-type>
+            <local-name>[monto]</local-name>
+            <parent-name>[deudores]</parent-name>
+            <remote-alias>monto</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <scale>2</scale>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_DECIMAL&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_NUMERIC&quot;</attribute>
+            </attributes>
+            <object-id>[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]</object-id>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='deudores' datatype='table' name='[__tableau_internal_object_id__].[deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9]' role='measure' type='quantitative' />
+      <column caption='Empresa' datatype='string' name='[empresa]' role='dimension' type='nominal' />
+      <column caption='Fecha Inicio' datatype='date' name='[fecha_inicio]' role='dimension' type='ordinal' />
+      <column caption='Id' datatype='integer' name='[id]' role='dimension' type='ordinal' />
+      <column caption='Monto' datatype='real' name='[monto]' role='measure' type='quantitative' />
+      <column caption='Parque' datatype='string' name='[parque]' role='dimension' type='nominal' />
+      <column caption='Periodo' datatype='string' name='[periodo]' role='dimension' type='nominal' />
+      <layout dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;Argentina&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+      <object-graph>
+        <objects>
+          <object caption='deudores' id='deudores (concesiones.deudores)_44A5355377E54201943D48C9B9FEE3B9'>
+            <properties context=''>
+              <relation connection='sqlserver.12jk8780wt98f6158hc9413bm9n9' name='deudores' table='[concesiones].[deudores]' type='table' />
+            </properties>
+          </object>
+        </objects>
+      </object-graph>
+    </datasource>
+  </datasources>
+  <datasource-relationships>
+    <datasource-relationship source='federated.1qpqq270vnwafu17213jr1cjtlzc' target='federated.05kei901or6v281h8k72b0kqk26j'>
+      <column-mapping />
+    </datasource-relationship>
+    <datasource-relationship source='federated.1qpqq270vnwafu17213jr1cjtlzc' target='federated.14mwaqu0y20da61d4aogg0wgu5k6'>
+      <column-mapping />
+    </datasource-relationship>
+  </datasource-relationships>
+  <worksheets>
+    <worksheet name='Deudores'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='DESKTOP-F2AHUDD\SQLEXPRESS' name='federated.0fgq9c10kfqrx51fpctfw0ga8m1j' />
+          </datasources>
+          <datasource-dependencies datasource='federated.0fgq9c10kfqrx51fpctfw0ga8m1j'>
+            <column caption='Empresa' datatype='string' name='[empresa]' role='dimension' type='nominal' />
+            <column caption='Monto' datatype='real' name='[monto]' role='measure' type='quantitative' />
+            <column-instance column='[empresa]' derivation='None' name='[none:empresa:nk]' pivot='key' type='nominal' />
+            <column-instance column='[monto]' derivation='Sum' name='[sum:monto:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#e15759' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.0fgq9c10kfqrx51fpctfw0ga8m1j].[sum:monto:qk]</rows>
+        <cols>[federated.0fgq9c10kfqrx51fpctfw0ga8m1j].[none:empresa:nk]</cols>
+      </table>
+      <simple-id uuid='{3FCC43A0-C27F-40E3-995E-F503544910DB}' />
+    </worksheet>
+    <worksheet name='Parques'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Superfice de los parques</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Parque (gestion.Parque)+ (parques_nacionales)' name='federated.14mwaqu0y20da61d4aogg0wgu5k6' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14mwaqu0y20da61d4aogg0wgu5k6'>
+            <column caption='Nombre' datatype='string' name='[nombre]' role='dimension' type='nominal' />
+            <column-instance column='[nombre]' derivation='None' name='[none:nombre:nk]' pivot='key' type='nominal' />
+            <column-instance column='[provincia]' derivation='None' name='[none:provincia:nk]' pivot='key' type='nominal' />
+            <column caption='Provincia' datatype='string' name='[provincia]' role='dimension' semantic-role='[State].[Name]' type='nominal' />
+            <column-instance column='[superficie]' derivation='Sum' name='[sum:superficie:qk]' pivot='key' type='quantitative' />
+            <column caption='Superficie' datatype='integer' name='[superficie]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Square' />
+            <encodings>
+              <size column='[federated.14mwaqu0y20da61d4aogg0wgu5k6].[sum:superficie:qk]' />
+              <text column='[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:provincia:nk]' />
+              <text column='[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:nombre:nk]' />
+              <color column='[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:provincia:nk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-line-first' value='true' />
+                <format attr='mark-labels-line-last' value='true' />
+                <format attr='mark-labels-range-min' value='true' />
+                <format attr='mark-labels-range-max' value='true' />
+                <format attr='mark-labels-mode' value='all' />
+                <format attr='mark-labels-range-scope' value='pane' />
+                <format attr='mark-labels-range-field' value='' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{C069889B-F8C3-4FA1-AB97-E8668E37FFDE}' />
+    </worksheet>
+    <worksheet name='Visitas parque'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Visitas por semana</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='reporte_visitas_por_semana (parques_nacionales)' name='federated.1qpqq270vnwafu17213jr1cjtlzc' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1qpqq270vnwafu17213jr1cjtlzc'>
+            <column caption='Nombre' datatype='string' name='[nombre]' role='dimension' type='nominal' />
+            <column-instance column='[nombre]' derivation='None' name='[none:nombre:nk]' pivot='key' type='nominal' />
+            <column-instance column='[semana (vw_visitas_por_semana)]' derivation='None' name='[none:semana (vw_visitas_por_semana):qk]' pivot='key' type='quantitative' />
+            <column caption='Semana (Vw Visitas Por Semana)' datatype='integer' name='[semana (vw_visitas_por_semana)]' role='dimension' type='quantitative' />
+            <column-instance column='[total_semana (vw_visitas_por_semana)]' derivation='Sum' name='[sum:total_semana (vw_visitas_por_semana):qk]' pivot='key' type='quantitative' />
+            <column caption='Total Semana (Vw Visitas Por Semana)' datatype='integer' name='[total_semana (vw_visitas_por_semana)]' role='dimension' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane id='5' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.1qpqq270vnwafu17213jr1cjtlzc].[:Measure Names]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([federated.1qpqq270vnwafu17213jr1cjtlzc].[none:nombre:nk] * [federated.1qpqq270vnwafu17213jr1cjtlzc].[sum:total_semana (vw_visitas_por_semana):qk])</rows>
+        <cols>[federated.1qpqq270vnwafu17213jr1cjtlzc].[none:semana (vw_visitas_por_semana):qk]</cols>
+      </table>
+      <simple-id uuid='{745F2327-5DB1-4FAB-A560-3087007AC11A}' />
+    </worksheet>
+  </worksheets>
+  <windows source-height='93'>
+    <window class='worksheet' name='Parques'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='175'>
+            <card pane-specification-id='0' param='[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:provincia:nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.14mwaqu0y20da61d4aogg0wgu5k6].[Nombre (grupo)]</field>
+            <field>[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:nombre:nk]</field>
+            <field>[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:provincia:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{D331E4A2-E72F-4676-8668-454289D74246}' />
+    </window>
+    <window class='worksheet' name='Deudores'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.0fgq9c10kfqrx51fpctfw0ga8m1j].[none:empresa:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{E82477CF-2A2B-46E9-976A-BA8DBD65AEA7}' />
+    </window>
+    <window class='worksheet' maximized='true' name='Visitas parque'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='175'>
+            <card pane-specification-id='5' param='[federated.1qpqq270vnwafu17213jr1cjtlzc].[:Measure Names]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[Parameters].[Parámetro 1136910171987968]</field>
+            <field>[federated.14mwaqu0y20da61d4aogg0wgu5k6].[none:nombre:nk]</field>
+            <field>[federated.1qpqq270vnwafu17213jr1cjtlzc].[:Measure Names]</field>
+            <field>[federated.1qpqq270vnwafu17213jr1cjtlzc].[none:nombre:nk]</field>
+            <field>[federated.1qpqq270vnwafu17213jr1cjtlzc].[none:semana (vw_visitas_por_semana):qk]</field>
+            <field>[federated.1qpqq270vnwafu17213jr1cjtlzc].[none:total_semana (vw_visitas_por_semana):qk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{229EE6FF-E1BF-4802-868C-7FDCF7004BCE}' />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Parques' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7DAAAOwwHHb6hk
+      AAAEKklEQVR4nO3az04bVwBG8e+Ox+M/QAAnJAE1UpMoVTdd9nH6OH2evkp3XVRdZEFFBQoC
+      HIiNPdNFIDURqFGqwuKc38aa8R3pjjVHvvJ16bquiwRVPfQEpIdkAEKrVw/arsv0fP5Qc5Hu
+      3Y0Apufz/PTzLw81F+neuQQSmgEI7c4A3nwzyXcvHqepeynl47mrl0/H1+d61ccTP7x6mvGw
+      n0fjQapSMhrUebI5vjG+V5WUkrzc3UqSPN1ey87WOMPmn9VYdXXB9diNcfPf71S6RX3XG+uj
+      Jsu2y97ORl7tbmf/6DSLZZtR00/XdblctkmSpu5lOKjz6+8HKaXk9d52jk7O8+bFJF3XpeuS
+      x5ujLBZt6l6VjfEgi2WbxdX1L3e30quqXMwu88efx5lsjPJsspaT6SzDps77D/N0XXJ2/u5+
+      PhGh3PkNML2Y57e3h1kb9LNctqlKyduDkzT9XkaDfjbGTZ5P1tOrSi5ml2nbLtOLeaqqZGt9
+      mLpXZdCvs390lrbt8mRznMmjUfp1lbOLWdqr/bfD4/fZPzxNKSXfPt/KztY4i2Wb9VGTYdNL
+      SUndc6Wm/0dZ3Qk+fT+79VegkuR6UCnJs+31/HU8zfWVpSSf7yeXUrK6yVyV8umhv8v1mFKS
+      pl9nPKhzfPbhq25M+hJ3LoFWrT62XZccvJvefP+W5/rzf1j828O/Oqbrktl8kdl88SXTk76a
+      awuhGYDQDEBoBiA0AxCaAQjNAIRmAEIzAKEZgNAMQGgGIDQDEJoBCM0AhGYAQjMAoRmA0AxA
+      aAYgNAMQmgEIzQCEZgBCMwChGYDQDEBoBiA0AxCaAQjNAIRmAEIzAKEZgNAMQGgGIDQDEJoB
+      CM0AhGYAQjMAoRmA0AxAaAYgNAMQmgEIzQCEZgBCMwChGYDQDEBoBiA0AxCaAQjNAIRmAEIz
+      AKEZgNAMQGgGIDQDEJoBCM0AhGYAQjMAoRmA0AxAaAYgNAMQmgEIzQCEZgBCMwChGYDQDEBo
+      BiA0AxCaAQjNAIRmAEIzAKEZgNAMQGgGIDQDEJoBCM0AhGYAQjMAoRmA0AxAaAYgNAMQmgEI
+      zQCEZgBCMwChGYDQDEBoBiA0AxCaAQjNAIRmAEIzAKEZgNAMQGgGIDQDEJoBCM0AhGYAQjMA
+      oRmA0AxAaAYgNAMQmgEIzQCEZgBCMwChGYDQDEBoBiA0AxCaAQjNAIRmAEIzAKEZgNAMQGgG
+      IDQDEJoBCM0AhGYAQjMAoRmA0AxAaAYgNAMQmgEIzQCEZgBCMwChGYDQDEBoBiA0AxCaAQjN
+      AIRmAEIzAKEZgNAMQGgGIDQDEJoBCM0AhGYAQjMAoRmA0AxAaAYgNAMQmgEIzQCEZgBCMwCh
+      GYDQDEBoBiA0AxCaAQjNAIRmAEIzAKEZgNAMQGj1jYNelR+/33uouUj37m/DZKa1pfUNKQAA
+      AABJRU5ErkJggg==
+    </thumbnail>
+    <thumbnail height='192' name='Visitas parque' width='192'>
+      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
+    </thumbnail>
+  </thumbnails>
+</workbook>
