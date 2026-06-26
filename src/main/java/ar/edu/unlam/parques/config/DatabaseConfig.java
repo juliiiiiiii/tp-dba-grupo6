@@ -10,14 +10,12 @@ public class DatabaseConfig {
 
     public static HikariDataSource createDataSource() {
         HikariConfig config = new HikariConfig();
-        System.out.println("[SqlServer] Conecting....");
         config.setJdbcUrl(envOrDefault("DB_URL", "jdbc:sqlserver://127.0.0.1:1433;databaseName=parques_nacionales;encrypt=true;trustServerCertificate=true;"));
-        config.setUsername(envOrDefault("DB_USER", "java")); //TODO: -> env var de esto
-        config.setPassword(envOrDefault("DB_PASSWORD", "1234")); // TODO: env var de eso
+        config.setUsername(envOrDefault("DB_USER", System.getenv("SQL_SERVER_USER")));
+        config.setPassword(envOrDefault("DB_PASSWORD", System.getenv("SQL_SERVER_PASS")));
         config.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         config.setMaximumPoolSize(5);
         config.setInitializationFailTimeout(-1);
-        System.out.println("[SqlServer] conected");
         return new HikariDataSource(config);
     }
 
