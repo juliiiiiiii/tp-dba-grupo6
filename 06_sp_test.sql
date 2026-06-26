@@ -1,7 +1,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: Bases de Datos Aplicadas
  
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael

@@ -2,7 +2,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
 
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -92,6 +92,7 @@ BEGIN
         dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
         nombre VARCHAR(30) NOT NULL,
         apellido VARCHAR(30) NOT NULL,
+		estado CHAR(8) check(estado = 'ACTIVO' or estado = 'INACTIVO'),
         id_acreditacion INT REFERENCES guia.Acreditacion(id) NOT NULL UNIQUE
     )
 END
@@ -123,7 +124,7 @@ BEGIN
     CREATE TABLE guia.Titulo (
         id INT IDENTITY(1,1) PRIMARY KEY,
         descripcion VARCHAR(80) NOT NULL,
-        institucion VARCHAR(30) NOT NULL,
+        institucion VARCHAR(30),
         fecha_emision DATE NOT NULL
     )
 END

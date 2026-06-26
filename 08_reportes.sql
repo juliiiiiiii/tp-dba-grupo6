@@ -1,3 +1,17 @@
+-- Universidad: Universidad de la Matanza
+-- Materia: 3641 - Bases de Datos Aplicadas
+
+-- Grupo 06
+-- Integrantes:
+--  De Bellis, Nahuel
+--  Ocampo, Julian Rafael
+--  Rodriguez, Gonzalo Ezequiel
+--  Vargas, Tomas
+
+-- Objetivo del script: Creacion de reportes
+
+-- Fecha: 26/06/2026
+
 USE parques_nacionales
 GO
 

@@ -1,9 +1,15 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
---
--- Grupo 04
+
+-- Grupo 06
+-- Integrantes:
+--  De Bellis, Nahuel
+--  Ocampo, Julian Rafael
+--  Rodriguez, Gonzalo Ezequiel
+--  Vargas, Tomas
+
 -- Objetivo del script: Carga inicial de datos respetando foreign keys
---
+
 -- Requisitos previos:
 --  1. Ejecutar 01_create_db_scheme.sql
 --  2. Ejecutar 02_create_tables.sql
@@ -81,9 +87,9 @@ GO
 -- 2. Entidades maestras
 -----------------------------------------------------------
 
-IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu')
+IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú')
     EXEC gestion.parque_alta
-        @nombre = 'Parque Nacional Iguazu',
+        @nombre = 'Parque Nacional Iguazú',
         @tipo = 'Parque nacional',
         @ubicacion = 'Misiones',
         @superficie = 67720;
@@ -149,7 +155,7 @@ GO
 -- 3. Relaciones directas sobre maestras
 -----------------------------------------------------------
 
-DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
+DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú');
 DECLARE @id_glaciares INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
 
@@ -207,7 +213,7 @@ GO
 -- 4. Actividades
 -----------------------------------------------------------
 
-DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
+DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú');
 DECLARE @id_glaciares INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
 
@@ -275,11 +281,11 @@ IF NOT EXISTS (
     FROM concesiones.Concesion c
     INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa
     INNER JOIN gestion.Parque p ON p.id = c.id_parque
-    WHERE e.nombre = 'EcoTur' AND p.nombre = 'Parque Nacional Iguazu' AND c.fecha_inicio = '2026-07-01'
+    WHERE e.nombre = 'EcoTur' AND p.nombre = 'Parque Nacional Iguazú' AND c.fecha_inicio = '2026-07-01'
 )
     EXEC concesiones.concesion_alta
         @empresa = 'EcoTur',
-        @parque = 'Parque Nacional Iguazu',
+        @parque = 'Parque Nacional Iguazú',
         @canon_mensual = 250000.00,
         @fecha_inicio = '2026-07-01',
         @actividad = NULL;
@@ -305,12 +311,12 @@ IF NOT EXISTS (
     INNER JOIN concesiones.Concesion c ON c.id = cp.id_concesion
     INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa
     INNER JOIN gestion.Parque p ON p.id = c.id_parque
-    WHERE e.nombre = 'EcoTur' AND p.nombre = 'Parque Nacional Iguazu' AND cp.fecha_generacion = '2026-08-01'
+    WHERE e.nombre = 'EcoTur' AND p.nombre = 'Parque Nacional Iguazú' AND cp.fecha_generacion = '2026-08-01'
 )
     EXEC concesiones.canon_pagar_alta
         @fecha_generacion = '2026-08-01',
         @empresa = 'EcoTur',
-        @parque = 'Parque Nacional Iguazu',
+        @parque = 'Parque Nacional Iguazú',
         @fecha_inicio = '2026-07-01';
 
 
@@ -333,18 +339,18 @@ GO
 -- 6. Ventas
 -----------------------------------------------------------
 
-IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Iguazu' AND pv.descripcion = 'Boleteria principal')
-    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Iguazu', @pov = 'Boleteria principal';
+IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Iguazú' AND pv.descripcion = 'Boleteria principal')
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Iguazú', @pov = 'Boleteria principal';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Los Glaciares' AND pv.descripcion = 'Centro visitantes')
     EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Los Glaciares', @pov = 'Centro visitantes';
 GO
 
-IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-07-01';
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazú' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazú', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-07-01';
 
-IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-07-01';
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazú' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazú', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-07-01';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Los Glaciares' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
     EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-07-01';
@@ -358,13 +364,13 @@ IF NOT EXISTS (
     FROM ventas.venta v
     INNER JOIN gestion.Parque p ON p.id = v.parque
     INNER JOIN ventas.punto_de_venta pv ON pv.id = v.punto_de_venta
-    WHERE p.nombre = 'Parque Nacional Iguazu'
+    WHERE p.nombre = 'Parque Nacional Iguazú'
       AND pv.descripcion = 'Boleteria principal'
       AND v.fecha = '2026-08-10'
 )
 BEGIN
     EXEC ventas.venta_alta
-        @parque = 'Parque Nacional Iguazu',
+        @parque = 'Parque Nacional Iguazú',
         @fecha = '2026-08-10',
         @pov = 'Boleteria principal',
         @metodo = 'Debito',
@@ -462,7 +468,7 @@ BEGIN
 END
 GO
 
-DECLARE @id_iguazu_seed INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
+DECLARE @id_iguazu_seed INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú');
 DECLARE @id_glaciares_seed INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel_seed INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
 DECLARE @id_lago_puelo_seed INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Lago Puelo');
@@ -510,7 +516,7 @@ WHILE @n <= 27
 BEGIN
     SET @nombre_actividad = CONCAT('Seed Tour ', RIGHT('00' + CAST(@n AS VARCHAR(2)), 2));
     SET @id_parque_actividad = CASE (@n % 10)
-        WHEN 0 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu')
+        WHEN 0 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú')
         WHEN 1 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares')
         WHEN 2 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi')
         WHEN 3 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Lago Puelo')
@@ -539,7 +545,7 @@ BEGIN
 END
 GO
 
-DECLARE @id_parque_cupo INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
+DECLARE @id_parque_cupo INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú');
 DECLARE @id_guia_cupo INT = (SELECT id FROM gestion.Guia WHERE dni = '41000001');
 IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Tour Cupo Completo' AND id_parque = @id_parque_cupo)
     EXEC gestion.actividad_alta @id_parque = @id_parque_cupo, @id_guia = @id_guia_cupo, @nombre = 'Tour Cupo Completo', @descripcion = 'Caso obligatorio de cupo completo', @tipo = 'Senderismo', @costo = 7500.00, @fecha = '2026-10-15', @duracion = 120, @cupo = 1;
@@ -586,12 +592,12 @@ GO
 DECLARE @venta_id INT;
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-12')
 BEGIN
-    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-12', @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazú', @fecha = '2026-08-12', @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_id OUTPUT;
     EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 4, @fecha_acceso = '2026-08-12';
 END
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-13')
 BEGIN
-    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = '2026-08-13', @pov = 'Boleteria principal', @metodo = 'Debito', @id_creado = @venta_id OUTPUT;
+    EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazú', @fecha = '2026-08-13', @pov = 'Boleteria principal', @metodo = 'Debito', @id_creado = @venta_id OUTPUT;
     EXEC ventas.item_venta_alta @venta = @venta_id, @concepto = 'Adulto', @cantidad = 5, @fecha_acceso = '2026-08-13';
 END
 IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE fecha = '2026-08-14')

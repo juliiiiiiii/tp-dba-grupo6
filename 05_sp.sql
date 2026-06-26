@@ -1,7 +1,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
 
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -15,8 +15,11 @@
 USE parques_nacionales
 GO
 
------------------------------------------------------------
--- Asignarle especializacion a un guia
+/*
+====================================================
+		SP DE TABLA ESPECIALIDAZO_EN
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.especialidad_asignar
 @dni CHAR(8),
@@ -60,8 +63,11 @@ BEGIN
 END
 GO
 
------------------------------------------------------------
--- Actualizar acreditacion de guias
+/*
+====================================================
+		SP DE TABLA ACREDITACION
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.acreditacion_actualizar
 @dni CHAR(8),
@@ -110,8 +116,11 @@ BEGIN
 END
 GO
 
------------------------------------------------------------
--- Asignar titulo a un guia
+/*
+====================================================
+		SP DE TABLA TITULO/TITULACION_GUIA
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.titulacion_asignar
 @dni CHAR(8),
@@ -138,15 +147,12 @@ BEGIN
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
     
-    IF @institucion IS NULL OR @institucion = ''
-        SET @error += 'El titulo debe tener una institucion.' + CHAR(10);
-    
     IF @fecha_emision IS NULL OR @fecha_emision = ''
         SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
 
     IF EXISTS(
             SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
-            WHERE descripcion = @descripcion AND institucion = @institucion AND tg.id_guia = @id_guia
+            WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
         SET @error += 'El guia ya tiene asignada ese titulo.' + CHAR(10);   
 
@@ -165,10 +171,7 @@ BEGIN
 END
 GO
 
------------------------------------------------------------
--- Actualizar titulo a un guia
-
-CREATE OR ALTER PROCEDURE guia.titulo_actualizar
+CREATE OR ALTER PROCEDURE guia.titulo_modificacion
 @dni CHAR(8),
 @descripcion VARCHAR(80),
 @institucion VARCHAR(30),
@@ -193,8 +196,6 @@ BEGIN
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
     
-    IF @institucion IS NULL OR @institucion = ''
-        SET @error += 'El titulo debe tener una institucion.' + CHAR(10);
     
     IF @fecha_emision IS NULL OR @fecha_emision = ''
         SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
@@ -203,7 +204,7 @@ BEGIN
     BEGIN
         SET @id_titulo = (
                 SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
-                WHERE descripcion = @descripcion AND institucion = @institucion AND tg.id_guia = @id_guia
+                WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
         IF @id_titulo IS NULL
             SET @error += 'El guia no tiene asignado ese titulo.' + CHAR(10);   
@@ -212,7 +213,7 @@ BEGIN
         RAISERROR(@error, 16, 1);
     ELSE
     BEGIN
-        UPDATE guia.titulo SET fecha_emision = @fecha_emision WHERE id = @id_titulo;
+        UPDATE guia.titulo SET fecha_emision = @fecha_emision, institucion = @institucion WHERE id = @id_titulo;
     END
 END
 GO
