@@ -11,36 +11,42 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
 public class LazyDataSource implements DataSource, AutoCloseable {
-    private HikariDataSource delegate;
+    private static HikariDataSource delegate;
+
+    public LazyDataSource() {
+        if (delegate == null) {
+            delegate = DatabaseConfig.createDataSource();
+        }
+    }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return getDelegate().getConnection();
+        return this.delegate.getConnection();
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return getDelegate().getConnection(username, password);
+        return this.delegate.getConnection(username, password);
     }
 
     @Override
     public PrintWriter getLogWriter() throws SQLException {
-        return getDelegate().getLogWriter();
+        return this.delegate.getLogWriter();
     }
 
     @Override
     public void setLogWriter(PrintWriter out) throws SQLException {
-        getDelegate().setLogWriter(out);
+        this.delegate.setLogWriter(out);
     }
 
     @Override
     public void setLoginTimeout(int seconds) throws SQLException {
-        getDelegate().setLoginTimeout(seconds);
+        this.delegate.setLoginTimeout(seconds);
     }
 
     @Override
     public int getLoginTimeout() throws SQLException {
-        return getDelegate().getLoginTimeout();
+        return this.delegate.getLoginTimeout();
     }
 
     @Override
@@ -50,12 +56,12 @@ public class LazyDataSource implements DataSource, AutoCloseable {
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        return getDelegate().unwrap(iface);
+        return this.delegate.unwrap(iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return getDelegate().isWrapperFor(iface);
+        return this.delegate.isWrapperFor(iface);
     }
 
     @Override
@@ -63,12 +69,5 @@ public class LazyDataSource implements DataSource, AutoCloseable {
         if (delegate != null) {
             delegate.close();
         }
-    }
-
-    private synchronized HikariDataSource getDelegate() {
-        if (delegate == null) {
-            delegate = DatabaseConfig.createDataSource();
-        }
-        return delegate;
     }
 }

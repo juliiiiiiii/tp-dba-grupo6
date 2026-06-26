@@ -21,7 +21,7 @@ public class ParqueRepository {
 
     public void alta(ParqueForm parque) throws SQLException {
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{exec gestion.parque_alta(?, ?, ?, ?)}")) {
+             CallableStatement statement = connection.prepareCall("{call gestion.parque_alta(?, ?, ?, ?)}")) {
             statement.setString(1, parque.nombre());
             statement.setString(2, parque.tipo());
             statement.setString(3, parque.ubicacion());
@@ -33,7 +33,7 @@ public class ParqueRepository {
     //TODO: el store procedure recibe el id? deberia ir por nombre
     public void baja(int id) throws SQLException {
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{exec gestion.parque_baja(?)}")) {
+             CallableStatement statement = connection.prepareCall("{call gestion.parque_baja(?)}")) {
             statement.setInt(1, id);
             statement.execute();
         }
@@ -42,7 +42,7 @@ public class ParqueRepository {
     // TODO: modificar esto por id deberia ir? entonces deberia poder listarlo y gaurdar eso en el front en algun form
     public void modificar(ParqueForm parque) throws SQLException {
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{exec gestion.parque_modificacion(?, ?, ?, ?, ?)}")) {
+             CallableStatement statement = connection.prepareCall("{call gestion.parque_modificacion(?, ?, ?, ?, ?)}")) {
             statement.setInt(1, parque.id());
             statement.setString(2, parque.nombre());
             statement.setString(3, parque.tipo());

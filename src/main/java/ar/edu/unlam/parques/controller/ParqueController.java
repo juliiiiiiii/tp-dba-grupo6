@@ -6,6 +6,8 @@ import ar.edu.unlam.parques.model.UbicacionItem;
 import ar.edu.unlam.parques.service.ParqueService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ParqueController {
+    private static final Logger log = LoggerFactory.getLogger(ParqueController.class);
     private final ParqueService parqueService;
 
     public ParqueController(ParqueService parqueService) {
@@ -36,6 +39,7 @@ public class ParqueController {
             parqueService.alta(form);
             renderAlta(ctx, "Parque creado correctamente.", null);
         } catch (Exception e) {
+            log.error("No se pudo guardar el parque. {}", e.getMessage(), e.getStackTrace());
             renderAlta(ctx, null, readableMessage(e));
         }
     }
