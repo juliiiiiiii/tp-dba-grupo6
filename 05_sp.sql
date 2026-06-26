@@ -17,6 +17,89 @@ GO
 
 /*
 ====================================================
+		SP DE TABLA PARQUE_ASIGNADO
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.guardaparque_asignar
+	@id_parque INT, -- podria ser nombre
+	@id_guardaparque INT -- podria ser dni
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(200);
+	SET @errores = '';
+
+	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
+	BEGIN
+		SET @errores += 'El parque al que se le quiere asignar no existe.' + CHAR(10);
+	END
+
+	IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id_guardaparque)
+	BEGIN
+		SET @errores += 'El guardaparque que se quiere asignar no existe.' + CHAR(10);
+	END
+
+	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id_parque AND fecha_egreso IS NULL)
+	BEGIN
+		SET @errores += 'El parque al que se quiere asignar ya tiene guardaparque asignado.' + CHAR(10);
+	END
+
+	IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id_guardaparque AND fecha_egreso IS NULL)
+	BEGIN
+		SET @errores += 'El gurdaparque que se quiere asignar ya esta asignado.' + CHAR(10);
+	END
+
+	IF @errores != ''
+	    THROW 50000, @errores, 1;
+
+	BEGIN TRANSACTION
+		INSERT INTO gestion.Parque_asignado (id_parque, id_guardaparque, fecha_ingreso)
+		VALUES (@id_parque, @id_guardaparque, GETDATE());
+
+		UPDATE gestion.Guardaparque SET estado = 'Activo' WHERE id = @id_guardaparque;
+	COMMIT;
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.asignacion_modificacion
+    @id INT,
+    @motivo VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(200);
+    DECLARE @fecha_ingreso DATE;
+	DECLARE @fecha_egreso DATE;
+
+	SET @errores = '';
+	SET @fecha_egreso = GETDATE();
+
+    IF NOT EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id)
+    BEGIN
+        SET @errores += 'La asignacion que se desea modificar no existe.' + CHAR(10);
+    END
+    ELSE
+    BEGIN
+        IF EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id AND fecha_egreso IS NOT NULL)
+            SET @errores += 'La asignacion no esta activa.' + CHAR(10);
+    END
+ 
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+ 
+    BEGIN TRANSACTION;
+        UPDATE gestion.Parque_asignado SET fecha_egreso = @fecha_egreso, motivo = @motivo WHERE id = @id;
+ 
+        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id = @id);
+    COMMIT;
+END
+GO
+
+/*
+====================================================
 		SP DE TABLA ESPECIALIDAZO_EN
 ====================================================
 */
@@ -217,6 +300,85 @@ BEGIN
     END
 END
 GO
+
+/*
+====================================================
+		SP DE COORDINACION GUIA - ACTIVIDAD
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.guia_asignar
+    @dni CHAR(8),
+    @nombre_actividad VARCHAR(50),
+    @nombre_parque VARCHAR(50),
+    @fecha_actividad DATETIME,
+    @f_desde DATE,
+    @f_hasta DATE
+AS
+BEGIN
+    DECLARE @error VARCHAR(150);
+    SET @error = '';
+
+    DECLARE @id_guia INT;
+    DECLARE @id_parque INT;
+    DECLARE @id_actividad INT;
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        IF @id_guia IS NULL
+            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
+    END
+
+    IF @nombre_parque IS NULL
+        SET @error += 'Se debe especificar el nombre del parque.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @nombre_parque);
+        IF @id_parque IS NULL
+            SET @error += 'El nombre no pertenece a ningun parque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @nombre_actividad IS NULL OR @fecha_actividad IS NULL
+                SET @error += 'Se debe especificar el nombre y fecha de la actividad.' + CHAR(10);
+            ELSE
+            BEGIN
+                SET @id_actividad = (SELECT id FROM gestion.Actividad 
+                        WHERE nombre = @nombre_actividad AND id_parque = @id_parque AND fecha = @fecha_actividad
+                    );
+                IF @id_actividad IS NULL
+                    SET @error += 'No existe una actividad con ese nombre en ese parque en esa fecha.' + CHAR(10); 
+            END
+        END
+    END
+
+    IF @f_desde IS NULL OR @f_hasta IS NULL
+        SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
+    
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND a.estado = 'vencido'
+    )
+        SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
+    ELSE
+    BEGIN
+        IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL
+            IF EXISTS(
+                SELECT id FROM gestion.Coordina 
+                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
+            )
+                SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
+    END
+
+    IF @error != ''
+        THROW 50000, @errores, 1;
+    ELSE
+        INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
+END
+GO
+
 -- TODO: test de registrar venta
 -- TODO: test de estos sp
 
