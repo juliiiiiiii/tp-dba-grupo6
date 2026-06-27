@@ -1,0 +1,45 @@
+#set($active = "alta")
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$title</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="page">
+    #parse("templates/partials/header.vm")
+
+    <form method="post" action="/parques/alta" class="form-grid-create">
+        <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for="tipo">Tipo</label>
+            <input id="tipo" name="tipo" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="ubicacion">Ubicacion</label>
+            <select id="ubicacion" name="ubicacion" required>
+                <option value="">Seleccione una ubicacion</option>
+                #foreach($ubicacion in $ubicaciones)
+                    <option value="$ubicacion.provincia">$ubicacion.provincia</option>
+                #end
+            </select>
+        </div>
+        <div class="field">
+            <label for="superficie">Superficie</label>
+            <input id="superficie" name="superficie" type="number" min="1" required>
+        </div>
+        <button type="submit">Guardar</button>
+    </form>
+
+    #parse("templates/partials/messages.vm")
+
+    <section class="panel">
+    </section>
+</main>
+</body>
+</html>

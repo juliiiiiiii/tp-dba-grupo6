@@ -657,57 +657,9 @@ go
 
 /*
 ====================================================
-SP CONSULTAR PENDIENTES DE PAGO DE UNA CONCESION
-====================================================
-*/
-
-create or alter procedure concesiones.consultar_canones_pendientes (
-    @empresa varchar(25),
-    @parque varchar(100),
-    @fecha_inicio date
-) as begin
-
-    declare @id_concesion int = null;
-    declare @errores varchar(4000) = '';
-
-    exec concesiones.concesion_validacion
-        @empresa,
-        @parque,
-        @fecha_inicio,
-        @errores output,
-        @id_concesion output;
-
-    if @errores <> ''
-        throw 50000, @errores, 1;
-
-    select
-        cp.id,
-        cp.fecha_generacion,
-        cp.periodo,
-        cp.monto,
-        cp.estado,
-        case
-            when exists (
-                select 1
-                from concesiones.Canon_pagar posterior
-                where posterior.id_concesion = cp.id_concesion
-                  and posterior.fecha_generacion > cp.fecha_generacion
-            ) then cast(1 as bit)
-            else cast(0 as bit)
-        end as atrasado
-    from concesiones.Canon_pagar cp
-    where cp.id_concesion = @id_concesion
-      and cp.estado = 'PENDIENTE'
-    order by cp.fecha_generacion;
-end;
-go
-
-/*
-====================================================
 		SP CONSULTAR HISTORICO DE PAGOS
 ====================================================
 */
-
 create or alter procedure concesiones.consultar_historico_canones (
     @empresa varchar(25),
     @parque varchar(100),
