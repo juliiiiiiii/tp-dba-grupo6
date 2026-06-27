@@ -1,5 +1,5 @@
 <nav class="actions">
-    <a href="/parques/alta" #if($active == "alta")class="active"#end>alta</a>
-    <a href="/parques/baja" #if($active == "baja")class="active"#end>baja</a>
-    <a href="/parques/modificacion" #if($active == "modificacion")class="active"#end>modifi</a>
+    <a href="/parques/alta" #if($active == "alta")class="active"#end>Alta Parque</a>
+    <a href="/parques/baja" #if($active == "baja")class="active"#end>Baja Parque</a>
+    <a href="/parques/modificacion" #if($active == "modificacion")class="active"#end>Modificacion Parque</a>
 </nav>

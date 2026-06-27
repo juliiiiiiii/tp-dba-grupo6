@@ -11,17 +11,17 @@
 <main class="page">
     #parse("templates/partials/header.vm")
 
-    <form method="post" action="/parques/alta" class="form-grid">
+    <form method="post" action="/parques/alta" class="form-grid-create">
         <div class="field">
-            <label for="nombre">nombre</label>
+            <label for="nombre">Nombre</label>
             <input id="nombre" name="nombre" maxlength="100" required>
         </div>
         <div class="field">
-            <label for="tipo">tipo</label>
+            <label for="tipo">Tipo</label>
             <input id="tipo" name="tipo" maxlength="50" required>
         </div>
         <div class="field">
-            <label for="ubicacion">ubicacion</label>
+            <label for="ubicacion">Ubicacion</label>
             <select id="ubicacion" name="ubicacion" required>
                 <option value="">Seleccione una ubicacion</option>
                 #foreach($ubicacion in $ubicaciones)
@@ -30,7 +30,7 @@
             </select>
         </div>
         <div class="field">
-            <label for="superficie">superficie</label>
+            <label for="superficie">Superficie</label>
             <input id="superficie" name="superficie" type="number" min="1" required>
         </div>
         <button type="submit">Guardar</button>
@@ -39,7 +39,6 @@
     #parse("templates/partials/messages.vm")
 
     <section class="panel">
-        <p>Alta de parques usando gestion.parque_alta.</p>
     </section>
 </main>
 </body>

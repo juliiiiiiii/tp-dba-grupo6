@@ -11,9 +11,9 @@
 <main class="page">
     #parse("templates/partials/header.vm")
 
-    <form method="post" action="/parques/baja" class="form-grid">
+    <form method="post" action="/parques/baja" class="form-grid-remove">
         <div class="field">
-            <label for="id">parque</label>
+            <label for="id">Parque</label>
             <select id="id" name="id" required>
                 <option value="">Seleccione un parque</option>
                 #foreach($parque in $parques)
@@ -27,7 +27,6 @@
     #parse("templates/partials/messages.vm")
 
     <section class="panel">
-        <p>Baja logica de parques usando gestion.parque_baja.</p>
     </section>
 </main>
 </body>
