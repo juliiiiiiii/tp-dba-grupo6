@@ -1,7 +1,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
 
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -15,8 +15,86 @@
 USE parques_nacionales
 GO
 
------------------------------------------------------------
--- Asignarle especializacion a un guia
+/*
+====================================================
+		SP DE TABLA PARQUE_ASIGNADO
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.guardaparque_asignar
+	@id_parque INT, -- podria ser nombre
+	@id_guardaparque INT -- podria ser dni
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(200);
+	SET @errores = '';
+
+	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
+		SET @errores += 'El parque al que se le quiere asignar no existe.' + CHAR(10);
+
+	IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id_guardaparque)
+		SET @errores += 'El guardaparque que se quiere asignar no existe.' + CHAR(10);
+
+	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id_parque AND fecha_egreso IS NULL)
+		SET @errores += 'El parque al que se quiere asignar ya tiene guardaparque asignado.' + CHAR(10);
+
+	IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id_guardaparque AND fecha_egreso IS NULL)
+		SET @errores += 'El gurdaparque que se quiere asignar ya esta asignado.' + CHAR(10);
+
+	IF @errores != ''
+	    THROW 50000, @errores, 1;
+
+	BEGIN TRANSACTION
+		INSERT INTO gestion.Parque_asignado (id_parque, id_guardaparque, fecha_ingreso)
+		VALUES (@id_parque, @id_guardaparque, GETDATE());
+
+		UPDATE gestion.Guardaparque SET estado = 'Activo' WHERE id = @id_guardaparque;
+	COMMIT;
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.asignacion_modificacion
+    @id INT,
+    @motivo VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(200);
+    DECLARE @fecha_ingreso DATE;
+	DECLARE @fecha_egreso DATE;
+
+	SET @errores = '';
+	SET @fecha_egreso = GETDATE();
+
+    IF NOT EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id)
+    BEGIN
+        SET @errores += 'La asignacion que se desea modificar no existe.' + CHAR(10);
+    END
+    ELSE
+    BEGIN
+        IF EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id AND fecha_egreso IS NOT NULL)
+            SET @errores += 'La asignacion no esta activa.' + CHAR(10);
+    END
+ 
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+ 
+    BEGIN TRANSACTION;
+        UPDATE gestion.Parque_asignado SET fecha_egreso = @fecha_egreso, motivo = @motivo WHERE id = @id;
+ 
+        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id = @id);
+    COMMIT;
+END
+GO
+
+/*
+====================================================
+		SP DE TABLA ESPECIALIDAZO_EN
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.especialidad_asignar
 @dni CHAR(8),
@@ -52,16 +130,17 @@ BEGIN
             SET @error += 'El guia ya tiene asignada esa especializacion.' + CHAR(10);   
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         INSERT INTO guia.Especializado_en VALUES(@id_guia, @id_especialidad)
-    END
 END
 GO
 
------------------------------------------------------------
--- Actualizar acreditacion de guias
+/*
+====================================================
+		SP DE TABLA ACREDITACION
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.acreditacion_actualizar
 @dni CHAR(8),
@@ -101,23 +180,24 @@ BEGIN
     END
     
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         UPDATE guia.Acreditacion SET fecha_vencimiento = @fecha_vencimiento_acreditacion, estado = @estado_acreditacion 
-            WHERE id = @id_acreditacion;
-    END
+        WHERE id = @id_acreditacion;
 END
 GO
 
------------------------------------------------------------
--- Asignar titulo a un guia
+/*
+====================================================
+		SP DE TABLA TITULO/TITULACION_GUIA
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE guia.titulacion_asignar
-@dni CHAR(8),
-@descripcion VARCHAR(80),
-@institucion VARCHAR(30),
-@fecha_emision DATE
+    @dni CHAR(8),
+    @descripcion VARCHAR(80),
+    @institucion VARCHAR(30),
+    @fecha_emision DATE
 AS
 BEGIN
     DECLARE @error VARCHAR(150);
@@ -138,20 +218,17 @@ BEGIN
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
     
-    IF @institucion IS NULL OR @institucion = ''
-        SET @error += 'El titulo debe tener una institucion.' + CHAR(10);
-    
     IF @fecha_emision IS NULL OR @fecha_emision = ''
         SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
 
     IF EXISTS(
             SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
-            WHERE descripcion = @descripcion AND institucion = @institucion AND tg.id_guia = @id_guia
+            WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
         SET @error += 'El guia ya tiene asignada ese titulo.' + CHAR(10);   
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
     BEGIN
         BEGIN TRANSACTION
@@ -165,9 +242,7 @@ BEGIN
 END
 GO
 
------------------------------------------------------------
--- Actualizar titulo a un guia
-CREATE OR ALTER PROCEDURE guia.titulo_actualizar
+CREATE OR ALTER PROCEDURE guia.titulo_modificacion
 @dni CHAR(8),
 @descripcion VARCHAR(80),
 @institucion VARCHAR(30),
@@ -192,8 +267,6 @@ BEGIN
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
     
-    IF @institucion IS NULL OR @institucion = ''
-        SET @error += 'El titulo debe tener una institucion.' + CHAR(10);
     
     IF @fecha_emision IS NULL OR @fecha_emision = ''
         SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
@@ -202,21 +275,104 @@ BEGIN
     BEGIN
         SET @id_titulo = (
                 SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
-                WHERE descripcion = @descripcion AND institucion = @institucion AND tg.id_guia = @id_guia
+                WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
         IF @id_titulo IS NULL
             SET @error += 'El guia no tiene asignado ese titulo.' + CHAR(10);   
     END
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
-        UPDATE guia.titulo SET fecha_emision = @fecha_emision WHERE id = @id_titulo;
-    END
+        UPDATE guia.titulo SET fecha_emision = @fecha_emision, institucion = @institucion WHERE id = @id_titulo;
 END
 GO
 
---TODO test de estos sp:
+/*
+====================================================
+		SP DE COORDINACION GUIA - ACTIVIDAD
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.guia_asignar
+    @dni CHAR(8),
+    @nombre_actividad VARCHAR(50),
+    @nombre_parque VARCHAR(50),
+    @fecha_actividad DATETIME,
+    @f_desde DATE,
+    @f_hasta DATE
+AS
+BEGIN
+    DECLARE @error VARCHAR(150);
+    SET @error = '';
+
+    DECLARE @id_guia INT;
+    DECLARE @id_parque INT;
+    DECLARE @id_actividad INT;
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        IF @id_guia IS NULL
+            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
+    END
+
+    IF @nombre_parque IS NULL
+        SET @error += 'Se debe especificar el nombre del parque.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @nombre_parque);
+        IF @id_parque IS NULL
+            SET @error += 'El nombre no pertenece a ningun parque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @nombre_actividad IS NULL OR @fecha_actividad IS NULL
+                SET @error += 'Se debe especificar el nombre y fecha de la actividad.' + CHAR(10);
+            ELSE
+            BEGIN
+                SET @id_actividad = (SELECT id FROM gestion.Actividad 
+                        WHERE nombre = @nombre_actividad AND id_parque = @id_parque AND fecha = @fecha_actividad
+                    );
+                IF @id_actividad IS NULL
+                    SET @error += 'No existe una actividad con ese nombre en ese parque en esa fecha.' + CHAR(10); 
+            END
+        END
+    END
+
+    IF @f_desde IS NULL OR @f_hasta IS NULL
+        SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
+    
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND a.estado = 'vencido'
+    )
+        SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
+    ELSE
+    BEGIN
+        IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL
+            IF EXISTS(
+                SELECT id FROM gestion.Coordina 
+                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
+            )
+                SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
+    END
+
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
+END
+GO
+
+-- TODO: test de registrar venta
+-- TODO: test de estos sp
+
+/*
+====================================================
+		SP DE CONCESION - CANON
+====================================================
+*/
 
 -- Crea una concesion para una empresa y un parque en una fecha en especifico
 -- Tambien crea un canon a pagar pendiente de pago en el periodo de la fecha de inicio
@@ -243,18 +399,16 @@ create or alter procedure concesiones.concesion_registrar_gestion (
     from gestion.Parque
     where nombre = @parque;
 
-    if @id_parque is null begin
+    if @id_parque is null
         set @errores += 'No se encontro el parque.' + char(10);
-    end
 
     if @id_empresa is not null and exists (
         select 1
         from concesiones.Empresa
         where id = @id_empresa
           and cuit <> @cuit
-    ) begin
+    )
         set @errores += 'Ya existe una empresa con ese nombre y otro CUIT.' + char(10);
-    end
 
     if @id_empresa is not null and exists (
         select 1
@@ -262,12 +416,11 @@ create or alter procedure concesiones.concesion_registrar_gestion (
         where id_empresa = @id_empresa
           and id_parque = @id_parque
           and fecha_inicio = @fecha_inicio
-    ) begin
+    )
         set @errores += 'Ya existe una concesion para esa empresa, parque y fecha de inicio.' + char(10);
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -285,9 +438,8 @@ create or alter procedure concesiones.concesion_registrar_gestion (
           and id_parque = @id_parque
           and fecha_inicio = @fecha_inicio;
 
-        if @id_empresa is null or @id_concesion is null begin
-            raiserror('No se pudo resolver la empresa o la concesion. No se genero el canon.', 16, 1);
-        end
+        if @id_empresa is null or @id_concesion is null
+            throw 50000, 'No se pudo resolver la empresa o la concesion. No se genero el canon.', 1;
 
         exec concesiones.canon_pagar_alta
             @fecha_generacion = @fecha_inicio,
@@ -305,10 +457,16 @@ create or alter procedure concesiones.concesion_registrar_gestion (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        throw 16, @mensaje_error, 1;
+        throw 50000, @mensaje_error, 1;
     end catch
 end;
 go
+
+/*
+====================================================
+		SP DE CUOTA PARA CANON
+====================================================
+*/
 
 -- Crea un canon a pagar para una concesion en un fecha de generacion
 -- por default la fecha de generacion es la actual
@@ -333,12 +491,11 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
         from concesiones.Canon_pagar
         where id_concesion = @id_concesion
           and fecha_generacion = @fecha_generacion
-    ) begin
+    )
         set @errores += 'Ya existe un canon generado para esa concesion y mes.' + char(10);
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -354,13 +511,18 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        raiserror(@mensaje_error, 16, 1);
+        throw 50000, @mensaje_error, 1;
         return;
     end catch
 end;
 go
 
--- Pagar siguiente canon pendiente
+/*
+====================================================
+	SP DE PAGAR SIGUIENTE CANON PENDIENTE
+====================================================
+*/
+
 create or alter procedure concesiones.canon_pagar_abonar (
     @empresa varchar(25),
     @parque varchar(100),
@@ -379,7 +541,7 @@ create or alter procedure concesiones.canon_pagar_abonar (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -390,9 +552,8 @@ create or alter procedure concesiones.canon_pagar_abonar (
           and estado = 'PENDIENTE'
         order by fecha_generacion;
 
-        if @id_canon is null begin
-            raiserror('No hay canones pendientes de pago.', 16, 1);
-        end
+        if @id_canon is null
+            throw 50000, 'No hay canones pendientes de pago.', 1;
 
         update concesiones.Canon_pagar
         set estado = 'PAGADO',
@@ -400,9 +561,8 @@ create or alter procedure concesiones.canon_pagar_abonar (
         where id = @id_canon
           and estado = 'PENDIENTE';
 
-        if @@rowcount <> 1 begin
-            raiserror('No se pudo pagar el canon pendiente seleccionado.', 16, 1);
-        end
+        if @@rowcount <> 1
+            throw 50000, 'No se pudo pagar el canon pendiente seleccionado.', 1;
 
         commit;
 
@@ -413,13 +573,17 @@ create or alter procedure concesiones.canon_pagar_abonar (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        raiserror(@mensaje_error, 16, 1);
+        throw 50000, @mensaje_error, 1;
         return;
     end catch
 end;
 go
 
--- Historicos de pagos de una concesion
+/*
+====================================================
+		SP CONSULTAR HISTORICO DE PAGOS
+====================================================
+*/
 create or alter procedure concesiones.consultar_historico_canones (
     @empresa varchar(25),
     @parque varchar(100),
@@ -438,7 +602,7 @@ create or alter procedure concesiones.consultar_historico_canones (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     select
         cp.id,

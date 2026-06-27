@@ -1,7 +1,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: Bases de Datos Aplicadas
  
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -22,6 +22,7 @@ GO
  
 PRINT '=== ALTA DE PARQUE ===';
 GO
+ SELECT * from gestion.Parque
  
 -- TEST 1.1: exitoso
 PRINT '--- TEST 1.1: Registrar parque exitoso ---';
@@ -95,8 +96,10 @@ GO
  
 -- TEST 3.1: exitoso
 PRINT '--- TEST 3.1: Asignacion exitosa ---';
+select * from gestion.guardaparque
+select * from gestion.Parque_asignado
 EXEC gestion.guardaparque_asignar
-    @id_parque       = 1,
+    @id_parque       = 2,
     @id_guardaparque = 1;
  
 -- Evidencia: asignacion creada y guardaparque en estado Activo
@@ -306,6 +309,11 @@ GO
 -- SECCION 5: BAJA DE GUARDAPARQUE
 -- ============================================================
  
+ -- TODO: test de baja
+ select * from gestion.Parque
+ EXEC gestion.parque_baja
+    @id   = 2;
+
 PRINT '=== BAJA DE GUARDAPARQUE ===';
 GO
  
@@ -339,12 +347,13 @@ PRINT '=== MODIFICACION DE PARQUE ===';
 GO
  
 -- TEST 6.1: exitoso
+select * from gestion.Parque
 PRINT '--- TEST 6.1: Modificar parque exitoso ---';
 EXEC gestion.parque_modificacion
-    @id         = 1,
+    @id         = 2,
     @nombre     = 'Parque Nacional Iguazú',
     @tipo       = 'Nacional',
-    @ubicacion  = 'Misiones, Argentina',
+    @ubicacion  = 'Misiones',
     @superficie = 70000;
  
 -- Evidencia

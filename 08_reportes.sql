@@ -1,3 +1,17 @@
+-- Universidad: Universidad de la Matanza
+-- Materia: 3641 - Bases de Datos Aplicadas
+
+-- Grupo 06
+-- Integrantes:
+--  De Bellis, Nahuel
+--  Ocampo, Julian Rafael
+--  Rodriguez, Gonzalo Ezequiel
+--  Vargas, Tomas
+
+-- Objetivo del script: Creacion de reportes
+
+-- Fecha: 26/06/2026
+
 USE parques_nacionales
 GO
 
@@ -18,6 +32,7 @@ AS
 	ORDER BY parque, mes, año
 	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
+exec ventas.generar_reporte_visitas
 
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
 AS
@@ -45,7 +60,7 @@ AS
 	for XML AUTO -- o AUTO?
 GO
 
---EXEC sp_generar_reporte_visitas_por_mes
+EXEC generar_reporte_visitas_por_mes
 /*
 ============================
 GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
@@ -71,6 +86,8 @@ AS
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
 
+
+exec ventas.pivot_ventas_por_mes 2026
 -- 
 
 /*
@@ -263,7 +280,7 @@ BEGIN
 END
 GO
 
---EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
 
 create or alter view concesiones.deudores as
 	select c.id, c.fecha_inicio, e.nombre as empresa, p.nombre as parque, cp.periodo, cp.monto
@@ -293,12 +310,7 @@ select p.id as parque, p.nombre as nombre, (
     join concesiones.Empresa as e on c.id_empresa=e.id
     left join gestion.Actividad as a on c.id_actividad=a.id
     where p.id=c.id_empresa
-    for xml path('concesiones')
+    for json path -- for xml path
 ) as concesiones
-from gestion.Parque as p
-where p.nombre like isnull(@parque, '%%')
-for xml path('parque')
-end
+from gestion.Parque as p 
 go
-
--- exec concesiones.concesiones_por_parque 

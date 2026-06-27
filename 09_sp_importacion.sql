@@ -1,7 +1,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
 
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -77,7 +77,7 @@ BEGIN
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END TRY
             BEGIN CATCH
-                EXEC gestion.guia_actualizar
+                EXEC gestion.guia_modificacion
                     @dni = @dni,
                     @nombre = @nombre,
                     @apellido = @apellido;
@@ -88,20 +88,19 @@ BEGIN
             END CATCH
 
             SET @fecha_random = DATEADD( DAY, ABS(CHECKSUM(NEWID())) % (DATEDIFF(DAY, '2000-01-01', '2026-03-31') + 1), '2000-01-01');
-            SET @institucion =  case cast(FLOOR(rand() * 3) as int) when 0 then 'UNLAM' when 1 then 'UBA' ELSE 'UTN' END;
 
             BEGIN TRY
                 EXEC guia.titulacion_asignar
                     @dni = @dni,
                     @descripcion = @titulo,
-                    @institucion = @institucion,
+                    @institucion = NULL,
                     @fecha_emision = @fecha_random;
             END TRY
             BEGIN CATCH
-                EXEC guia.titulo_actualizar
+                EXEC guia.titulo_modificacion
                     @dni = @dni,
                     @descripcion = @titulo,
-                    @institucion = @institucion,
+                    @institucion = NULL,
                     @fecha_emision = @fecha_random;
             END CATCH
 
@@ -296,7 +295,6 @@ BEGIN
         BEGIN
             BEGIN TRY
                 EXEC gestion.parque_modificacion
-                    @id = @id_existente,
                     @nombre = @c_nombre,
                     @tipo = @c_tipo,
                     @ubicacion = @c_ubicacion,

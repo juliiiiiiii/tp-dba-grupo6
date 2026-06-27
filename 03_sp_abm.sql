@@ -2,7 +2,7 @@
 -- Universidad: Universidad de la Matanza
 -- Materia: Bases de Datos Aplicadas
  
--- Grupo 04
+-- Grupo 06
 -- Integrantes:
 --  De Bellis, Nahuel
 --  Ocampo, Julian Rafael
@@ -16,10 +16,11 @@
 USE parques_nacionales
 GO
 
------------------------------------------------------------
--- Alta
------------------------------------------------------------
--- Registrar ubicacion
+/*
+====================================================
+		ABMS DE TABLA UBICACION
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE gestion.ubicacion_alta
     @provincia VARCHAR(50)
@@ -33,21 +34,75 @@ BEGIN
     ELSE
     BEGIN
         IF EXISTS (SELECT id from gestion.Ubicacion WHERE provincia = @provincia)
-        SET @error += 'La provincia ya se encuentra registrada.' + CHAR(10);
+            SET @error += 'La provincia ya se encuentra registrada.' + CHAR(10);
     END
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         INSERT INTO gestion.Ubicacion VALUES(@provincia); 
-    END 
 END
 GO
 
+CREATE OR ALTER PROCEDURE gestion.ubicacion_baja
+    @provincia VARCHAR(50)
+AS
+BEGIN
+    DECLARE @error VARCHAR(70);
+    DECLARE @id_prov INT;
+    SET @error = '';
 
+    IF @provincia IS NULL OR @provincia = ''
+        SET @error += 'Se debe especificar la provincia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SELECT @id_prov = id FROM gestion.Ubicacion WHERE provincia = @provincia;
 
--- Registrar parque
+        IF @id_prov IS NULL
+            SET @error += 'La provincia no se encuentra registrada.' + CHAR(10);
+
+        IF EXISTS (SELECT 1 from gestion.Parque WHERE id_ubicacion = @id_prov)
+            SET @error += 'La provincia se encuentra registrada en un parque.' + CHAR(10);
+    END
+
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        DELETE FROM gestion.Ubicacion WHERE id = @id_prov; 
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.ubicacion_modificacion
+    @provincia VARCHAR(50),
+    @provincia_nueva VARCHAR(50)
+AS
+BEGIN
+    DECLARE @error VARCHAR(70);
+    DECLARE @id_prov INT;
+    SET @error = '';
+
+    IF @provincia IS NULL OR @provincia = ''
+        SET @error += 'Se debe especificar la provincia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SELECT @id_prov = id FROM gestion.Ubicacion WHERE provincia = @provincia;
+
+        IF @id_prov IS NULL
+            SET @error += 'La provincia no se encuentra registrada.' + CHAR(10);
+    END
+
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        UPDATE gestion.Ubicacion SET provincia = @provincia_nueva WHERE id = @id_prov;
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA PARQUE
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE gestion.parque_alta
 	@nombre VARCHAR(100),
@@ -63,14 +118,12 @@ BEGIN
 	SET @errores = '';
 
 	IF EXISTS (SELECT nombre FROM gestion.Parque WHERE nombre = @nombre)
-	BEGIN
 		SET @errores += 'El nombre del parque ya se encuentra registrado.' + CHAR(10);
-	END
 
     IF @ubicacion IS NOT NULL AND LTRIM(RTRIM(@ubicacion)) != ''
     BEGIN
         SELECT @id_ubicacion = id FROM gestion.Ubicacion 
-        WHERE UPPER(provincia) COLLATE Latin1_General_CI_AI = UPPER(@ubicacion) COLLATE Latin1_General_CI_AI;
+        WHERE provincia = @ubicacion;
 
         IF @id_ubicacion = 0
             SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
@@ -80,335 +133,48 @@ BEGIN
         SET @errores += 'La superficie debe ser un valor positivo.' + CHAR(10);
 
 	IF @errores != ''
-	BEGIN
-		RAISERROR(@errores, 16, 1);
-		RETURN;
-	END
+		THROW 50000, @errores, 1;
 
 	INSERT INTO gestion.Parque (nombre, tipo, superficie, estado, id_ubicacion)
 	VALUES (@nombre, @tipo, @superficie, 'Activo', @id_ubicacion);
 END
 GO
 
------------------------------------------------------------
--- Registrar guardaparque
-
-CREATE OR ALTER PROCEDURE gestion.guardaparque_alta
-	@dni INT,
-	@nombre CHAR(30),
-	@apellido CHAR(30)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @errores VARCHAR(50);
-	SET @errores = '';
-
-	IF EXISTS (SELECT dni FROM gestion.Guardaparque WHERE dni = @dni)
-	BEGIN
-		SET @errores += 'El dni del guardaparque ya esta registrado.' + CHAR(10);
-	END
-
-	IF @errores != ''
-	BEGIN
-		RAISERROR (@errores, 16, 1);
-		RETURN;
-	END
-
-	INSERT INTO gestion.Guardaparque (dni, nombre, apellido, estado)
-	VALUES (@dni, @nombre, @apellido, 'Inactivo');
-END
-GO
-
------------------------------------------------------------
--- Asignar guardaparque-parque
-
-CREATE OR ALTER PROCEDURE gestion.guardaparque_asignar
-	@id_parque INT, -- podria ser nombre
-	@id_guardaparque INT -- podria ser dni
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @errores VARCHAR(200);
-	SET @errores = '';
-
-	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
-	BEGIN
-		SET @errores += 'El parque al que se le quiere asignar no existe.' + CHAR(10);
-	END
-
-	IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id_guardaparque)
-	BEGIN
-		SET @errores += 'El guardaparque que se quiere asignar no existe.' + CHAR(10);
-	END
-
-	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id_parque AND fecha_egreso IS NULL)
-	BEGIN
-		SET @errores += 'El parque al que se quiere asignar ya tiene guardaparque asignado.' + CHAR(10);
-	END
-
-	IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id_guardaparque AND fecha_egreso IS NULL)
-	BEGIN
-		SET @errores += 'El gurdaparque que se quiere asignar ya esta asignado.' + CHAR(10);
-	END
-
-	IF @errores != ''
-	BEGIN
-		RAISERROR (@errores, 16, 1);
-		RETURN;
-	END
-
-	BEGIN TRANSACTION
-		INSERT INTO gestion.Parque_asignado (id_parque, id_guardaparque, fecha_ingreso)
-		VALUES (@id_parque, @id_guardaparque, GETDATE());
-
-		UPDATE gestion.Guardaparque SET estado = 'Activo' WHERE id = @id_guardaparque;
-	COMMIT;
-END
-GO
-
------------------------------------------------------------
--- Registrar tipo actividad
-
-CREATE OR ALTER PROCEDURE gestion.tipo_actividad_alta
-	@descripcion CHAR(25)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-    DECLARE @errores VARCHAR(50);
-    SET @errores = '';
-
-    IF EXISTS (SELECT descripcion FROM gestion.Tipo_actividad WHERE descripcion = @descripcion)
-        SET @errores += 'El tipo de actividad ya existe.' + CHAR(10);
-
-    IF @errores != ''
-    BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
-    END
-
-
-	INSERT INTO gestion.Tipo_actividad (descripcion) VALUES (@descripcion);
-END
-GO
-
------------------------------------------------------------
--- Registrar actividad
-
-CREATE OR ALTER PROCEDURE gestion.actividad_alta
-	@id_parque INT,
-	@id_guia INT,
-	@nombre CHAR(50),
-	@descripcion VARCHAR(100),
-	@tipo CHAR(25),
-	@costo DECIMAL(7,2),
-	@fecha DATE,
-	@duracion INT,
-	@cupo INT
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @errores VARCHAR(200);
-	DECLARE @id_tipo INT;
-	SET @errores = '';
-
-	SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @tipo;
-
-	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
-	BEGIN
-		SET @errores += 'El parque en el que se quiere registrar la actividad no existe.' + CHAR(10);
-	END
-
-	IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE id = @id_guia)
-	BEGIN
-		SET @errores += 'El guia en el que se quiere registrar la actividad no existe.' + CHAR(10);
-	END
-	ELSE
-	BEGIN
-		IF NOT EXISTS(
-			SELECT g.id FROM gestion.Guia g
-			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
-			WHERE g.id = @id_guia AND a.estado = 'vigente' AND a.fecha_vencimiento >= GETDATE()
-		)
-		BEGIN
-			SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
-		END
-	END
-
-	IF @id_tipo IS NULL
-		SET @errores += 'El tipo de actividad es invalido.' + CHAR(10);
-
-	IF @fecha <= GETDATE()
-	BEGIN
-		SET @errores += 'No se puede establecer una actividad para fechas pasadas.' + CHAR(10);
-	END
-
-	IF @errores != ''
-	BEGIN
-		RAISERROR (@errores, 16, 1);
-		RETURN;
-	END
-
-	INSERT INTO gestion.Actividad (id_parque, id_guia, id_tipo, nombre, descripcion, costo, fecha, duracion, cupo, estado)
-	VALUES (@id_parque, @id_guia, @id_tipo, @nombre, @descripcion, @costo, @fecha, @duracion, @cupo, 'Programado');
-END
-GO
-
------------------------------------------------------------
--- Registrar especialidad
-
-CREATE OR ALTER PROCEDURE guia.especialidad_alta
-@descripcion VARCHAR(50)
-AS
-BEGIN
-    DECLARE @error VARCHAR(70);
-    SET @error = '';
-
-    IF @descripcion IS NULL OR @descripcion = ''
-        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
-    ELSE
-    BEGIN
-        IF EXISTS (SELECT descripcion from guia.Especialidad WHERE descripcion = @descripcion)
-        SET @error += 'La especialidad ya se encuentra registrada.' + CHAR(10);
-    END
-
-    IF @error != ''
-        RAISERROR(@error, 16, 1);
-    ELSE
-    BEGIN
-        INSERT INTO guia.Especialidad VALUES(@descripcion); 
-    END 
-END
-GO
-
------------------------------------------------------------
--- Baja
------------------------------------------------------------
--- Baja Parque
-
 CREATE OR ALTER PROCEDURE gestion.parque_baja
-	@id INT
+    @nombre VARCHAR(100)
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @errores VARCHAR(200);
+    DECLARE @id INT = NULL;
 	SET @errores = '';
 
-	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id)
-	BEGIN
+    SELECT @id = id FROM gestion.Parque WHERE nombre = @nombre;
+	IF @id IS NULL
 		SET @errores += 'El parque que se desea dar de baja no existe.' + CHAR(10);
-	END
 	ELSE
-    BEGIN
         IF (SELECT estado FROM gestion.Parque WHERE id = @id) = 'Inactivo'
             SET @errores += 'El parque ya se encuentra dado de baja.' + CHAR(10);
-    END
 
 	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id AND fecha_egreso IS NULL)
-	BEGIN
 		SET @errores += 'El parque que se desea dar de baja tiene guardaparque asignado.' + CHAR(10);
-	END
 
-	IF EXISTS (SELECT 1 FROM gestion.Actividad WHERE id_parque = @id AND estado IN ('Programado', 'En curso'))
+	IF EXISTS (SELECT 1 FROM gestion.Actividad WHERE id_parque = @id AND estado IN ('Programado', 'En curso', 'Finalizado'))
         SET @errores += 'El parque tiene actividades activas. Cancelalas antes de dar de baja el parque.' + CHAR(10);
 
 	-- Si se agrega estado en actividad, hay que modificar aca el estado de programada a cancelada
 
 	IF @errores != ''
-	BEGIN
-		RAISERROR(@errores, 16, 1);
-		RETURN;
-	END
+		THROW 50000, @errores, 1;
 
-    UPDATE gestion.Parque SET estado = 'Inactivo' WHERE id = @id;
+    BEGIN TRANSACTION
+        UPDATE gestion.Parque SET estado = 'Inactivo' WHERE id = @id;
+    COMMIT
 END
 GO
-
------------------------------------------------------------
--- Baja guardaparque
-
-CREATE OR ALTER PROCEDURE gestion.guardaparque_baja
-	@id INT
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @errores VARCHAR(100);
-	SET @errores = '';
-
-	IF NOT EXISTS(SELECT id FROM gestion.Guardaparque WHERE id = @id)
-	BEGIN
-		SET @errores += 'El guardaparque que se quiere dar de baja no existe.' + CHAR(10);
-	END
-
-	IF (SELECT estado FROM gestion.Guardaparque WHERE id = @id) != 'Activo'
-		SET @errores += 'El guardaparque no se encuentra asignado a ningun parque.' + CHAR(10);
-		
-
-	IF @errores != ''
-	BEGIN
-		RAISERROR(@errores, 16, 1);
-		RETURN;
-	END
-
-	BEGIN TRANSACTION;
-        IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
-            UPDATE gestion.Parque_asignado SET fecha_egreso = GETDATE() WHERE id_guardaparque = @id AND fecha_egreso IS NULL;
-
-        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = @id;
-    COMMIT;
-END
-GO
-
------------------------------------------------------------
--- Baja actividad
-
-CREATE OR ALTER PROCEDURE gestion.actividad_baja
-    @id INT,
-    @motivo VARCHAR(100)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @errores VARCHAR(100);
-    DECLARE @estado_actual CHAR(10);
-    SET @errores = '';
-
-    IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE id = @id)
-    BEGIN
-        SET @errores += 'La actividad que se desea cancelar no existe.' + CHAR(10);
-    END
-    ELSE
-    BEGIN
-        SELECT @estado_actual = estado FROM gestion.Actividad WHERE id = @id;
-
-        IF @estado_actual IN ('Cancelado', 'Finalizado', 'En curso')
-            SET @errores += 'La actividad no puede ser cancelada. Estado actual: ' + RTRIM(@estado_actual) + CHAR(10);
-    END
-
-    IF @errores != ''
-    BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
-    END
-
-    UPDATE gestion.Actividad SET estado = 'Cancelado' WHERE id = @id;
-
-    -- Tener en cuenta que hacer si hay entradas con actividades programadas
-END
-GO
-
------------------------------------------------------------
--- Modificacion
------------------------------------------------------------
--- Modificar parque
 
 CREATE OR ALTER PROCEDURE gestion.parque_modificacion
-	@id INT,
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
 	@ubicacion VARCHAR(50),
@@ -419,41 +185,109 @@ BEGIN
 
 	DECLARE @errores VARCHAR(100);
     DECLARE @id_ubicacion INT = NULL;
+    DECLARE @id INT;
+
 	SET @errores = '';
 
-	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id)
+    SELECT @id = id FROM gestion.Parque WHERE nombre = @nombre;
+
+	IF @id IS NULL
         SET @errores += 'El parque que se desea modificar no existe.' + CHAR(10);
-
-    IF EXISTS (SELECT id FROM gestion.Parque WHERE nombre = @nombre AND id != @id)
-        SET @errores += 'El nombre ingresado ya esta en uso por otro parque.' + CHAR(10);
-
-    IF @ubicacion IS NOT NULL AND LTRIM(RTRIM(@ubicacion)) != ''
+    ELSE
     BEGIN
-        SELECT @id_ubicacion = id FROM gestion.Ubicacion 
-        WHERE UPPER(provincia) COLLATE Latin1_General_CI_AI = UPPER(@ubicacion) COLLATE Latin1_General_CI_AI;
+        IF @tipo IS NULL AND @ubicacion IS NULL AND @superficie IS NULL
+            SET @errores += 'Debe ingresar valores para modificar al parque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @ubicacion IS NOT NULL AND LTRIM(RTRIM(@ubicacion)) != ''
+            BEGIN
+                SELECT @id_ubicacion = id FROM gestion.Ubicacion WHERE provincia = @ubicacion;
 
-        IF @id_ubicacion = 0
-            SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
-	END
+                IF @id_ubicacion IS NULL
+                    SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
+	        END
+            ELSE
+                SELECT @id_ubicacion = id_ubicacion FROM gestion.Parque WHERE @id = id;
 
-    IF @superficie <= 0
-        SET @errores += 'La superficie debe ser un valor positivo.' + CHAR(10);
- 
-    IF @errores != ''
-    BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
+            IF @tipo IS NULL
+                    SELECT @tipo = tipo FROM gestion.Parque WHERE @id = id;
+
+            IF @superficie <= 0
+                SET @errores += 'La superficie debe ser un valor positivo.' + CHAR(10);
+            ELSE IF @superficie IS NULL
+                SELECT @superficie = superficie FROM gestion.Parque WHERE id = @id;
+        END
     END
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
  
     UPDATE gestion.Parque SET nombre = @nombre, tipo = @tipo, superficie = @superficie, id_ubicacion = @id_ubicacion WHERE id = @id;
 END
 GO
 
------------------------------------------------------------
--- Modificar guardaparque
+/*
+====================================================
+		ABMS DE TABLA GUARDAPARQUE
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.guardaparque_alta
+	@dni CHAR(8),
+	@nombre CHAR(30),
+	@apellido CHAR(30)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(50);
+	SET @errores = '';
+
+	IF EXISTS (SELECT dni FROM gestion.Guardaparque WHERE dni = @dni)
+		SET @errores += 'El dni del guardaparque ya esta registrado.' + CHAR(10);
+
+    IF (@nombre IS NULL OR @apellido IS NULL)
+        SET @errores += 'Debe ingresar nombre y apellido.' + CHAR(10);
+
+	IF @errores != ''
+		THROW 50000, @errores, 1;
+
+	INSERT INTO gestion.Guardaparque (dni, nombre, apellido, estado)
+	VALUES (@dni, @nombre, @apellido, 'Inactivo');
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.guardaparque_baja
+	@dni CHAR(8)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(100);
+    DECLARE @id INT = NULL;
+	SET @errores = '';
+
+    SELECT @id = id FROM gestion.Guardaparque WHERE dni = @dni
+	IF @id IS NULL
+		SET @errores += 'El guardaparque que se quiere dar de baja no existe.' + CHAR(10);
+    ELSE
+	    IF (SELECT estado FROM gestion.Guardaparque WHERE id = @id) != 'Activo'
+		    SET @errores += 'El guardaparque no se encuentra asignado a ningun parque.' + CHAR(10);
+
+	IF @errores != ''
+		THROW 50000, @errores, 1;
+
+	BEGIN TRANSACTION;
+        IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
+            UPDATE gestion.Parque_asignado SET fecha_egreso = GETDATE() WHERE id_guardaparque = @id AND fecha_egreso IS NULL;
+
+        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = @id;
+    COMMIT;
+END
+GO
 
 CREATE OR ALTER PROCEDURE gestion.guardaparque_modificacion
-    @id INT,
+    @dni CHAR(8),
     @nombre CHAR(30),
     @apellido CHAR(30),
     @estado CHAR(8)
@@ -462,157 +296,133 @@ BEGIN
     SET NOCOUNT ON;
 
 	DECLARE @errores VARCHAR(150);
+    DECLARE @id INT = NULL;
     SET @errores = '';
  
-    IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id)
+    SELECT @id = id FROM gestion.Guardaparque WHERE dni = @dni;
+
+    IF @id IS NULL
         SET @errores += 'El guardaparque que se desea modificar no existe.' + CHAR(10);
- 
-    IF @estado NOT IN ('Activo', 'Inactivo')
-        SET @errores += 'El estado ingresado no es valido. Los valores permitidos son: Activo o Inactivo.' + CHAR(10);
- 
-    IF @estado = 'Activo'
-    AND NOT EXISTS(SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
-        SET @errores += 'No se puede establecer como activo a un guardaparque que no tiene asignacion activa.' + CHAR(10);
- 
-    IF @errores != ''
+    ELSE
     BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
+        IF @dni IS NULL AND @nombre IS NULL AND @apellido IS NULL AND @estado IS NULL
+            SET @errores += 'Debe ingresar valores para modificar al guardaparque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @nombre IS NULL
+                SELECT @nombre = nombre FROM gestion.Guardaparque WHERE id = @id;
+
+            IF @apellido IS NULL
+                SELECT @apellido = apellido FROM gestion.Guardaparque WHERE id = @id;
+
+            IF @estado IS NOT NULL AND @estado NOT IN ('Activo', 'Inactivo')
+                SET @errores += 'El estado ingresado no es valido. Los valores permitidos son: Activo o Inactivo.' + CHAR(10);
+            ELSE IF @estado IS NULL
+                SELECT @estado = estado FROM gestion.Guardaparque WHERE id = @id;
+ 
+            IF @estado = 'Activo'
+            AND NOT EXISTS(SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
+                SET @errores += 'No se puede establecer como activo a un guardaparque que no tiene asignacion activa.' + CHAR(10);
+        END
     END
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
  
     UPDATE gestion.Guardaparque SET nombre = @nombre, apellido = @apellido, estado = @estado WHERE id = @id;
 END
 GO
 
------------------------------------------------------------
--- Modificar asignacion guardaparque
+/*
+====================================================
+		ABMS DE TABLA ESPECIALIDAD
+====================================================
+*/
 
-CREATE OR ALTER PROCEDURE gestion.asignacion_modificacion
-    @id INT,
-    @motivo VARCHAR(100)
+CREATE OR ALTER PROCEDURE guia.especialidad_alta
+    @descripcion VARCHAR(50)
 AS
 BEGIN
-    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(70);
+    SET @error = '';
 
-	DECLARE @errores VARCHAR(200);
-    DECLARE @fecha_ingreso DATE;
-	DECLARE @fecha_egreso DATE;
-
-	SET @errores = '';
-	SET @fecha_egreso = GETDATE();
-
-    IF NOT EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id)
-    BEGIN
-        SET @errores += 'La asignacion que se desea modificar no existe.' + CHAR(10);
-    END
+    IF @descripcion IS NULL OR @descripcion = ''
+        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
     ELSE
-    BEGIN
-        IF EXISTS (SELECT id FROM gestion.Parque_asignado WHERE id = @id AND fecha_egreso IS NOT NULL)
-            SET @errores += 'La asignacion no esta activa.' + CHAR(10);
-    END
- 
-    IF @errores != ''
-    BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
-    END
- 
-    BEGIN TRANSACTION;
-        UPDATE gestion.Parque_asignado SET fecha_egreso = @fecha_egreso, motivo = @motivo WHERE id = @id;
- 
-        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id = @id);
-    COMMIT;
+        IF EXISTS (SELECT descripcion from guia.Especialidad WHERE descripcion = @descripcion)
+            SET @error += 'La especialidad ya se encuentra registrada.' + CHAR(10);
+
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        INSERT INTO guia.Especialidad VALUES(@descripcion); 
 END
 GO
 
------------------------------------------------------------
--- Modificar actividad
-
-CREATE OR ALTER PROCEDURE gestion.actividad_modificacion
-    @id INT,
-    @id_guia INT,
-    @nombre CHAR(50),
-    @descripcion VARCHAR(100),
-    @tipo CHAR(25),
-    @costo DECIMAL(9,2),
-    @fecha DATE,
-    @duracion INT,
-    @cupo INT,
-	@estado CHAR(10)
+CREATE OR ALTER PROCEDURE guia.especialidad_baja
+    @descripcion VARCHAR(50)
 AS
 BEGIN
-    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(70);
+    DECLARE @id_especialidad INT;
+    SET @error = '';
 
-	DECLARE @errores VARCHAR(285);
-	DECLARE @id_tipo INT;
-	DECLARE @estado_actual CHAR(10);
-	
-    SET @errores = '';
-
-	SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @tipo;
- 
-    IF NOT EXISTS (SELECT id FROM gestion.Actividad WHERE id = @id)
-	BEGIN
-        SET @errores += 'La actividad que se desea modificar no existe.' + CHAR(10);
-	END
-	ELSE
-	BEGIN
-		SELECT @estado_actual = estado FROM gestion.Actividad WHERE id = @id;
-
-        IF @estado_actual IN ('Cancelado', 'Finalizado')
-            SET @errores += 'No se puede modificar una actividad que esta ' + RTRIM(@estado_actual) + '.' + CHAR(10);
-    END
-
-    IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE id = @id_guia)
-        SET @errores += 'El guia especificado no existe.' + CHAR(10);
+    IF @descripcion IS NULL OR @descripcion = ''
+        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
     ELSE
     BEGIN
-        IF NOT EXISTS (SELECT g.id FROM gestion.Guia g
-            INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
-            WHERE g.id = @id_guia
-              AND a.estado = 'Activo'
-              AND a.fecha_vencimiento >= GETDATE()
-        )
-            SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
+        SELECT @id_especialidad = id FROM guia.Especialidad WHERE descripcion = @descripcion;
+
+        IF @id_especialidad IS NULL
+            SET @error += 'La especialidad no se encuentra registrada.' + CHAR(10);
+        ELSE IF EXISTS (SELECT 1 FROM guia.Especializado_en WHERE id_especialidad = @id_especialidad)
+            SET @error += 'La especialidad se encuentra registrada a un guia.' + CHAR(10);
     END
 
-	IF @id_tipo IS NULL
-		SET @errores += 'El tipo de actividad no es valido.' + CHAR(10);
-
-	IF @estado NOT IN ('Programado', 'Cancelado', 'Finalizado', 'En curso', 'Cupo lleno')
-        SET @errores += 'El estado ingresado no es valido.' + CHAR(10);
-
-    IF @fecha <= GETDATE()
-        SET @errores += 'No se puede establecer una actividad para fechas pasadas.' + CHAR(10);
- 
-    IF @duracion <= 0
-        SET @errores += 'La duracion debe ser un valor positivo.' + CHAR(10);
- 
-    IF @cupo <= 0
-        SET @errores += 'El cupo debe ser un valor positivo.' + CHAR(10);
- 
-    IF @costo < 0
-        SET @errores += 'El costo debe ser un valor positivo.' + CHAR(10);
- 
-    IF @errores != ''
-    BEGIN
-        RAISERROR(@errores, 16, 1);
-        RETURN;
-    END
- 
-    UPDATE gestion.Actividad SET id_guia = @id_guia, id_tipo = @id_tipo, nombre = @nombre, descripcion = @descripcion, costo = @costo, fecha = @fecha, duracion = @duracion, cupo = @cupo, estado = @estado
-    WHERE id = @id;
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        DELETE FROM guia.Especialidad WHERE id = @id_especialidad;
 END
 GO
 
------------------------------------------------------------
--- Registrar guia
+CREATE OR ALTER PROCEDURE guia.especialidad_modificacion
+    @descripcion VARCHAR(50),
+    @descripcion_nueva VARCHAR(50)
+AS
+BEGIN
+    DECLARE @error VARCHAR(70);
+    DECLARE @id_especialidad INT;
+    SET @error = '';
+
+    IF @descripcion IS NULL OR @descripcion = '' OR @descripcion_nueva IS NULL
+        SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF NOT EXISTS (SELECT descripcion FROM guia.Especialidad WHERE descripcion = @descripcion)
+            SET @error += 'La especialidad no se encuentra registrada.' + CHAR(10);
+
+        SELECT @id_especialidad = id FROM guia.Especialidad WHERE descripcion = @descripcion;
+    END
+
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        UPDATE guia.Especialidad SET descripcion = @descripcion_nueva WHERE  id = @id_especialidad;
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA GUIA
+====================================================
+*/
 
 CREATE OR ALTER PROCEDURE gestion.guia_alta
-@dni CHAR(8),
-@nombre VARCHAR(30),
-@apellido VARCHAR(30), 
-@fecha_vencimiento_acreditacion DATE
+    @dni CHAR(8),
+    @nombre VARCHAR(30),
+    @apellido VARCHAR(30), 
+    @fecha_vencimiento_acreditacion DATE
 AS
 BEGIN
     DECLARE @id_acreditacion INT;
@@ -647,7 +457,7 @@ BEGIN
     END
     
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
     BEGIN
         BEGIN TRANSACTION
@@ -655,24 +465,16 @@ BEGIN
             
             SET @id_acreditacion = SCOPE_IDENTITY();
 
-            INSERT INTO gestion.Guia VALUES(@dni, @nombre, @apellido, @id_acreditacion);
-
+            INSERT INTO gestion.Guia (dni, nombre, apellido, estado, id_acreditacion) VALUES (@dni, @nombre, @apellido, 'ACTIVO', @id_acreditacion);
         COMMIT
     END
 END
 GO
 
------------------------------------------------------------
--- Actualizar guia
-
-CREATE OR ALTER PROCEDURE gestion.guia_actualizar
-@dni CHAR(8),
-@nombre VARCHAR(30),
-@apellido VARCHAR(30)
+CREATE OR ALTER PROCEDURE gestion.guia_baja
+    @dni CHAR(8)
 AS
 BEGIN
-    DECLARE @id_acreditacion INT;
-    DECLARE @estado_acreditacion CHAR(7);
     DECLARE @error VARCHAR(100);
     SET @error = '';
 
@@ -684,142 +486,356 @@ BEGIN
             SET @error += 'Ingresar dni valido.' + CHAR(10);
         ELSE
         BEGIN
-            IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+            IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = @dni)
                 SET @error += 'El dni no pertenece a un guia.' + CHAR(10);
+            IF EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = @dni AND estado = 'INACTIVO')
+                SET @error += 'El guia ya esta dado de baja.' + CHAR(10);
         END    
     END
-
-    IF @nombre IS NULL OR @apellido IS NULL OR @nombre = '' or @apellido = ''
-        SET @error += 'Se debe especificar nombre y apellido del guia.' + CHAR(10);
     
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
-        UPDATE gestion.Guia SET nombre = @nombre, apellido = @apellido WHERE dni = @dni
-    END
+        UPDATE gestion.Guia SET estado = 'INACTIVO' WHERE dni = @dni;
 END
 GO
 
------------------------------------------------------------
--- Asignar guia a actividad
-
-CREATE OR ALTER PROCEDURE gestion.guia_asignar
-@dni CHAR(8),
-@nombre_actividad VARCHAR(50),
-@nombre_parque VARCHAR(50),
-@fecha_actividad DATETIME,
-@f_desde DATE,
-@f_hasta DATE
+CREATE OR ALTER PROCEDURE gestion.guia_modificacion
+    @dni CHAR(8),
+    @nombre VARCHAR(30),
+    @apellido VARCHAR(30)
 AS
 BEGIN
-    DECLARE @error VARCHAR(150);
+    DECLARE @id_acreditacion INT;
+    DECLARE @estado_acreditacion CHAR(7);
+    DECLARE @error VARCHAR(100);
     SET @error = '';
-
-    DECLARE @id_guia INT;
-    DECLARE @id_parque INT;
-    DECLARE @id_actividad INT;
 
     IF @dni IS NULL
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
-        IF @id_guia IS NULL
-            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
-    END
-
-    IF @nombre_parque IS NULL
-        SET @error += 'Se debe especificar el nombre del parque.' + CHAR(10);
-    ELSE
-    BEGIN
-        SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @nombre_parque);
-        IF @id_parque IS NULL
-            SET @error += 'El nombre no pertenece a ningun parque.' + CHAR(10);
+        IF @nombre IS NULL AND @apellido IS NULL
+            SET @error += 'Se debe especificar nombre y apellido del guia.' + CHAR(10);
         ELSE
         BEGIN
-            IF @nombre_actividad IS NULL OR @fecha_actividad IS NULL
-                SET @error += 'Se debe especificar el nombre y fecha de la actividad.' + CHAR(10);
+            IF @dni NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+                SET @error += 'Ingresar dni valido.' + CHAR(10);
             ELSE
-            BEGIN
-                SET @id_actividad = (SELECT id FROM gestion.Actividad 
-                        WHERE nombre = @nombre_actividad AND id_parque = @id_parque AND fecha = @fecha_actividad
-                    );
-                IF @id_actividad IS NULL
-                    SET @error += 'No existe una actividad con ese nombre en ese parque en esa fecha.' + CHAR(10); 
-            END
+                IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+                    SET @error += 'El dni no pertenece a un guia.' + CHAR(10);
+
+            IF @nombre IS NULL
+                SELECT @nombre = nombre FROM gestion.Guia WHERE dni = @dni;
+            IF @apellido IS NULL
+                SELECT @apellido = apellido FROM gestion.Guia WHERE dni = @dni;
         END
     END
-
-    IF @f_desde IS NULL OR @f_hasta IS NULL
-        SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
-    
-    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
-			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
-			WHERE g.id = @id_guia AND a.estado = 'vencido'
-    )
-        SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
-    ELSE
-    BEGIN
-        IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL
-            IF EXISTS(SELECT id FROM gestion.Coordina 
-                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
-            )
-                SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
-    END
-
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
-        INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
-    END
+        UPDATE gestion.Guia SET nombre = @nombre, apellido = @apellido WHERE dni = @dni
 END
 GO
 
+/*
+====================================================
+		ABMS DE TABLA TIPO ACTIVIDAD
+====================================================
+*/
 
------------------------------------------------------------
--- Crea una empresa
+CREATE OR ALTER PROCEDURE gestion.tipo_actividad_alta
+	@descripcion CHAR(25)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    DECLARE @errores VARCHAR(50);
+    SET @errores = '';
+
+    IF EXISTS (SELECT descripcion FROM gestion.Tipo_actividad WHERE descripcion = @descripcion)
+        SET @errores += 'El tipo de actividad ya existe.' + CHAR(10);
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+
+	INSERT INTO gestion.Tipo_actividad (descripcion) VALUES (@descripcion);
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.tipo_actividad_baja
+	@descripcion CHAR(25)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    DECLARE @errores VARCHAR(70);
+    DECLARE @id_tipo INT = NULL;
+    SET @errores = '';
+
+    IF NOT EXISTS (SELECT descripcion FROM gestion.Tipo_actividad WHERE descripcion = @descripcion)
+        SET @errores += 'El tipo de actividad que se quiere dar de baja no existe.' + CHAR(10);
+    ELSE
+    BEGIN
+        SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @descripcion
+
+        IF EXISTS (SELECT 1 FROM gestion.Actividad WHERE id_tipo = @id_tipo)
+            SET @errores += 'El tipo de actividad que se quiere dar de baja existe en al menos una actividad.' + CHAR(10);
+    END
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+
+	DELETE FROM gestion.Tipo_actividad WHERE descripcion = @descripcion;
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.tipo_actividad_modificacion
+	@descripcion CHAR(25),
+    @descripcion_nueva CHAR(25)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    DECLARE @errores VARCHAR(50);
+    DECLARE @id_tipo INT = NULL;
+    SET @errores = '';
+
+    SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @descripcion;
+    IF @id_tipo IS NULL
+        SET @errores += 'El tipo de actividad no existe.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF @descripcion_nueva IS NULL
+            SET @errores += 'Debe ingresar un tipo de actividad.' + CHAR(10);
+        ELSE IF EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = @descripcion_nueva)
+            SET @errores += 'El tipo de actividad que se quiere registrar ya existe.' + CHAR(10);
+    END
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+
+	UPDATE gestion.Tipo_actividad SET descripcion = @descripcion_nueva WHERE descripcion = @descripcion;
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA ACTIVIDAD
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE gestion.actividad_alta
+	@nombre_parque VARCHAR(100),
+	@dni_guia CHAR(8),
+	@nombre CHAR(50),
+	@descripcion VARCHAR(100),
+	@tipo CHAR(25),
+	@costo DECIMAL(7,2),
+	@fecha DATE,
+	@duracion INT,
+	@cupo INT
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(300);
+    DECLARE @id_parque INT = NULL;
+    DECLARE @id_guia INT = NULL;
+	DECLARE @id_tipo INT = NULL;
+	SET @errores = '';
+
+    SELECT @id_parque = id FROM gestion.Parque WHERE nombre = @nombre_parque;
+    IF @id_parque IS NULL
+        SET @errores += 'El parque en el que se quiere registrar la actividad no existe.' + CHAR(10);
+
+    SELECT @id_guia = id FROM gestion.Guia WHERE dni = @dni_guia;
+    IF @id_guia IS NULL
+        SET @errores += 'El guia en el que se quiere registrar la actividad no existe.' + CHAR(10);
+    ELSE
+        IF NOT EXISTS(
+			SELECT g.id FROM gestion.Guia g
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND a.estado = 'vigente' AND a.fecha_vencimiento >= GETDATE()
+		)
+			SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
+
+    SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @tipo;
+    IF @id_tipo IS NULL
+		SET @errores += 'El tipo de actividad es invalido.' + CHAR(10);
+
+	IF @fecha <= GETDATE()
+		SET @errores += 'No se puede establecer una actividad para fechas pasadas.' + CHAR(10);
+
+    IF @nombre IS NULL
+        SET @errores += 'No se puede establecer una actividad sin nombre.' + CHAR(10);
+
+	IF @descripcion IS NULL
+        SET @errores += 'No se puede establecer una actividad sin descripcion.' + CHAR(10);
+
+    IF @costo IS NULL OR @costo <= 0
+        SET @errores += 'No se puede establecer una actividad sin costo positivo.' + CHAR(10);
+
+    IF @duracion IS NULL OR @duracion <= 0
+        SET @errores += 'No se puede establecer una actividad sin duracion positiva.' + CHAR(10);
+
+    IF @cupo IS NULL OR @cupo <= 0
+        SET @errores += 'No se puede establecer una actividad sin cupo positivo.' + CHAR(10);
+
+	IF @errores != ''
+		THROW 50000, @errores, 1;
+
+	INSERT INTO gestion.Actividad (id_parque, id_guia, id_tipo, nombre, descripcion, costo, fecha, duracion, cupo, estado)
+	VALUES (@id_parque, @id_guia, @id_tipo, @nombre, @descripcion, @costo, @fecha, @duracion, @cupo, 'Programado');
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.actividad_baja
+    @nombre CHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @errores VARCHAR(100);
+    DECLARE @id_actividad INT = NULL;
+    DECLARE @estado_actual CHAR(10);
+    SET @errores = '';
+
+    SELECT @id_actividad = id FROM gestion.Actividad WHERE nombre = @nombre;
+    IF @id_actividad IS NULL
+        SET @errores += 'La actividad que se desea cancelar no existe.' + CHAR(10);
+
+    SELECT @estado_actual = estado FROM gestion.Actividad WHERE id = @id_actividad;
+
+    IF @estado_actual IN ('Cancelado', 'Finalizado', 'En curso')
+        SET @errores += 'La actividad no puede ser cancelada. Estado actual: ' + RTRIM(@estado_actual) + CHAR(10);
+
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+
+    UPDATE gestion.Actividad SET estado = 'Cancelado' WHERE id = @id_actividad;
+
+    -- Tener en cuenta que hacer si hay entradas con actividades programadas
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.actividad_modificacion
+    @nombre CHAR(50),
+    @descripcion VARCHAR(100),
+    @tipo CHAR(25),
+    @costo DECIMAL(9,2),
+    @fecha DATE,
+    @duracion INT,
+    @cupo INT,
+	@estado CHAR(10),
+    @dni_guia CHAR(8)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	DECLARE @errores VARCHAR(400);
+    DECLARE @id_actividad INT = NULL;
+    DECLARE @id_guia INT = NULL;
+	DECLARE @id_tipo INT;
+	DECLARE @estado_actual CHAR(10);
+	
+    SET @errores = '';
+
+    SELECT @id_actividad = id FROM gestion.Actividad WHERE nombre = @nombre;
+	SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @tipo;
+ 
+    IF NOT EXISTS (SELECT id FROM gestion.Actividad WHERE id = @id_actividad)
+        SET @errores += 'La actividad que se desea modificar no existe.' + CHAR(10);
+	ELSE
+	BEGIN
+		SELECT @estado_actual = estado FROM gestion.Actividad WHERE id = @id_actividad;
+
+        IF @estado_actual IN ('Cancelado', 'Finalizado', 'En curso')
+            SET @errores += 'No se puede modificar una actividad que esta ' + RTRIM(@estado_actual) + '.' + CHAR(10);
+    END
+
+    SELECT @id_guia = id FROM gestion.Guia WHERE dni = @dni_guia;
+    IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE id = @id_guia)
+        SET @errores += 'El guia especificado no existe.' + CHAR(10);
+    ELSE
+    BEGIN
+        IF NOT EXISTS (SELECT g.id FROM gestion.Guia g
+            INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+            WHERE g.id = @id_guia
+              AND a.estado = 'Activo'
+              AND a.fecha_vencimiento >= GETDATE()
+        )
+            SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
+    END
+
+	IF @id_tipo IS NULL
+		SET @errores += 'El tipo de actividad no es valido.' + CHAR(10);
+
+    IF @descripcion IS NULL
+        SET @errores += 'La descripcion de actividad no es valida.' + CHAR(10);
+
+	IF @estado NOT IN ('Programado', 'Cancelado', 'Finalizado', 'En curso', 'Cupo lleno')
+        SET @errores += 'El estado ingresado no es valido.' + CHAR(10);
+
+    IF @fecha <= GETDATE()
+        SET @errores += 'No se puede establecer una actividad para fechas pasadas.' + CHAR(10);
+ 
+    IF @duracion IS NULL OR @duracion <= 0
+        SET @errores += 'La duracion debe ser un valor positivo.' + CHAR(10);
+ 
+    IF @cupo IS NULL OR @cupo <= 0
+        SET @errores += 'El cupo debe ser un valor positivo.' + CHAR(10);
+ 
+    IF @costo IS NULL OR @costo < 0
+        SET @errores += 'El costo debe ser un valor positivo o 0 si es gratuita.' + CHAR(10);
+ 
+    IF @errores != ''
+        THROW 50000, @errores, 1;
+ 
+    UPDATE gestion.Actividad SET id_guia = @id_guia, id_tipo = @id_tipo, descripcion = @descripcion, costo = @costo, fecha = @fecha, duracion = @duracion, cupo = @cupo, estado = @estado
+    WHERE id = @id_actividad;
+END
+GO
+
+/*
+====================================================
+		ABMS DE TABLA EMPRESA
+====================================================
+*/
+
 create or alter procedure concesiones.empresa_alta (@nombre varchar(25), @tipo varchar(100), @cuit varchar(15)) as begin
 	-- vale la pena una funcion para ver si el cuit es valido? -> si + raiserror con un solo mensaje
     declare @errores varchar(4000) = '';
 
-    if @cuit is not null and len(@cuit) <> 11 begin
+    if @cuit is not null and len(@cuit) <> 11
         set @errores = 'El cuit solo puede tener 11 caracteres.' + char(10)
-    end
 
-    if @cuit is not null and not (@cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or @cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') begin
+    if @cuit is not null and not (@cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or @cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
         set @errores += 'El cuit no tiene el formato de una empresa.' + char(10)
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
 	insert into concesiones.Empresa (nombre, tipo, cuit) values (@nombre, @tipo, @cuit);
 end;
 go
 
------------------------------------------------------------
--- Baja de una empresa
 create or alter procedure concesiones.empresa_baja (@nombre varchar(25)) as begin
     declare @id int;
     declare @errores varchar(4000) = '';
 
     select @id = id from concesiones.Empresa where nombre=@nombre;
 
-    if @id is null begin
+    if @id is null
         set @errores = 'No se encontro la empresa.' + char(10)
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
 	delete from concesiones.Empresa where id=@id
 end;
 go
 
------------------------------------------------------------
--- Modifica una empresa
 create or alter procedure concesiones.empresa_modificacion (
     @nombre varchar(25),
     @nuevo_nombre varchar(25) = null,
@@ -831,28 +847,30 @@ create or alter procedure concesiones.empresa_modificacion (
 
     select @id = id from concesiones.Empresa where nombre=@nombre;
 
-    if @id is null begin
+    if @id is null
         set @errores = 'No se encontro la empresa.' + char(10)
-    end
 
-    if @nuevo_nombre is not null and @nuevo_nombre <> @nombre and exists ( select 1 from concesiones.Empresa where nombre=@nuevo_nombre) begin
+    if @nuevo_nombre is not null and @nuevo_nombre <> @nombre and exists ( select 1 from concesiones.Empresa where nombre=@nuevo_nombre)
         set @errores += 'Ya existe una empresa con ese nombre.' + char(10)
-    end
 
-    if @cuit is not null and len(@cuit) <> 11 begin
+    if @cuit is not null and len(@cuit) <> 11
         set @errores += 'El cuit solo puede tener 11 caracteres.' + char(10)
-    end
 
-    if @cuit is not null and not (@cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or @cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') begin
+    if @cuit is not null and not (@cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or @cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
         set @errores += 'El cuit no tiene el formato de una empresa.' + char(10)
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
 	update concesiones.Empresa set nombre=isnull(@nuevo_nombre, nombre), tipo=isnull(@tipo, tipo), cuit=isnull(@cuit, cuit) where id = @id
 end;
 go
+
+/*
+====================================================
+		ABMS DE TABLA CONCESION
+====================================================
+*/
 
 -----------------------------------------------------------
 -- Valida la existencia de una concesion para una empresa 
@@ -867,13 +885,11 @@ create or alter procedure concesiones.concesion_validacion(
     declare @id_empresa int = (select top 1 id from concesiones.Empresa where nombre = @empresa);
     declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
 
-    if @id_empresa is null begin
+    if @id_empresa is null
         set @errores += 'No se encontro la empresa.' + char(10);
-    end
 
-    if @id_parque is null begin
+    if @id_parque is null
         set @errores += 'No se encontro el parque.' + char(10);
-    end
 
     set @id_concesion = (
         select top 1 id
@@ -883,14 +899,11 @@ create or alter procedure concesiones.concesion_validacion(
           and fecha_inicio = @fecha_inicio
     );
 
-    if @id_concesion is null begin
+    if @id_concesion is null
         set @errores += 'No se encontro la concesion.' + char(10);
-    end
 end;
 go
 
------------------------------------------------------------
--- Crea una concesion
 create or alter procedure concesiones.concesion_alta(
     @empresa varchar(25),
     @parque varchar(100),
@@ -903,31 +916,25 @@ create or alter procedure concesiones.concesion_alta(
     declare @id_parque int = (select top 1 id from gestion.Parque where nombre = @parque);
     declare @errores varchar(4000) = '';
 
-	if @fecha_inicio is null begin
+	if @fecha_inicio is null
 		set @fecha_inicio = CURRENT_TIMESTAMP;
-	end;
 
-    if @id_empresa is null begin
+    if @id_empresa is null
         set @errores = 'No se encontro la empresa.' + CHAR(10)
-    end
 
-    if @id_parque is null begin
+    if @id_parque is null
         set @errores += 'No se encontro el parque.' + CHAR(10)
-    end
 
-	if @canon_mensual < 0 begin
+	if @canon_mensual < 0
         set @errores += 'El canon mensual no puede ser negativo.' + CHAR(10)
-	end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
 	insert into concesiones.Concesion (fecha_inicio, canon_mensual, estado, id_empresa, id_parque, id_actividad) values (@fecha_inicio, @canon_mensual, 'ACTIVO', @id_empresa, @id_parque, @actividad)
 end;
 go
 
------------------------------------------------------------
--- Invalida una concesion
 create or alter procedure concesiones.concesion_baja (
     @empresa varchar(100),
     @parque varchar(100),
@@ -940,7 +947,7 @@ create or alter procedure concesiones.concesion_baja (
     execute concesiones.concesion_validacion @empresa, @parque, @fecha_inicio, @errores output, @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
 	update concesiones.Concesion set estado='INACTIVO' where id = @id_concesion
 end;
@@ -973,34 +980,30 @@ create or alter procedure concesiones.concesion_modificacion(
     if @empresa_nueva is not null begin
         select @id_empresa = id from concesiones.Empresa where nombre = @empresa_nueva;
    
-        if @id_empresa is null begin
+        if @id_empresa is null
             set @errores += 'No se encontro la empresa nueva.' + char(10)
-        end
     end
 
     if @parque_nuevo is not null begin
         select @id_parque = id from gestion.Parque where nombre = @parque_nuevo;
-        if @id_parque is null begin
+        if @id_parque is null
             set @errores += 'No se encontro el parque nuevo.' + char(10)
-        end
     end
-    else begin
+    else
         select @id_parque = id from gestion.Parque where nombre = @parque;
-    end
 
 
     if @actividad_nueva is not null begin
 
         select @id_actividad = id from gestion.Actividad where id_parque = @id_parque and nombre=@actividad_nueva;
    
-        if @id_actividad is null begin
+        if @id_actividad is null
             set @errores += 'No se encontro la actividad nueva.' + char(10)
-        end
     end
 
     
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
     update concesiones.Concesion
 	set
@@ -1017,8 +1020,12 @@ create or alter procedure concesiones.concesion_modificacion(
 end;
 go
 
------------------------------------------------------------
--- Crea un canon a pagar
+/*
+====================================================
+		ABMS DE TABLA CANON_PAGAR
+====================================================
+*/
+
 create or alter procedure concesiones.canon_pagar_alta (
     @fecha_generacion date,
     @empresa varchar(25),
@@ -1037,7 +1044,7 @@ create or alter procedure concesiones.canon_pagar_alta (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
     declare @monto numeric(10, 2) = (
         select top 1 canon_mensual
@@ -1049,8 +1056,40 @@ create or alter procedure concesiones.canon_pagar_alta (
 end
 go
 
------------------------------------------------------------
--- Modifica un canon a pagar
+create or alter procedure concesiones.canon_pagar_baja (
+    @fecha_generacion date,
+    @empresa varchar(100),
+    @parque varchar(100),
+    @fecha_inicio date
+) as begin
+    declare @id int;
+    declare @errores varchar(4000) = '';
+    declare @id_concesion int = null;
+
+    execute concesiones.concesion_validacion
+        @empresa,
+        @parque,
+        @fecha_inicio,
+        @errores output,
+        @id_concesion output;
+
+    select top 1 @id = id
+    from concesiones.Canon_pagar
+    where id_concesion = @id_concesion
+      and fecha_generacion = @fecha_generacion;
+
+    if @id is null
+        set @errores += 'No en encontro el canon a pagar.' + char(10);
+
+    if @errores <> ''
+        THROW 50000, @errores, 1;
+
+    update concesiones.Canon_pagar
+    set estado = 'INVALIDO'
+    where id = @id;
+end
+go
+
 create or alter procedure concesiones.canon_pagar_modificacion (
     @fecha_generacion date,
     @periodo varchar(50),
@@ -1074,16 +1113,14 @@ create or alter procedure concesiones.canon_pagar_modificacion (
         from concesiones.Canon_pagar
         where id_concesion = @id_concesion
           and fecha_generacion = @fecha_generacion
-    ) begin
+    )
         set @errores += 'No en encontro el canon a pagar.' + char(10);
-    end
 
-    if @monto < 0 begin
+    if @monto < 0
         set @errores += 'El monto no puede ser negativo.' + char(10);
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
     update concesiones.Canon_pagar
     set monto = @monto,
@@ -1093,49 +1130,12 @@ create or alter procedure concesiones.canon_pagar_modificacion (
 end
 go
 
------------------------------------------------------------
--- Baja de un canon a pagar
-create or alter procedure concesiones.canon_pagar_baja (
-    @fecha_generacion date,
-    @empresa varchar(100),
-    @parque varchar(100),
-    @fecha_inicio date
-) as begin
-    declare @id int;
-    declare @errores varchar(4000) = '';
-    declare @id_concesion int = null;
-
-    execute concesiones.concesion_validacion
-        @empresa,
-        @parque,
-        @fecha_inicio,
-        @errores output,
-        @id_concesion output;
-
-    select top 1 @id = id
-    from concesiones.Canon_pagar
-    where id_concesion = @id_concesion
-      and fecha_generacion = @fecha_generacion;
-
-    if @id is null begin
-        set @errores += 'No en encontro el canon a pagar.' + char(10);
-    end
-
-    if @errores <> ''
-        throw 16, @errores, 1;
-
-    update concesiones.Canon_pagar
-    set estado = 'INVALIDO'
-    where id = @id;
-end
-go
-
 /*
 ====================================================
 		ABMS DE TABLA TIPO_VISITANTE
 ====================================================
 */
---ALTA VISITANTE--
+
 CREATE OR ALTER PROCEDURE ventas.tipo_visitante_alta (@descripcion VARCHAR(20))
 AS
 BEGIN
@@ -1156,9 +1156,6 @@ BEGIN
 END
 GO
 
---BAJA VISITANTE--
-
-
 CREATE OR ALTER PROCEDURE ventas.tipo_visitante_baja (@descripcion VARCHAR(20))
 AS
 BEGIN
@@ -1177,11 +1174,7 @@ BEGIN
 END
 GO
 
---MODIFICACIÓN VISITANTE--
-
-
-CREATE OR ALTER PROCEDURE
-ventas.tipo_visitante_modificacion (@descripcion VARCHAR(20), @nueva_descripcion VARCHAR(20))
+CREATE OR ALTER PROCEDURE ventas.tipo_visitante_modificacion (@descripcion VARCHAR(20), @nueva_descripcion VARCHAR(20))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
@@ -1203,7 +1196,7 @@ GO
 		ABMS DE TABLA PUNTO_DE_VENTA
 ====================================================
 */
---ALTA--
+
 CREATE OR ALTER PROCEDURE ventas.punto_de_venta_alta (@parque VARCHAR(50), @pov VARCHAR(30))
 AS
 BEGIN
@@ -1224,7 +1217,6 @@ BEGIN
 
 END
 GO
---BAJA--
 
 CREATE OR ALTER PROCEDURE ventas.punto_de_venta_baja (@parque VARCHAR(50), @pov VARCHAR(30))
 AS
@@ -1240,7 +1232,6 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @parque_id AND estado = 'Activo')
 		SET @errores += 'El puesto ya está dado de baja. '
 
-
 	IF @errores <> ''
 		THROW 50000, @errores, 1
 	UPDATE ventas.punto_de_venta SET estado = 'Inactivo'
@@ -1248,21 +1239,17 @@ BEGIN
 END
 GO
 
---MODIFICACION--
-
 CREATE OR ALTER PROCEDURE ventas.punto_de_venta_modificacion (@parque VARCHAR(50), @pov VARCHAR(30), @nueva_descripcion VARCHAR(30))
 AS
 BEGIN
 	DECLARE @parque_id VARCHAR(50)
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque)
-
 	
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
 	IF EXISTS (SELECT 1 FROM punto_de_venta WHERE descripcion = @nueva_descripcion AND parque = @parque_id)
 		SET @errores = @errores + 'El cambio de nombre no se puede realizar ya que ya existe un punto de venta con ese nombre. '
-	
-	
+
 	IF @errores <> ''
 		THROW 50000, @errores, 1
 	UPDATE ventas.punto_de_venta
@@ -1276,13 +1263,12 @@ GO
 		ABMS DE TABLA METODO DE PAGO
 ====================================================
 */
---ALTA--
-CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_alta(@descripcion VARCHAR(25))
+
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_alta (@descripcion VARCHAR(25))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
 	SET @errores = ''
-
 
 	IF EXISTS (SELECT 1 FROM metodo_de_pago WHERE descripcion = @descripcion AND estado = 'Activo')
 		SET @errores = @errores + 'El metodo de pago ya existe. '
@@ -1296,8 +1282,7 @@ BEGIN
 END
 GO
 
---BAJA--
-CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_baja(@descripcion VARCHAR(25))
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_baja (@descripcion VARCHAR(25))
 AS
 BEGIN
 	DECLARE @errores VARCHAR(200)
@@ -1314,21 +1299,19 @@ BEGIN
 END
 GO
 
---MODIFICACION--
-CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_modificacion(@descripcion VARCHAR(25), @nueva_descripcion VARCHAR(25))
+CREATE OR ALTER PROCEDURE ventas.metodo_de_pago_modificacion (@descripcion VARCHAR(25), @nueva_descripcion VARCHAR(25))
 AS
 BEGIN
     DECLARE @errores VARCHAR(200);
-    SET @errores = ''
-	
+    SET @errores = '';
 
 	IF NOT EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @descripcion)
-        SET @errores += 'No existe el método de pago'
+        SET @errores += 'No existe el método de pago';
     IF EXISTS (SELECT 1 FROM ventas.venta WHERE metodo_de_pago = @nueva_descripcion)
-        SET @errores += 'El nuevo método de pago ya existe'
+        SET @errores += 'El nuevo método de pago ya existe';
 
     IF @errores <> ''
-		THROW 50000, @errores, 1
+		THROW 50000, @errores, 1;
 
 	UPDATE ventas.metodo_de_pago
 	SET descripcion = @nueva_descripcion
@@ -1341,7 +1324,6 @@ GO
 		ABMS DE TABLA TIPOS DE ENTRADA
 ====================================================
 */
-
 
 CREATE OR ALTER PROCEDURE ventas.tipo_entrada_alta (@parque varchar(50), @tipo varchar(20), @precio DECIMAL(10,2), @vigencia DATE = NULL)
 AS
@@ -1374,7 +1356,6 @@ BEGIN
 END
 GO
 
---BAJA--
 CREATE OR ALTER PROCEDURE ventas.tipo_entrada_baja (@parque varchar(50), @tipo varchar(20))
 AS
 BEGIN
@@ -1429,14 +1410,14 @@ BEGIN
 	END CATCH
 END
 GO
+
 /*
 ====================================================
 		ABMS DE TABLA VENTAS
 ====================================================
 */
--- Alta de ventas --
 
-CREATE OR ALTER PROCEDURE ventas.venta_alta(@parque VARCHAR(50), @fecha DATE = NULL, @pov VARCHAR(25), @metodo VARCHAR(30), @id_creado INT OUTPUT)
+CREATE OR ALTER PROCEDURE ventas.venta_alta (@parque VARCHAR(50), @fecha DATE = NULL, @pov VARCHAR(25), @metodo VARCHAR(30), @id_creado INT OUTPUT)
 AS
 BEGIN
 	IF @fecha IS NULL SET @fecha = GETDATE() --Si no se especifica fecha, asumimos que es del día
@@ -1470,9 +1451,8 @@ BEGIN
 
 END
 GO
---BAJA--
 
-CREATE OR ALTER PROCEDURE ventas.venta_baja(@venta INT)
+CREATE OR ALTER PROCEDURE ventas.venta_baja (@venta INT)
 AS
 BEGIN
 	--Primero tengo que eliminar los items asociados a esa venta
@@ -1500,9 +1480,7 @@ BEGIN
 END
 GO
 
-
---MODIFICACION--
-CREATE OR ALTER PROCEDURE ventas.venta_modificacion(@id_venta INT, @metodo VARCHAR(30))
+CREATE OR ALTER PROCEDURE ventas.venta_modificacion (@id_venta INT, @metodo VARCHAR(30))
 AS
 BEGIN
     DECLARE @errores VARCHAR(200)
@@ -1518,14 +1496,14 @@ BEGIN
 	WHERE id = @id_venta
 END
 GO
+
 /*
 ====================================================
 		ABMS DE TABLA ITEMS DE VENTA
 ====================================================
 */
 
---ALTA--
-CREATE OR ALTER PROCEDURE ventas.item_venta_alta(@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
+CREATE OR ALTER PROCEDURE ventas.item_venta_alta (@venta INT, @concepto VARCHAR(50), @cantidad INT, @fecha_acceso DATE)
 AS
 BEGIN
 	DECLARE @id_concepto INT, @precio DECIMAL(10, 2), @errores VARCHAR(200), @parque VARCHAR(50), @id_parque INT
@@ -1534,13 +1512,13 @@ BEGIN
     SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
 	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
         BEGIN
-        SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
-        SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+            SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+            SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
         END
     ELSE
         BEGIN
-        SET @id_concepto = (SELECT id FROM gestion.Actividad WHERE nombre = @concepto)
-        SET @precio = (SELECT costo FROM gestion.Actividad WHERE descripcion = @concepto)
+            SET @id_concepto = (SELECT id FROM gestion.Actividad WHERE nombre = @concepto)
+            SET @precio = (SELECT costo FROM gestion.Actividad WHERE descripcion = @concepto)
         END
 	
     IF (SELECT 1 FROM ventas.venta WHERE id = @venta) IS NULL
@@ -1568,8 +1546,7 @@ BEGIN
 END
 GO
 
---BAJA--
-CREATE OR ALTER PROCEDURE ventas.item_venta_baja(@venta INT, @item INT)
+CREATE OR ALTER PROCEDURE ventas.item_venta_baja (@venta INT, @item INT)
 AS
 BEGIN
     DECLARE @errores VARCHAR(200);
@@ -1585,9 +1562,7 @@ BEGIN
 END
 GO
 
---Modificacion--
-
-CREATE OR ALTER PROCEDURE ventas.item_venta_modificacion(@venta INT, @item INT, @concepto INT, @nueva_cantidad INT)
+CREATE OR ALTER PROCEDURE ventas.item_venta_modificacion (@venta INT, @item INT, @concepto INT, @nueva_cantidad INT)
 AS
 BEGIN
 	DECLARE @subtotal_actualizado DECIMAL(10,2), @subtotal DECIMAL (10,2), @errores VARCHAR(200);;
