@@ -552,41 +552,89 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Tour Cupo Complet
 UPDATE gestion.Actividad SET estado = 'Cupo lleno' WHERE nombre = 'Tour Cupo Completo' AND id_parque = @id_parque_cupo;
 GO
 
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 01')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 01', @tipo = 'Gastronomia', @cuit = '30780000001';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 02')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 02', @tipo = 'Tienda', @cuit = '30780000002';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 03')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 03', @tipo = 'Transporte', @cuit = '30780000003';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 04')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 04', @tipo = 'Excursiones', @cuit = '30780000004';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 05')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 05', @tipo = 'Gastronomia', @cuit = '30780000005';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 06')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 06', @tipo = 'Tienda', @cuit = '30780000006';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 07')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 07', @tipo = 'Excursiones', @cuit = '30780000007';
-IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Concesionaria 08')
-    EXEC concesiones.empresa_alta @nombre = 'Concesionaria 08', @tipo = 'Gastronomia', @cuit = '30780000008';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Resto Iguazu Norte')
+    EXEC concesiones.empresa_alta @nombre = 'Resto Iguazu Norte', @tipo = 'Gastronomia', @cuit = '30780000001';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Tienda Iguazu Sur')
+    EXEC concesiones.empresa_alta @nombre = 'Tienda Iguazu Sur', @tipo = 'Tienda', @cuit = '30780000002';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Nautica Glaciares')
+    EXEC concesiones.empresa_alta @nombre = 'Nautica Glaciares', @tipo = 'Transporte turistico', @cuit = '30780000003';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Cafe Glaciares')
+    EXEC concesiones.empresa_alta @nombre = 'Cafe Glaciares', @tipo = 'Gastronomia', @cuit = '30780000004';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Camping Nahuel')
+    EXEC concesiones.empresa_alta @nombre = 'Camping Nahuel', @tipo = 'Alojamiento', @cuit = '30780000005';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Kayak Nahuel')
+    EXEC concesiones.empresa_alta @nombre = 'Kayak Nahuel', @tipo = 'Excursiones nauticas', @cuit = '30780000006';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Bicis Lago Puelo')
+    EXEC concesiones.empresa_alta @nombre = 'Bicis Lago Puelo', @tipo = 'Alquiler bicicletas', @cuit = '30780000007';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Cafe Lago Puelo')
+    EXEC concesiones.empresa_alta @nombre = 'Cafe Lago Puelo', @tipo = 'Gastronomia', @cuit = '30780000008';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Traslado TDF')
+    EXEC concesiones.empresa_alta @nombre = 'Traslado TDF', @tipo = 'Transporte turistico', @cuit = '30780000009';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Tienda TDF')
+    EXEC concesiones.empresa_alta @nombre = 'Tienda TDF', @tipo = 'Tienda', @cuit = '30780000010';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Resto Palmar')
+    EXEC concesiones.empresa_alta @nombre = 'Resto Palmar', @tipo = 'Gastronomia', @cuit = '30780000011';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Cabalgata Palmar')
+    EXEC concesiones.empresa_alta @nombre = 'Cabalgata Palmar', @tipo = 'Excursiones', @cuit = '30780000012';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Safaris Ibera')
+    EXEC concesiones.empresa_alta @nombre = 'Safaris Ibera', @tipo = 'Excursiones', @cuit = '30780000013';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Resto Ibera')
+    EXEC concesiones.empresa_alta @nombre = 'Resto Ibera', @tipo = 'Gastronomia', @cuit = '30780000014';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Senderos Calilegua')
+    EXEC concesiones.empresa_alta @nombre = 'Senderos Calilegua', @tipo = 'Servicios turisticos', @cuit = '30780000015';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Tienda Calilegua')
+    EXEC concesiones.empresa_alta @nombre = 'Tienda Calilegua', @tipo = 'Tienda', @cuit = '30780000016';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Guias Cardones')
+    EXEC concesiones.empresa_alta @nombre = 'Guias Cardones', @tipo = 'Servicios turisticos', @cuit = '30780000017';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Cafe Cardones')
+    EXEC concesiones.empresa_alta @nombre = 'Cafe Cardones', @tipo = 'Gastronomia', @cuit = '30780000018';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Vivero Ciervo')
+    EXEC concesiones.empresa_alta @nombre = 'Vivero Ciervo', @tipo = 'Tienda regional', @cuit = '30780000019';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Tienda Ciervo')
+    EXEC concesiones.empresa_alta @nombre = 'Tienda Ciervo', @tipo = 'Tienda', @cuit = '30780000020';
 GO
 
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 01' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 01', @parque = 'Parque Nacional Nahuel Huapi', @canon_mensual = 180000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 02' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 02', @parque = 'Parque Nacional Lago Puelo', @canon_mensual = 160000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 03' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 03', @parque = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', @canon_mensual = 220000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 04' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 04', @parque = 'Parque Nacional El Palmar', @canon_mensual = 140000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 05' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 05', @parque = 'Parque Nacional Ibera', @canon_mensual = 190000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 06' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 06', @parque = 'Parque Nacional Calilegua', @canon_mensual = 135000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 07' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 07', @parque = 'Parque Nacional Los Cardones', @canon_mensual = 155000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
-IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Concesionaria 08' AND c.fecha_inicio = '2025-01-01')
-    EXEC concesiones.concesion_alta @empresa = 'Concesionaria 08', @parque = 'Parque Nacional Ciervo de los Pantanos', @canon_mensual = 120000.00, @fecha_inicio = '2025-01-01', @actividad = NULL;
-EXEC concesiones.concesion_modificacion @empresa = 'Concesionaria 08', @parque = 'Parque Nacional Ciervo de los Pantanos', @fecha_inicio = '2025-01-01', @fecha_fin = '2025-12-31', @estado = 'INACTIVO';
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Resto Iguazu Norte' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Resto Iguazu Norte', @parque = 'Parque Nacional Iguazu', @canon_mensual = 250000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Tienda Iguazu Sur' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Tienda Iguazu Sur', @parque = 'Parque Nacional Iguazu', @canon_mensual = 115000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Nautica Glaciares' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Nautica Glaciares', @parque = 'Parque Nacional Los Glaciares', @canon_mensual = 420000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Cafe Glaciares' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Cafe Glaciares', @parque = 'Parque Nacional Los Glaciares', @canon_mensual = 150000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Camping Nahuel' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Camping Nahuel', @parque = 'Parque Nacional Nahuel Huapi', @canon_mensual = 180000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Kayak Nahuel' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Kayak Nahuel', @parque = 'Parque Nacional Nahuel Huapi', @canon_mensual = 210000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Bicis Lago Puelo' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Bicis Lago Puelo', @parque = 'Parque Nacional Lago Puelo', @canon_mensual = 120000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Cafe Lago Puelo' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Cafe Lago Puelo', @parque = 'Parque Nacional Lago Puelo', @canon_mensual = 105000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Traslado TDF' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Traslado TDF', @parque = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', @canon_mensual = 220000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Tienda TDF' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Tienda TDF', @parque = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', @canon_mensual = 95000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Resto Palmar' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Resto Palmar', @parque = 'Parque Nacional El Palmar', @canon_mensual = 140000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Cabalgata Palmar' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Cabalgata Palmar', @parque = 'Parque Nacional El Palmar', @canon_mensual = 165000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Safaris Ibera' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Safaris Ibera', @parque = 'Parque Nacional Ibera', @canon_mensual = 190000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Resto Ibera' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Resto Ibera', @parque = 'Parque Nacional Ibera', @canon_mensual = 130000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Senderos Calilegua' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Senderos Calilegua', @parque = 'Parque Nacional Calilegua', @canon_mensual = 135000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Tienda Calilegua' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Tienda Calilegua', @parque = 'Parque Nacional Calilegua', @canon_mensual = 85000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Guias Cardones' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Guias Cardones', @parque = 'Parque Nacional Los Cardones', @canon_mensual = 155000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Cafe Cardones' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Cafe Cardones', @parque = 'Parque Nacional Los Cardones', @canon_mensual = 90000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Vivero Ciervo' AND c.fecha_inicio = '2025-01-01')
+    EXEC concesiones.concesion_alta @empresa = 'Vivero Ciervo', @parque = 'Parque Nacional Ciervo de los Pantanos', @canon_mensual = 120000.00, @fecha_inicio = '2025-01-01', @actividad = NULL;
+IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Tienda Ciervo' AND c.fecha_inicio = '2026-07-01')
+    EXEC concesiones.concesion_alta @empresa = 'Tienda Ciervo', @parque = 'Parque Nacional Ciervo de los Pantanos', @canon_mensual = 80000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+EXEC concesiones.concesion_modificacion @empresa = 'Vivero Ciervo', @parque = 'Parque Nacional Ciervo de los Pantanos', @fecha_inicio = '2025-01-01', @fecha_fin = '2025-12-31', @estado = 'INACTIVO';
 GO
 
 DECLARE @venta_id INT;
@@ -612,12 +660,231 @@ BEGIN
 END
 GO
 
+
+-----------------------------------------------------------
+-- 8. Ampliacion de datos para informes
+-----------------------------------------------------------
+
+IF NOT EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = 'Fotografia')
+    EXEC gestion.tipo_actividad_alta @descripcion = 'Fotografia';
+IF NOT EXISTS (SELECT 1 FROM gestion.Tipo_actividad WHERE descripcion = 'Cabalgata')
+    EXEC gestion.tipo_actividad_alta @descripcion = 'Cabalgata';
+GO
+
+DECLARE @id_parque_extra INT;
+DECLARE @id_guia_extra INT;
+DECLARE @m INT = 28;
+DECLARE @nombre_extra VARCHAR(50);
+DECLARE @tipo_extra CHAR(25);
+DECLARE @fecha_extra DATE;
+
+WHILE @m <= 45
+BEGIN
+    SET @nombre_extra = CONCAT('Tour Informe ', RIGHT('00' + CAST(@m AS VARCHAR(2)), 2));
+    SET @tipo_extra = CASE (@m % 5)
+        WHEN 0 THEN 'Senderismo'
+        WHEN 1 THEN 'Navegacion'
+        WHEN 2 THEN 'Avistaje'
+        WHEN 3 THEN 'Fotografia'
+        ELSE 'Cabalgata'
+    END;
+    SET @fecha_extra = DATEADD(DAY, (@m % 14), '2026-09-22');
+    SET @id_parque_extra = CASE (@m % 10)
+        WHEN 0 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu')
+        WHEN 1 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares')
+        WHEN 2 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi')
+        WHEN 3 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Lago Puelo')
+        WHEN 4 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico')
+        WHEN 5 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional El Palmar')
+        WHEN 6 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Ibera')
+        WHEN 7 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Calilegua')
+        WHEN 8 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Cardones')
+        ELSE (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Ciervo de los Pantanos')
+    END;
+    SET @id_guia_extra = (SELECT id FROM gestion.Guia WHERE dni = RIGHT('00000000' + CAST(41000000 + (((@m - 1) % 17) + 1) AS VARCHAR(8)), 8));
+
+    IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = @nombre_extra)
+        EXEC gestion.actividad_alta
+            @id_parque = @id_parque_extra,
+            @id_guia = @id_guia_extra,
+            @nombre = @nombre_extra,
+            @descripcion = 'Actividad ampliada para reportes',
+            @tipo = @tipo_extra,
+            @costo = 9000.00,
+            @fecha = @fecha_extra,
+            @duracion = 90,
+            @cupo = 18;
+
+    SET @m += 1;
+END
+GO
+
+DECLARE @id_actividad_coordina INT;
+DECLARE @id_guia_coordina INT;
+DECLARE @c INT = 28;
+WHILE @c <= 45
+BEGIN
+    SET @id_actividad_coordina = (SELECT id FROM gestion.Actividad WHERE nombre = CONCAT('Tour Informe ', RIGHT('00' + CAST(@c AS VARCHAR(2)), 2)));
+    SET @id_guia_coordina = (SELECT id FROM gestion.Guia WHERE dni = RIGHT('00000000' + CAST(41000000 + (((@c - 1) % 17) + 1) AS VARCHAR(8)), 8));
+
+    IF @id_actividad_coordina IS NOT NULL
+       AND @id_guia_coordina IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM gestion.Coordina WHERE id_actividad = @id_actividad_coordina AND id_guia = @id_guia_coordina)
+        INSERT INTO gestion.Coordina (id_actividad, id_guia, fecha_desde, fecha_hasta)
+        VALUES (@id_actividad_coordina, @id_guia_coordina, '2026-09-20', '2026-10-10');
+
+    SET @c += 1;
+END
+GO
+
+DECLARE @canon_fecha DATE = '2026-08-01';
+DECLARE @canon_empresa VARCHAR(25);
+DECLARE @canon_parque VARCHAR(100);
+DECLARE @canon_inicio DATE;
+
+DECLARE canon_cursor CURSOR LOCAL FAST_FORWARD FOR
+SELECT empresa, parque, fecha_inicio
+FROM (VALUES
+    ('Resto Iguazu Norte', 'Parque Nacional Iguazu', CAST('2026-07-01' AS DATE)),
+    ('Tienda Iguazu Sur', 'Parque Nacional Iguazu', CAST('2026-07-01' AS DATE)),
+    ('Nautica Glaciares', 'Parque Nacional Los Glaciares', CAST('2026-07-01' AS DATE)),
+    ('Cafe Glaciares', 'Parque Nacional Los Glaciares', CAST('2026-07-01' AS DATE)),
+    ('Camping Nahuel', 'Parque Nacional Nahuel Huapi', CAST('2026-07-01' AS DATE)),
+    ('Kayak Nahuel', 'Parque Nacional Nahuel Huapi', CAST('2026-07-01' AS DATE)),
+    ('Bicis Lago Puelo', 'Parque Nacional Lago Puelo', CAST('2026-07-01' AS DATE)),
+    ('Cafe Lago Puelo', 'Parque Nacional Lago Puelo', CAST('2026-07-01' AS DATE)),
+    ('Traslado TDF', 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', CAST('2026-07-01' AS DATE)),
+    ('Tienda TDF', 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico', CAST('2026-07-01' AS DATE)),
+    ('Resto Palmar', 'Parque Nacional El Palmar', CAST('2026-07-01' AS DATE)),
+    ('Cabalgata Palmar', 'Parque Nacional El Palmar', CAST('2026-07-01' AS DATE)),
+    ('Safaris Ibera', 'Parque Nacional Ibera', CAST('2026-07-01' AS DATE)),
+    ('Resto Ibera', 'Parque Nacional Ibera', CAST('2026-07-01' AS DATE)),
+    ('Senderos Calilegua', 'Parque Nacional Calilegua', CAST('2026-07-01' AS DATE)),
+    ('Tienda Calilegua', 'Parque Nacional Calilegua', CAST('2026-07-01' AS DATE)),
+    ('Guias Cardones', 'Parque Nacional Los Cardones', CAST('2026-07-01' AS DATE)),
+    ('Cafe Cardones', 'Parque Nacional Los Cardones', CAST('2026-07-01' AS DATE)),
+    ('Tienda Ciervo', 'Parque Nacional Ciervo de los Pantanos', CAST('2026-07-01' AS DATE))
+) AS concesiones_activas(empresa, parque, fecha_inicio);
+
+OPEN canon_cursor;
+FETCH NEXT FROM canon_cursor INTO @canon_empresa, @canon_parque, @canon_inicio;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @canon_fecha = '2026-08-01';
+    WHILE @canon_fecha <= '2026-09-01'
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM concesiones.Canon_pagar cp
+            INNER JOIN concesiones.Concesion c ON c.id = cp.id_concesion
+            INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa
+            WHERE e.nombre = @canon_empresa AND cp.fecha_generacion = @canon_fecha
+        )
+            EXEC concesiones.canon_pagar_alta @fecha_generacion = @canon_fecha, @empresa = @canon_empresa, @parque = @canon_parque, @fecha_inicio = @canon_inicio;
+
+        SET @canon_fecha = DATEADD(MONTH, 1, @canon_fecha);
+    END
+
+    FETCH NEXT FROM canon_cursor INTO @canon_empresa, @canon_parque, @canon_inicio;
+END
+CLOSE canon_cursor;
+DEALLOCATE canon_cursor;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND pv.descripcion = 'Porteria sur')
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional Nahuel Huapi', @pov = 'Porteria sur';
+IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque p ON p.id = pv.parque WHERE p.nombre = 'Parque Nacional El Palmar' AND pv.descripcion = 'Acceso principal')
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque Nacional El Palmar', @pov = 'Acceso principal';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Adulto', @precio = 16000.00, @vigencia = '2026-07-01';
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Menor', @precio = 8000.00, @vigencia = '2026-07-01';
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional El Palmar' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Adulto', @precio = 9000.00, @vigencia = '2026-07-01';
+IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional El Palmar' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Menor', @precio = 4500.00, @vigencia = '2026-07-01';
+GO
+
+DECLARE @fecha_venta DATE = '2026-08-24';
+DECLARE @venta_reporte INT;
+DECLARE @dia INT = 0;
+WHILE @dia < 90
+BEGIN
+    declare @calculate_date DATE = DATEADD(DAY, @dia, @fecha_venta)
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM ventas.venta v
+        INNER JOIN gestion.Parque p ON p.id = v.parque
+        WHERE p.nombre = 'Parque Nacional Iguazu'
+          AND v.fecha = @calculate_date
+    )
+    BEGIN  
+        declare @cantidad_random int = cast(rand()*11 as int);
+        declare @cantidad_random_1 int = cast(rand()*11 as int);
+
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = @calculate_date, @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
+    END
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM ventas.venta v
+        INNER JOIN gestion.Parque p ON p.id = v.parque
+        WHERE p.nombre = 'Parque Nacional Los Glaciares'
+          AND v.fecha = @calculate_date
+    )
+    BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = @calculate_date, @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+    END
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM ventas.venta v
+        INNER JOIN gestion.Parque p ON p.id = v.parque
+        WHERE p.nombre = 'Parque Nacional Nahuel Huapi'
+          AND v.fecha =@calculate_date
+    )
+    BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
+        set @cantidad_random_1 = cast(rand()*11 as int);
+
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Nahuel Huapi', @fecha = @calculate_date, @pov = 'Porteria sur', @metodo = 'Debito', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
+    END
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM ventas.venta v
+        INNER JOIN gestion.Parque p ON p.id = v.parque
+        WHERE p.nombre = 'Parque Nacional El Palmar'
+          AND v.fecha = @calculate_date
+    )
+    BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
+        set @cantidad_random_1 = cast(rand()*11 as int);
+
+        EXEC ventas.venta_alta @parque = 'Parque Nacional El Palmar', @fecha = @calculate_date, @pov = 'Acceso principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
+    END
+
+    SET @dia += 1;
+END
+GO
+
 -- Para demostrar importacion con errores parciales, ajustar esta ruta al archivo
 -- incluido en el repo y ejecutar. El SP inserta filas validas y reporta invalidas.
 -- EXEC gestion.sp_importar_parques @archivo_dir = 'data/parques_importacion_parcial.csv';
 
 -----------------------------------------------------------
--- 8. Resumen de carga
+-- 9. Resumen de carga
 -----------------------------------------------------------
 
 SELECT 'gestion.Ubicacion' AS tabla, COUNT(*) AS cantidad FROM gestion.Ubicacion
@@ -643,3 +910,7 @@ UNION ALL SELECT 'ventas.entrada', COUNT(*) FROM ventas.entrada
 UNION ALL SELECT 'ventas.venta', COUNT(*) FROM ventas.venta
 UNION ALL SELECT 'ventas.item_venta', COUNT(*) FROM ventas.item_venta;
 GO
+
+select * from concesiones.Empresa
+select * from concesiones.Concesion
+select * from concesiones.Canon_pagar order by id_concesion --son todos pendientes
