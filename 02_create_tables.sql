@@ -125,7 +125,7 @@ BEGIN
         id INT IDENTITY(1,1) PRIMARY KEY,
         descripcion VARCHAR(80) NOT NULL,
         institucion VARCHAR(30),
-        fecha_emision DATE NOT NULL
+        fecha_emision DATE
     )
 END
 GO
@@ -294,4 +294,18 @@ CREATE TABLE ventas.item_venta
 	fecha_acceso DATE NOT NULL,
 	CONSTRAINT fk_item_a_venta FOREIGN KEY (venta) REFERENCES ventas.venta(id)
 )
+GO
+
+IF OBJECT_ID(N'[importacion].[Log]', N'U') IS NULL 
+BEGIN
+    CREATE TABLE importacion.Log (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+		fecha DATETIME NOT NULL,
+		archivo VARCHAR(260) NOT NULL,
+		leidos INT NOT NULL,
+		insertados INT NOT NULL,
+		eliminados INT NOT NULL,
+		actualizados INT NOT NULL
+    )
+END
 GO

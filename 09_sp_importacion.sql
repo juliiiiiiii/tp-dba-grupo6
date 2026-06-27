@@ -21,8 +21,8 @@ GO
 
 -- Descargar archivo desde "https://datosabiertos.mendoza.gov.ar/dataset/profesionales-de-turismo/archivo/dc306ca1-f657-4f97-8b55-bfb9978366c1"
 
-CREATE OR ALTER PROCEDURE gestion.importar_guias
-@archivo_dir VARCHAR(70)
+CREATE OR ALTER PROCEDURE importacion.guias
+@archivo_dir VARCHAR(260)
 AS
 BEGIN
     DECLARE @error VARCHAR(80);
@@ -43,11 +43,17 @@ BEGIN
         DECLARE @importar_csv NVARCHAR(200);
         DECLARE @id_max INT;
         DECLARE @id_act INT;
+        DECLARE @leidos INT;
+        DECLARE @insertados INT;
+		DECLARE @eliminados INT;
+		DECLARE @actualizados INT;
         
         SET @importar_csv = ' BULK INSERT #TempImport FROM ''' + @archivo_dir + ''' WITH (FIRSTROW = 2, 
         FIELDTERMINATOR = '';'', ROWTERMINATOR = ''0x0d0a'', CODEPAGE = ''1252'')'
 
         EXEC sp_executesql @importar_csv;
+
+        SELECT @leidos = COUNT(*) FROM #TempImport;
 
         DELETE #TempImport WHERE dpt NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]';
         DELETE #TempImport WHERE dpt IS NULL;
@@ -55,13 +61,21 @@ BEGIN
 
         ALTER TABLE #TempImport ADD id INT IDENTITY(1,1) NOT NULL;
 
+        SELECT @eliminados = COUNT(id) FROM #TempImport;
+
+        SET @eliminados = @leidos - @eliminados;
+
         SET @id_max =  (SELECT MAX(id) from #TempImport);
         SET @id_act = 1;
+        SET @actualizados = 0;
+        SET @insertados = 0;
         
         DECLARE @apellido VARCHAR(50), @nombre VARCHAR(50), @dni CHAR(8), @titulo VARCHAR(80), @fecha_random DATE, @institucion VARCHAR(30);
+        DECLARE @actualizar INT;
 
         WHILE @id_act <= @id_max
         BEGIN
+            SET @actualizar = 0;
             SELECT @apellido =  LEFT(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) - 1)),
                    @nombre = LTRIM(SUBSTRING(nombre_y_apellido, (CHARINDEX(',', nombre_y_apellido) + 1), LEN(nombre_y_apellido))), 
                    @dni = dpt, 
@@ -77,6 +91,7 @@ BEGIN
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END TRY
             BEGIN CATCH
+                SET @actualizar = 1;
                 EXEC gestion.guia_modificacion
                     @dni = @dni,
                     @nombre = @nombre,
@@ -87,25 +102,34 @@ BEGIN
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END CATCH
 
-            SET @fecha_random = DATEADD( DAY, ABS(CHECKSUM(NEWID())) % (DATEDIFF(DAY, '2000-01-01', '2026-03-31') + 1), '2000-01-01');
-
             BEGIN TRY
                 EXEC guia.titulacion_asignar
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = NULL,
-                    @fecha_emision = @fecha_random;
+                    @fecha_emision = NULL;
             END TRY
             BEGIN CATCH
+                SET @actualizar = 1;
                 EXEC guia.titulo_modificacion
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = NULL,
-                    @fecha_emision = @fecha_random;
+                    @fecha_emision = NULL;
             END CATCH
+
+            IF @actualizar = 1
+                SET @actualizados = @actualizados + 1;
+            ELSE
+                SET @insertados = @insertados + 1;
 
             SET @id_act += 1;
         END
+
+        INSERT INTO importacion.log VALUES(GETDATE(), @archivo_dir, @leidos, @insertados, @eliminados, @actualizados);
+
+        SELECT * FROM importacion.log WHERE id = SCOPE_IDENTITY();
+
     END TRY
     BEGIN CATCH
         SET @error += ERROR_MESSAGE() + char(10);
@@ -123,7 +147,7 @@ GO
 
 -- Url de la api: "https://infra.datos.gob.ar/georef-dev/provincias.json"
 
-CREATE OR ALTER PROCEDURE gestion.importar_provincias
+CREATE OR ALTER PROCEDURE importacion.provincias
 AS
 BEGIN
     EXEC sp_configure 'show advanced options', 1;	--Este es para poder editar los permisos avanzados.
@@ -185,7 +209,7 @@ GO
 -- Descargar archivo desde "https://sib.gob.ar/areas-protegidas"
 -- Descargar: "https://www.microsoft.com/en-us/download/details.aspx?id=54920"
 
-CREATE OR ALTER PROCEDURE gestion.importar_parques
+CREATE OR ALTER PROCEDURE importacion.parques
     @archivo_dir VARCHAR(260)
 AS
 BEGIN
@@ -193,6 +217,10 @@ BEGIN
  
     DECLARE @error VARCHAR(500) = '';
     DECLARE @sql NVARCHAR(MAX);
+    DECLARE @leidos INT;
+    DECLARE @insertados INT;
+	DECLARE @eliminados INT;
+	DECLARE @actualizados INT;
 
     EXEC sp_configure 'show advanced options', 1;
     RECONFIGURE;
@@ -241,10 +269,18 @@ BEGIN
                    ''Excel 12.0;Database=' + @archivo_dir + ';HDR=YES'',
                    ''SELECT * FROM [Sheet1$A2:Z1000]''
                 ) AS prov
-            ) AS resultado
-            WHERE resultado.Provincia IS NOT NULL;';
+            ) AS resultado;';
 
         EXEC sp_executesql @sql
+
+        SELECT @leidos = COUNT(*) FROM #temp_csv;
+
+        DELETE #temp_csv WHERE ubicacion IS NULL;
+
+        SELECT @eliminados = COUNT(id) FROM #temp_csv;
+
+        SET @eliminados = @leidos - @eliminados;
+
     END TRY
     BEGIN CATCH
         SET @error = 'Error en BULK INSERT: ' + ERROR_MESSAGE();
@@ -270,6 +306,9 @@ BEGIN
     DECLARE @c_tipo VARCHAR(50);
     DECLARE @id_existente INT;
 
+    SET @insertados = 0;
+    SET @actualizados = 0;
+
     WHILE @id_act <= @id_max
     BEGIN
         SET @id_existente = NULL;
@@ -287,6 +326,7 @@ BEGIN
                     @tipo = @c_tipo,
                     @ubicacion = @c_ubicacion,
                     @superficie = @c_superficie;
+                SET @insertados = @insertados + 1;
             END TRY
             BEGIN CATCH
             END CATCH
@@ -299,12 +339,18 @@ BEGIN
                     @tipo = @c_tipo,
                     @ubicacion = @c_ubicacion,
                     @superficie = @c_superficie;
+                SET @actualizados = @actualizados + 1;
             END TRY
             BEGIN CATCH
             END CATCH
         END
         SET @id_act += 1;
     END
+
+
+    INSERT INTO importacion.log VALUES(GETDATE(), @archivo_dir, @leidos, @insertados, @eliminados, @actualizados);
+
+    SELECT * FROM importacion.log WHERE id = SCOPE_IDENTITY();
  
     EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'AllowInProcess', 0;
     EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'DynamicParameters',0;

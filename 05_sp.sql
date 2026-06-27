@@ -217,9 +217,6 @@ BEGIN
 
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
-    
-    IF @fecha_emision IS NULL OR @fecha_emision = ''
-        SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
 
     IF EXISTS(
             SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
@@ -266,10 +263,6 @@ BEGIN
 
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
-    
-    
-    IF @fecha_emision IS NULL OR @fecha_emision = ''
-        SET @error += 'El titulo debe tener una fecha de emision.' + CHAR(10);
     
     IF @id_guia IS NOT NULL AND @descripcion IS NOT NULL AND @institucion IS NOT NULL
     BEGIN

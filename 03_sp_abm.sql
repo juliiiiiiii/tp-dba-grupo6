@@ -125,7 +125,7 @@ BEGIN
         SELECT @id_ubicacion = id FROM gestion.Ubicacion 
         WHERE provincia = @ubicacion;
 
-        IF @id_ubicacion = 0
+        IF @id_ubicacion IS NULL
             SET @errores += 'La ubicacion del parque no es valida.' + CHAR(10);
 	END
 

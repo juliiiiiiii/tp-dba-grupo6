@@ -38,3 +38,7 @@ GO
 IF SCHEMA_ID('ventas') IS NULL
 	EXEC('CREATE SCHEMA ventas');
 GO
+
+IF SCHEMA_ID('importacion') IS NULL
+	EXEC('CREATE SCHEMA importacion');
+GO
