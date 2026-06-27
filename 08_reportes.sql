@@ -303,7 +303,6 @@ as BEGIN
 	) as concesiones
 	from gestion.Parque as p 
 	where p.nombre like isnull(@parque, '%%')
-	for xml path
 end
 go
 
