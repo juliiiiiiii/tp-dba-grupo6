@@ -138,7 +138,7 @@ BEGIN
     DROP TABLE #TempImport;
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
 END
 GO
 
@@ -283,7 +283,7 @@ BEGIN
 
     END TRY
     BEGIN CATCH
-        SET @error = 'Error en BULK INSERT: ' + ERROR_MESSAGE();
+        SET @error = 'Error en OPENROWSET: ' + ERROR_MESSAGE();
 
         EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'AllowInProcess', 0;
         EXEC master.dbo.sp_MSset_oledb_prop N'Microsoft.ACE.OLEDB.12.0', N'DynamicParameters',0;
@@ -294,8 +294,7 @@ BEGIN
         EXEC sp_configure 'show advanced options', 0;
         RECONFIGURE;
 
-        RAISERROR(@error, 16, 1);
-        RETURN;
+        THROW 50000, @error, 1;
     END CATCH
 
     DECLARE @id_max INT = (SELECT MAX(id) FROM #temp_csv);

@@ -286,7 +286,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE gestion.guia_asignar
+CREATE OR ALTER PROCEDURE gestion.coordina_alta
     @dni CHAR(8),
     @nombre_actividad VARCHAR(50),
     @nombre_parque VARCHAR(50),
@@ -341,20 +341,103 @@ BEGIN
 			WHERE g.id = @id_guia AND a.estado = 'vencido'
     )
         SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
-    ELSE
-    BEGIN
-        IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL
-            IF EXISTS(
-                SELECT id FROM gestion.Coordina 
-                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
-            )
-                SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
-    END
+
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
+			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			WHERE g.id = @id_guia AND g.estado = 'INACTIVO'
+    )
+        SET @error += 'El guia se encuentra inactivo' + CHAR(10); 
+
+    IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL AND @id_guia IS NOT NULL
+        IF EXISTS(
+            SELECT id FROM gestion.Coordina 
+            WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta AND estado = 'ACTIVO'
+        )
+            SET @error += 'La actividad ya se encuentra asignada al guia' + CHAR(10); 
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
+        IF EXISTS(
+            SELECT id FROM gestion.Coordina 
+            WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta AND estado = 'INACTIVO'
+        )
+            UPDATE gestion.Coordina SET estado = 'ACTIVO' 
+                WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
+        ELSE
+            INSERT INTO gestion.Coordina VALUES('ACTIVO', @id_actividad, @id_guia, @f_desde, @f_hasta);
+END
+GO
+
+CREATE OR ALTER PROCEDURE gestion.coordina_baja
+    @dni CHAR(8),
+    @nombre_actividad VARCHAR(50),
+    @nombre_parque VARCHAR(50),
+    @fecha_actividad DATETIME,
+    @f_desde DATE,
+    @f_hasta DATE
+AS
+BEGIN
+    DECLARE @error VARCHAR(150);
+    SET @error = '';
+
+    DECLARE @id_guia INT;
+    DECLARE @id_parque INT;
+    DECLARE @id_actividad INT;
+
+    IF @dni IS NULL
+        SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        IF @id_guia IS NULL
+            SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
+    END
+
+    IF @nombre_parque IS NULL
+        SET @error += 'Se debe especificar el nombre del parque.' + CHAR(10);
+    ELSE
+    BEGIN
+        SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @nombre_parque);
+        IF @id_parque IS NULL
+            SET @error += 'El nombre no pertenece a ningun parque.' + CHAR(10);
+        ELSE
+        BEGIN
+            IF @nombre_actividad IS NULL OR @fecha_actividad IS NULL
+                SET @error += 'Se debe especificar el nombre y fecha de la actividad.' + CHAR(10);
+            ELSE
+            BEGIN
+                SET @id_actividad = (SELECT id FROM gestion.Actividad 
+                        WHERE nombre = @nombre_actividad AND id_parque = @id_parque AND fecha = @fecha_actividad
+                    );
+                IF @id_actividad IS NULL
+                    SET @error += 'No existe una actividad con ese nombre en ese parque en esa fecha.' + CHAR(10); 
+            END
+        END
+    END
+
+    IF @f_desde IS NULL OR @f_hasta IS NULL
+        SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
+    
+    IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL AND @id_guia IS NOT NULL
+        IF NOT EXISTS(
+            SELECT id FROM gestion.Coordina 
+            WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
+        )
+            SET @error += 'La actividad no se encuentra asignada al guia' + CHAR(10); 
+
+    IF @id_actividad IS NOT NULL AND @f_desde IS NOT NULL AND @f_hasta IS NOT NULL AND @id_guia IS NOT NULL
+        IF EXISTS(
+            SELECT id FROM gestion.Coordina 
+            WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta AND estado = 'INACTIVO'
+        )
+            SET @error += 'El guia ya se encuentra dado de baja de la actividad' + CHAR(10); 
+    
+    IF @error != ''
+        THROW 50000, @error, 1;
+    ELSE
+        UPDATE gestion.Coordina SET estado = 'INACTIVO' 
+            WHERE id_actividad = @id_actividad AND id_guia = @id_guia AND fecha_desde = @f_desde AND fecha_hasta = @f_hasta
 END
 GO
 

@@ -460,13 +460,19 @@ BEGIN
         THROW 50000, @error, 1;
     ELSE
     BEGIN
-        BEGIN TRANSACTION
-            INSERT INTO guia.Acreditacion VALUES(@fecha_vencimiento_acreditacion, @estado_acreditacion);
+        BEGIN TRY
+            BEGIN TRANSACTION
+                INSERT INTO guia.Acreditacion VALUES(@fecha_vencimiento_acreditacion, @estado_acreditacion);
             
-            SET @id_acreditacion = SCOPE_IDENTITY();
+                SET @id_acreditacion = SCOPE_IDENTITY();
 
-            INSERT INTO gestion.Guia (dni, nombre, apellido, estado, id_acreditacion) VALUES (@dni, @nombre, @apellido, 'ACTIVO', @id_acreditacion);
-        COMMIT
+                INSERT INTO gestion.Guia (dni, nombre, apellido, estado, id_acreditacion) VALUES (@dni, @nombre, @apellido, 'ACTIVO', @id_acreditacion);
+            COMMIT
+        END TRY
+        BEGIN CATCH
+            IF XACT_STATE() <> 0
+                ROLLBACK
+        END CATCH
     END
 END
 GO

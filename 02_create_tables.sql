@@ -163,6 +163,7 @@ IF OBJECT_ID(N'[gestion].[Coordina]') IS NULL
 BEGIN
     CREATE TABLE gestion.Coordina (
         id INT IDENTITY(1,1) PRIMARY KEY,
+		estado CHAR(10) NOT NULL CHECK(estado IN('ACTIVO', 'INACTIVO')),
         id_actividad INT REFERENCES gestion.Actividad(id) NOT NULL,
         id_guia INT REFERENCES gestion.Guia(id) NOT NULL,
         fecha_desde DATE NOT NULL,
