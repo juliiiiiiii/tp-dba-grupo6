@@ -17,6 +17,9 @@ IF DB_ID('parques_nacionales') IS NULL
     CREATE DATABASE parques_nacionales;
 GO
 
+ALTER DATABASE parques_nacionales COLLATE Latin1_General_CI_AI;
+GO
+
 USE parques_nacionales;
 GO
 

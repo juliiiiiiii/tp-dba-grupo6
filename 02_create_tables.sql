@@ -43,7 +43,7 @@ IF OBJECT_ID('[gestion].[Guardaparque]', 'U') IS NULL
 BEGIN
 	CREATE TABLE gestion.Guardaparque (
 		id INT IDENTITY(1,1) PRIMARY KEY,
-		dni INT NOT NULL CHECK (dni >= 10000000 AND dni < 99999999),
+		dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
 		nombre CHAR(20) NOT NULL,
 		apellido CHAR(20) NOT NULL,
 		estado CHAR(8) NOT NULL CHECK (estado IN('Activo', 'Inactivo'))
@@ -176,7 +176,7 @@ if object_id('concesiones.Empresa', 'U') is null begin
 	    id int not null primary key identity(1, 1),
 	    nombre varchar(25) not null unique,
 	    tipo varchar(100) not null,
-	    cuit varchar(15) not null unique,
+	    cuit char(15) not null unique,
         constraint check_cuit_formato check(cuit like '3[034][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' or cuit like '2[0347][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
     )
 END

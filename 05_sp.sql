@@ -32,24 +32,16 @@ BEGIN
 	SET @errores = '';
 
 	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
-	BEGIN
 		SET @errores += 'El parque al que se le quiere asignar no existe.' + CHAR(10);
-	END
 
 	IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id_guardaparque)
-	BEGIN
 		SET @errores += 'El guardaparque que se quiere asignar no existe.' + CHAR(10);
-	END
 
 	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id_parque AND fecha_egreso IS NULL)
-	BEGIN
 		SET @errores += 'El parque al que se quiere asignar ya tiene guardaparque asignado.' + CHAR(10);
-	END
 
 	IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id_guardaparque AND fecha_egreso IS NULL)
-	BEGIN
 		SET @errores += 'El gurdaparque que se quiere asignar ya esta asignado.' + CHAR(10);
-	END
 
 	IF @errores != ''
 	    THROW 50000, @errores, 1;
@@ -138,11 +130,9 @@ BEGIN
             SET @error += 'El guia ya tiene asignada esa especializacion.' + CHAR(10);   
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         INSERT INTO guia.Especializado_en VALUES(@id_guia, @id_especialidad)
-    END
 END
 GO
 
@@ -190,12 +180,10 @@ BEGIN
     END
     
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         UPDATE guia.Acreditacion SET fecha_vencimiento = @fecha_vencimiento_acreditacion, estado = @estado_acreditacion 
-            WHERE id = @id_acreditacion;
-    END
+        WHERE id = @id_acreditacion;
 END
 GO
 
@@ -206,10 +194,10 @@ GO
 */
 
 CREATE OR ALTER PROCEDURE guia.titulacion_asignar
-@dni CHAR(8),
-@descripcion VARCHAR(80),
-@institucion VARCHAR(30),
-@fecha_emision DATE
+    @dni CHAR(8),
+    @descripcion VARCHAR(80),
+    @institucion VARCHAR(30),
+    @fecha_emision DATE
 AS
 BEGIN
     DECLARE @error VARCHAR(150);
@@ -240,7 +228,7 @@ BEGIN
         SET @error += 'El guia ya tiene asignada ese titulo.' + CHAR(10);   
 
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
     BEGIN
         BEGIN TRANSACTION
@@ -293,11 +281,9 @@ BEGIN
             SET @error += 'El guia no tiene asignado ese titulo.' + CHAR(10);   
     END
     IF @error != ''
-        RAISERROR(@error, 16, 1);
+        THROW 50000, @error, 1;
     ELSE
-    BEGIN
         UPDATE guia.titulo SET fecha_emision = @fecha_emision, institucion = @institucion WHERE id = @id_titulo;
-    END
 END
 GO
 
@@ -373,7 +359,7 @@ BEGIN
     END
 
     IF @error != ''
-        THROW 50000, @errores, 1;
+        THROW 50000, @error, 1;
     ELSE
         INSERT INTO gestion.Coordina VALUES(@id_actividad, @id_guia, @f_desde, @f_hasta);
 END
@@ -381,6 +367,12 @@ GO
 
 -- TODO: test de registrar venta
 -- TODO: test de estos sp
+
+/*
+====================================================
+		SP DE CONCESION - CANON
+====================================================
+*/
 
 -- Crea una concesion para una empresa y un parque en una fecha en especifico
 -- Tambien crea un canon a pagar pendiente de pago en el periodo de la fecha de inicio
@@ -407,18 +399,16 @@ create or alter procedure concesiones.concesion_registrar_gestion (
     from gestion.Parque
     where nombre = @parque;
 
-    if @id_parque is null begin
+    if @id_parque is null
         set @errores += 'No se encontro el parque.' + char(10);
-    end
 
     if @id_empresa is not null and exists (
         select 1
         from concesiones.Empresa
         where id = @id_empresa
           and cuit <> @cuit
-    ) begin
+    )
         set @errores += 'Ya existe una empresa con ese nombre y otro CUIT.' + char(10);
-    end
 
     if @id_empresa is not null and exists (
         select 1
@@ -426,12 +416,11 @@ create or alter procedure concesiones.concesion_registrar_gestion (
         where id_empresa = @id_empresa
           and id_parque = @id_parque
           and fecha_inicio = @fecha_inicio
-    ) begin
+    )
         set @errores += 'Ya existe una concesion para esa empresa, parque y fecha de inicio.' + char(10);
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        THROW 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -449,9 +438,8 @@ create or alter procedure concesiones.concesion_registrar_gestion (
           and id_parque = @id_parque
           and fecha_inicio = @fecha_inicio;
 
-        if @id_empresa is null or @id_concesion is null begin
-            raiserror('No se pudo resolver la empresa o la concesion. No se genero el canon.', 16, 1);
-        end
+        if @id_empresa is null or @id_concesion is null
+            throw 50000, 'No se pudo resolver la empresa o la concesion. No se genero el canon.', 1;
 
         exec concesiones.canon_pagar_alta
             @fecha_generacion = @fecha_inicio,
@@ -469,10 +457,16 @@ create or alter procedure concesiones.concesion_registrar_gestion (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        throw 16, @mensaje_error, 1;
+        throw 50000, @mensaje_error, 1;
     end catch
 end;
 go
+
+/*
+====================================================
+		SP DE CUOTA PARA CANON
+====================================================
+*/
 
 -- Crea un canon a pagar para una concesion en un fecha de generacion
 -- por default la fecha de generacion es la actual
@@ -497,12 +491,11 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
         from concesiones.Canon_pagar
         where id_concesion = @id_concesion
           and fecha_generacion = @fecha_generacion
-    ) begin
+    )
         set @errores += 'Ya existe un canon generado para esa concesion y mes.' + char(10);
-    end
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -518,13 +511,18 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        raiserror(@mensaje_error, 16, 1);
+        throw 50000, @mensaje_error, 1;
         return;
     end catch
 end;
 go
 
--- Pagar siguiente canon pendiente
+/*
+====================================================
+	SP DE PAGAR SIGUIENTE CANON PENDIENTE
+====================================================
+*/
+
 create or alter procedure concesiones.canon_pagar_abonar (
     @empresa varchar(25),
     @parque varchar(100),
@@ -543,7 +541,7 @@ create or alter procedure concesiones.canon_pagar_abonar (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     begin try
         begin tran;
@@ -554,9 +552,8 @@ create or alter procedure concesiones.canon_pagar_abonar (
           and estado = 'PENDIENTE'
         order by fecha_generacion;
 
-        if @id_canon is null begin
-            raiserror('No hay canones pendientes de pago.', 16, 1);
-        end
+        if @id_canon is null
+            throw 50000, 'No hay canones pendientes de pago.', 1;
 
         update concesiones.Canon_pagar
         set estado = 'PAGADO',
@@ -564,9 +561,8 @@ create or alter procedure concesiones.canon_pagar_abonar (
         where id = @id_canon
           and estado = 'PENDIENTE';
 
-        if @@rowcount <> 1 begin
-            raiserror('No se pudo pagar el canon pendiente seleccionado.', 16, 1);
-        end
+        if @@rowcount <> 1
+            throw 50000, 'No se pudo pagar el canon pendiente seleccionado.', 1;
 
         commit;
 
@@ -577,16 +573,19 @@ create or alter procedure concesiones.canon_pagar_abonar (
     begin catch
         if @@trancount > 0 rollback;
         declare @mensaje_error varchar(4000) = error_message();
-        raiserror(@mensaje_error, 16, 1);
+        throw 50000, @mensaje_error, 1;
         return;
     end catch
 end;
 go
 
--- TODO cambiar nombres SP
+/*
+====================================================
+SP CONSULTAR PENDIENTES DE PAGO DE UNA CONCESION
+====================================================
+*/
 
--- Pendientes de pago de una concesion
-create or alter procedure concesiones.sp_consultar_canones_pendientes (
+create or alter procedure concesiones.consultar_canones_pendientes (
     @empresa varchar(25),
     @parque varchar(100),
     @fecha_inicio date
@@ -603,7 +602,7 @@ create or alter procedure concesiones.sp_consultar_canones_pendientes (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     select
         cp.id,
@@ -627,8 +626,13 @@ create or alter procedure concesiones.sp_consultar_canones_pendientes (
 end;
 go
 
--- Historicos de pagos de una concesion
-create or alter procedure concesiones.sp_consultar_historico_canones (
+/*
+====================================================
+		SP CONSULTAR HISTORICO DE PAGOS
+====================================================
+*/
+
+create or alter procedure concesiones.consultar_historico_canones (
     @empresa varchar(25),
     @parque varchar(100),
     @fecha_inicio date
@@ -646,7 +650,7 @@ create or alter procedure concesiones.sp_consultar_historico_canones (
         @id_concesion output;
 
     if @errores <> ''
-        throw 16, @errores, 1;
+        throw 50000, @errores, 1;
 
     select
         cp.id,
