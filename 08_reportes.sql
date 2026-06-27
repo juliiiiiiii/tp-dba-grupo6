@@ -71,7 +71,6 @@ AS
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
 
-
 -- 
 
 /*
@@ -91,12 +90,9 @@ REPORTE CON API (VISITAS EN FERIADOS)
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
 GO
-
 EXEC sp_configure 'Ole Automation Procedures', 1;
 RECONFIGURE
 GO
-
-
 CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/feriados/';
@@ -148,15 +144,14 @@ AS
 BEGIN
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
-	SELECT p.nombre, v.año, v.visitas FROM
-	ventas.ventas_por_año v
-	LEFT JOIN
-	gestion.parque p ON p.id = v.parque
+	SELECT p.nombre, v.año, v.visitas 
+	FROM ventas.ventas_por_año v
+	LEFT JOIN gestion.parque p ON p.id = v.parque
 	WHERE p.id = @id_parque
 END
 GO
 	
---EXEC ventas.sp_ventas_por_año 'Ibera'
+--EXEC ventas.ventas_por_año 'Ibera'
 
 
 /*
@@ -166,9 +161,8 @@ VENTAS POR SEMANA
 */
 CREATE OR ALTER VIEW ventas.visitas_por_semana
 AS
-
 	with visitas_por_semana(parque, fecha, semana, total) AS (
-	select parque, fecha, datepart(week, fecha) as semana, total from ventas.visitas_por_fecha
+		select parque, fecha, datepart(week, fecha) as semana, total from ventas.visitas_por_fecha
 	)
 	select parque, semana, sum(total) as total_semana from visitas_por_semana group by parque, semana
 GO
@@ -182,9 +176,7 @@ AS
 
 	select nombre, semana, total_semana
 	from ventas.visitas_por_semana v
-	LEFT JOIN
-	gestion.parque p
-	ON p.id = v.parque
+	LEFT JOIN gestion.parque p ON p.id = v.parque
 	WHERE p.id = @id_parque
 	order by parque, semana
 GO
@@ -208,8 +200,6 @@ GO
 EXEC sp_configure 'Ole Automation Procedures', 1;
 RECONFIGURE
 GO
-
-
 CREATE OR ALTER PROCEDURE ventas.api_dolares
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/cotizaciones/dolares';
@@ -241,7 +231,6 @@ GO
 GENERA REPORTE CON API DE DÓLARES PARA CONVERSIÓN DE PRECIOS
 ============================
 */
-
 CREATE OR ALTER PROCEDURE ventas.evolucion_entrada_dolar(@parque VARCHAR(50), @entrada VARCHAR(20))
 AS
 	EXEC api_dolares
@@ -258,26 +247,9 @@ AS
 GO
 --EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
 
-
-CREATE OR ALTER FUNCTION concesiones.identificar_concesion(@ids VARCHAR(MAX)) RETURNS TABLE AS
-RETURN (
-    SELECT 
-        c.fecha_inicio, 
-        e.nombre AS empresa, 
-        p.nombre AS parque
-    FROM concesiones.Concesion AS c
-    JOIN concesiones.Empresa AS e ON c.id_empresa = e.id
-    JOIN gestion.Parque AS p ON p.id = c.id_parque
-    WHERE c.id IN (SELECT value FROM STRING_SPLIT(@ids, ','))
-);
-GO
-
 -- Ingresos por anio, mes y semana por parque
-
 -- por semana se guarda el n° de semana del anio, capaz hay que preguntar si tiene que ser el n° semana del mes?
-
 -- solo se generan de los registros que existen, capaz quiere mostrar todas las semanas aunque el monto sea 0?
-
 CREATE OR ALTER PROCEDURE gestion.generar_reporte_ingresos
 	@parque VARCHAR(100)
 AS
@@ -293,15 +265,15 @@ GO
 
 --EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
 
--- la info de inf.* es con lo que se identifica despues las concesiones para usar los sp's
 create or alter view concesiones.deudores as
-select c.id, inf.fecha_inicio, inf.empresa, inf.parque, cp.periodo, cp.monto
-from concesiones.Concesion as c
-CROSS APPLY concesiones.identificar_concesion(CAST(c.id AS VARCHAR)) AS inf
-join concesiones.Canon_pagar as cp on cp.id_concesion = c.id
-where 
---cp.estado = 'PENDIENTE'
-fecha_pagado is null
+	select c.id, c.fecha_inicio, e.nombre as empresa, p.nombre as parque, cp.periodo, cp.monto
+	from concesiones.Concesion as c
+    JOIN concesiones.Empresa AS e ON c.id_empresa = e.id
+    JOIN gestion.Parque AS p ON p.id = c.id_parque
+	join concesiones.Canon_pagar as cp on cp.id_concesion = c.id
+	where 
+	--cp.estado = 'PENDIENTE'
+	fecha_pagado is null
 go
 
 -- 'servicios prestados' se refiere a actividad? deberia agregar un nuevo campo para servicios prestados en concesion?
@@ -309,8 +281,10 @@ go
 -- otras opciones eran:
 -- string_agg <- era muy manual y no me copo
 -- select con joins <- no cumplia con la idea de vector que pide el reporte
-create or alter view concesiones.concesiones_por_parque as
-select p.id as id, p.nombre, (
+CREATE OR ALTER PROCEDURE concesiones.reporte_concesiones_por_parque 
+	@parque VARCHAR(100) = null
+as BEGIN 
+select p.id as parque, p.nombre as nombre, (
     select 
         c.fecha_inicio as inicio
         , e.nombre as titular
@@ -319,7 +293,12 @@ select p.id as id, p.nombre, (
     join concesiones.Empresa as e on c.id_empresa=e.id
     left join gestion.Actividad as a on c.id_actividad=a.id
     where p.id=c.id_empresa
-    for json path -- for xml path
+    for xml path('concesiones')
 ) as concesiones
-from gestion.Parque as p 
+from gestion.Parque as p
+where p.nombre like isnull(@parque, '%%')
+for xml path('parque')
+end
 go
+
+-- exec concesiones.concesiones_por_parque 

@@ -34,7 +34,6 @@ GO
 Genera una view que muestra el total de visitantes por dia por parque y fecha
 =================
 */
-
 CREATE OR ALTER VIEW ventas.visitas_por_fecha
 AS
 	SELECT parque, fecha, sum(total) as total from ventas.totales_visitas_por_venta group by parque, fecha
@@ -82,12 +81,12 @@ CREATE OR ALTER VIEW ventas.visitas_por_mes
 AS
 	SELECT parque, mes, año, sum(visitas) as visitas FROM ventas.visitas_por_semana GROUP BY parque, mes, año
 GO
+
 /*
 =================
 Genera una view que muestra el total de visitantes por parque y año
 =================
 */
-
 CREATE OR ALTER VIEW ventas.visitas_por_año
 AS
 	SELECT parque, año, sum(visitas) as visitas FROM ventas.visitas_por_mes GROUP BY parque, año
@@ -98,7 +97,6 @@ GO
 vw_entradas_vigentes: Vista sólo con las entradas que están vigentes
 ============================================
 */
-
 CREATE OR ALTER VIEW ventas.entradas_vigentes
 AS
 	SELECT p.id AS id_parque, p.nombre AS Parque, t.id AS id_visitante, t.descripcion as Visitante, precio
@@ -113,7 +111,6 @@ AS
 GO
 
 -- Vista para filtrar los ingresos totales por parque por fecha
-
 CREATE OR ALTER VIEW gestion.ingresos_por_fecha
 AS
 	WITH cte AS

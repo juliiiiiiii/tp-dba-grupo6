@@ -801,10 +801,10 @@ IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.i
     EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Menor', @precio = 4500.00, @vigencia = '2026-07-01';
 GO
 
-DECLARE @fecha_venta DATE = '2026-08-16';
+DECLARE @fecha_venta DATE = '2026-08-24';
 DECLARE @venta_reporte INT;
 DECLARE @dia INT = 0;
-WHILE @dia < 14
+WHILE @dia < 90
 BEGIN
     declare @calculate_date DATE = DATEADD(DAY, @dia, @fecha_venta)
 
@@ -816,9 +816,12 @@ BEGIN
           AND v.fecha = @calculate_date
     )
     BEGIN  
+        declare @cantidad_random int = cast(rand()*11 as int);
+        declare @cantidad_random_1 int = cast(rand()*11 as int);
+
         EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = @calculate_date, @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 1, @fecha_acceso = @calculate_date;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad =2, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -829,8 +832,9 @@ BEGIN
           AND v.fecha = @calculate_date
     )
     BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
         EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = @calculate_date, @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 4, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -841,9 +845,12 @@ BEGIN
           AND v.fecha =@calculate_date
     )
     BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
+        set @cantidad_random_1 = cast(rand()*11 as int);
+
         EXEC ventas.venta_alta @parque = 'Parque Nacional Nahuel Huapi', @fecha = @calculate_date, @pov = 'Porteria sur', @metodo = 'Debito', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 6, @fecha_acceso = @calculate_date;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 2, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
     END
 
     IF NOT EXISTS (
@@ -854,9 +861,12 @@ BEGIN
           AND v.fecha = @calculate_date
     )
     BEGIN
+        set @cantidad_random = cast(rand()*11 as int);
+        set @cantidad_random_1 = cast(rand()*11 as int);
+
         EXEC ventas.venta_alta @parque = 'Parque Nacional El Palmar', @fecha = @calculate_date, @pov = 'Acceso principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = 5, @fecha_acceso = @calculate_date;
-        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = 3, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
+        EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
     END
 
     SET @dia += 1;
@@ -894,3 +904,8 @@ UNION ALL SELECT 'ventas.entrada', COUNT(*) FROM ventas.entrada
 UNION ALL SELECT 'ventas.venta', COUNT(*) FROM ventas.venta
 UNION ALL SELECT 'ventas.item_venta', COUNT(*) FROM ventas.item_venta;
 GO
+
+select * from concesiones.Empresa
+select * from concesiones.Concesion
+select * from concesiones.Canon_pagar order by id_concesion --son todos pendientes
+
