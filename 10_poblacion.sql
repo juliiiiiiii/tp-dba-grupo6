@@ -908,4 +908,3 @@ GO
 select * from concesiones.Empresa
 select * from concesiones.Concesion
 select * from concesiones.Canon_pagar order by id_concesion --son todos pendientes
-
