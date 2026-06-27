@@ -33,6 +33,9 @@ AS
 	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
 
+EXEC ventas.generar_reporte_visitas_por_mes
+go
+
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
 AS
 	SET @año = '225';
@@ -59,6 +62,9 @@ AS
 	for XML AUTO -- o AUTO?
 GO
 
+exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
+go
+
 /*
 ============================
 GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
@@ -84,31 +90,30 @@ AS
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
 
+
+exec ventas.pivot_ventas_por_mes 2026
 -- 
 
 /*
 =================
 REPORTE CON API (VISITAS EN FERIADOS)
 =================
+*/
 
 ----API----
-Fuente: https://api.argentinadatos.com/v1/feriados/{año}
-API gratuita que devuelve los feriados de un año específico.
-formato:
-	"fecha": "string",
-	"tipo": "string",
-	"nombre": "string"
-*/
+---Fuente: https://api.argentinadatos.com/v1/feriados/{año}
+-- API gratuita que devuelve los feriados de un año específico.
+--formato:
+--	"fecha": "string",
+--	"tipo": "string",
+--	"nombre": "string"
 
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
 GO
-
 EXEC sp_configure 'Ole Automation Procedures', 1;
-
 RECONFIGURE
 GO
-
 CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/feriados/';
@@ -135,6 +140,7 @@ CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	  [Nombre] NVARCHAR(500)  '$.nombre'
 	);
 GO
+
 
 CREATE OR ALTER PROCEDURE ventas.ventas_en_feriados @año CHAR(4)
 AS
@@ -165,6 +171,9 @@ BEGIN
 	WHERE p.id = @id_parque
 END
 GO
+	
+--EXEC ventas.ventas_por_año 'Ibera'
+
 
 /*
 =================
@@ -192,6 +201,7 @@ AS
 	WHERE p.id = @id_parque
 	order by parque, semana
 GO
+--EXEC ventas.reporte_visitas_por_semana 'Ibera'
 
 
 ----API----
@@ -256,6 +266,7 @@ AS
 	WHERE parque = @parque_id AND tipo = @entrada_id AND casa = 'oficial'
 	order by fecha
 GO
+--EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
 
 -- Ingresos por anio, mes y semana por parque
 -- por semana se guarda el n° de semana del anio, capaz hay que preguntar si tiene que ser el n° semana del mes?
@@ -272,6 +283,9 @@ BEGIN
 	FOR XML PATH('Ingresos'), ROOT('Reporte');
 END
 GO
+
+EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+go
 
 CREATE OR ALTER PROCEDURE concesiones.reporte_concesiones_por_parque 
 	@parque VARCHAR(100) = null
@@ -293,6 +307,9 @@ as BEGIN
 end
 go
 
+exec concesiones.reporte_concesiones_por_parque
+go
+
 create or alter view concesiones.deudores as
 	select c.id, c.fecha_inicio, e.nombre as empresa, p.nombre as parque, cp.periodo, cp.monto
 	from concesiones.Concesion as c
@@ -303,20 +320,5 @@ create or alter view concesiones.deudores as
 	--cp.estado = 'PENDIENTE'
 	fecha_pagado is null
 go
-
---EXEC ventas.reporte_visitas_por_semana 'Ibera'
-
---EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
-
---EXEC ventas.ventas_por_año 'Ibera'
-EXEC ventas.generar_reporte_visitas_por_mes
-
-exec ventas.pivot_ventas_por_mes 2026
-
-exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
-
-EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
-
-exec concesiones.reporte_concesiones_por_parque
 
 select * from concesiones.deudores;
