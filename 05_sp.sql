@@ -443,7 +443,6 @@ END
 GO
 
 -- TODO: test de registrar venta
--- TODO: test de estos sp
 
 /*
 ====================================================
@@ -750,6 +749,7 @@ BEGIN
             @concepto = @nuevo_concepto,
             @cantidad = @nueva_cantidad,
             @fecha_acceso = @fecha
+        SET @i = @i+1;
     END
 END
 GO

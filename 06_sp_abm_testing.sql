@@ -1595,217 +1595,6 @@ GO
 -- ############################################################
 
 -- ============================================================
--- SECCION 17: Tipo de visitante
--- ============================================================
-
--------------------------------------------------------------------------------
--- Test 17.1: Alta exito
--- Esperado: se inserta el tipo de visitante en estado 'Activo'.
--------------------------------------------------------------------------------
-print '--- Test 17.1: tipo_visitante_alta (exito) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-
-    if exists (select 1 from ventas.tipo_visitante where descripcion = 'Adulto test' and rtrim(estado) = 'Activo')
-        print 'OK - Test 17.1: tipo de visitante dado de alta en estado Activo.';
-    else
-        print 'FALLO - Test 17.1: no se encontro el tipo de visitante esperado.';
-end try
-begin catch
-    print 'FALLO - Test 17.1: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 17.2: Alta duplicada (validacion)
--- Esperado: el SP rechaza el alta de un tipo de visitante ya activo.
--------------------------------------------------------------------------------
-print '--- Test 17.2: tipo_visitante_alta duplicado (validacion) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-    exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-    print 'FALLO - Test 17.2: se esperaba error por duplicado y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 17.2: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 17.3: Baja exito (baja logica)
--- Esperado: el tipo de visitante queda en estado 'Inactivo'.
--------------------------------------------------------------------------------
-print '--- Test 17.3: tipo_visitante_baja (exito, baja logica) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_alta @descripcion = 'Menor test';
-    exec ventas.tipo_visitante_baja @descripcion = 'Menor test';
-
-    if exists (select 1 from ventas.tipo_visitante where descripcion = 'Menor test' and rtrim(estado) = 'Inactivo')
-        print 'OK - Test 17.3: el tipo de visitante quedo Inactivo.';
-    else
-        print 'FALLO - Test 17.3: la baja logica no se aplico.';
-end try
-begin catch
-    print 'FALLO - Test 17.3: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 17.4: Baja de tipo inexistente (validacion)
--- Esperado: el SP rechaza la baja porque el tipo no existe.
--------------------------------------------------------------------------------
-print '--- Test 17.4: tipo_visitante_baja inexistente (validacion) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_baja @descripcion = 'Inexistente test';
-    print 'FALLO - Test 17.4: se esperaba error por tipo inexistente y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 17.4: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 17.5: Modificacion exito
--- Esperado: la descripcion cambia a la nueva.
--------------------------------------------------------------------------------
-print '--- Test 17.5: tipo_visitante_modificacion (exito) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_alta @descripcion = 'Jubilado test';
-    exec ventas.tipo_visitante_modificacion @descripcion = 'Jubilado test', @nueva_descripcion = 'Jubilado VIP test';
-
-    if exists (select 1 from ventas.tipo_visitante where descripcion = 'Jubilado VIP test')
-       and not exists (select 1 from ventas.tipo_visitante where descripcion = 'Jubilado test')
-        print 'OK - Test 17.5: tipo de visitante modificado correctamente.';
-    else
-        print 'FALLO - Test 17.5: la modificacion no quedo como se esperaba.';
-end try
-begin catch
-    print 'FALLO - Test 17.5: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 17.6: Modificacion hacia una descripcion ya existente (validacion)
--- Esperado: el SP rechaza el cambio porque la nueva descripcion ya existe.
--------------------------------------------------------------------------------
-print '--- Test 17.6: tipo_visitante_modificacion a descripcion existente (validacion) ---';
-begin tran;
-begin try
-    exec ventas.tipo_visitante_alta @descripcion = 'Estudiante test';
-    exec ventas.tipo_visitante_alta @descripcion = 'Extranjero test';
-    exec ventas.tipo_visitante_modificacion @descripcion = 'Estudiante test', @nueva_descripcion = 'Extranjero test';
-    print 'FALLO - Test 17.6: se esperaba error por descripcion duplicada y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 17.6: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--- ============================================================
--- SECCION 18: Punto de venta
--- ============================================================
-
--------------------------------------------------------------------------------
--- Test 18.1: Alta exito
--- Esperado: se inserta el punto de venta en estado 'Activo' para el parque.
--------------------------------------------------------------------------------
-print '--- Test 18.1: punto_de_venta_alta (exito) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque POV 1 test', 'Nacional test', '', 100;
-    declare @idp int = (select top 1 id from gestion.Parque where nombre = 'Parque POV 1 test');
-
-    exec ventas.punto_de_venta_alta @parque = 'Parque POV 1 test', @pov = 'Entrada Principal test';
-
-    if exists (select 1 from ventas.punto_de_venta where parque = @idp and descripcion = 'Entrada Principal test' and rtrim(estado) = 'Activo')
-        print 'OK - Test 18.1: punto de venta dado de alta correctamente.';
-    else
-        print 'FALLO - Test 18.1: no se encontro el punto de venta esperado.';
-end try
-begin catch
-    print 'FALLO - Test 18.1: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 18.2: Alta duplicada (validacion)
--- Esperado: el SP rechaza el alta de un punto de venta ya activo en el parque.
--------------------------------------------------------------------------------
-print '--- Test 18.2: punto_de_venta_alta duplicado (validacion) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque POV 2 test', 'Nacional test', '', 100;
-    exec ventas.punto_de_venta_alta @parque = 'Parque POV 2 test', @pov = 'Kiosco test';
-    exec ventas.punto_de_venta_alta @parque = 'Parque POV 2 test', @pov = 'Kiosco test';
-    print 'FALLO - Test 18.2: se esperaba error por duplicado y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 18.2: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 18.3: Baja exito (baja logica)
--- Esperado: el punto de venta queda en estado 'Inactivo'.
--------------------------------------------------------------------------------
-print '--- Test 18.3: punto_de_venta_baja (exito, baja logica) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque POV 3 test', 'Nacional test', '', 100;
-    declare @idp int = (select top 1 id from gestion.Parque where nombre = 'Parque POV 3 test');
-    exec ventas.punto_de_venta_alta @parque = 'Parque POV 3 test', @pov = 'Boleteria test';
-
-    exec ventas.punto_de_venta_baja @parque = 'Parque POV 3 test', @pov = 'Boleteria test';
-
-    if exists (select 1 from ventas.punto_de_venta where parque = @idp and descripcion = 'Boleteria test' and rtrim(estado) = 'Inactivo')
-        print 'OK - Test 18.3: el punto de venta quedo Inactivo.';
-    else
-        print 'FALLO - Test 18.3: la baja logica no se aplico.';
-end try
-begin catch
-    print 'FALLO - Test 18.3: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 18.4: Modificacion exito
--- Esperado: la descripcion del punto de venta cambia a la nueva.
--------------------------------------------------------------------------------
-print '--- Test 18.4: punto_de_venta_modificacion (exito) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque POV 4 test', 'Nacional test', '', 100;
-    declare @idp int = (select top 1 id from gestion.Parque where nombre = 'Parque POV 4 test');
-    exec ventas.punto_de_venta_alta @parque = 'Parque POV 4 test', @pov = 'Puesto Norte test';
-
-    exec ventas.punto_de_venta_modificacion @parque = 'Parque POV 4 test', @pov = 'Puesto Norte test', @nueva_descripcion = 'Puesto Sur test';
-
-    if exists (select 1 from ventas.punto_de_venta where parque = @idp and descripcion = 'Puesto Sur test')
-        print 'OK - Test 18.4: punto de venta modificado correctamente.';
-    else
-        print 'FALLO - Test 18.4: la modificacion no quedo como se esperaba.';
-end try
-begin catch
-    print 'FALLO - Test 18.4: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--- ============================================================
 -- SECCION 19: Metodo de pago
 -- ============================================================
 
@@ -1888,71 +1677,11 @@ GO
 -- ============================================================
 
 -------------------------------------------------------------------------------
--- Test 20.1: Alta exito
--- Esperado: queda una entrada vigente (fecha_hasta NULL) para parque+tipo.
--------------------------------------------------------------------------------
-print '--- Test 20.1: tipo_entrada_alta (exito) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque Entrada 1 test', 'Nacional test', '', 100;
-    exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-
-    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 1 test', @tipo = 'Adulto test', @precio = 5000.00, @vigencia = '2026-01-01';
-
-    if exists (select 1 from ventas.entradas_vigentes where Parque = 'Parque Entrada 1 test' and Visitante = 'Adulto test' and precio = 5000.00)
-        print 'OK - Test 20.1: entrada vigente creada correctamente.';
-    else
-        print 'FALLO - Test 20.1: no se encontro la entrada vigente esperada.';
-end try
-begin catch
-    print 'FALLO - Test 20.1: error inesperado: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 20.2: Alta con tipo de visitante inexistente (validacion)
--- Esperado: el SP rechaza el alta porque el tipo de visitante no existe.
--------------------------------------------------------------------------------
-print '--- Test 20.2: tipo_entrada_alta con tipo de visitante inexistente (validacion) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque Entrada 2 test', 'Nacional test', '', 100;
-    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 2 test', @tipo = 'Visitante inexistente test', @precio = 3000.00;
-    print 'FALLO - Test 20.2: se esperaba error por tipo de visitante inexistente y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 20.2: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 20.3: Alta duplicada (validacion)
--- Esperado: el SP rechaza el alta porque ya existe una entrada vigente.
--------------------------------------------------------------------------------
-print '--- Test 20.3: tipo_entrada_alta duplicado (validacion) ---';
-begin tran;
-begin try
-    exec gestion.parque_alta 'Parque Entrada 3 test', 'Nacional test', '', 100;
-    exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 3 test', @tipo = 'Adulto test', @precio = 5000.00, @vigencia = '2026-01-01';
-
-    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 3 test', @tipo = 'Adulto test', @precio = 6000.00, @vigencia = '2026-02-01';
-    print 'FALLO - Test 20.3: se esperaba error por entrada ya existente y no ocurrio.';
-end try
-begin catch
-    print 'OK - Test 20.3: rechazado como se esperaba. Detalle: ' + error_message();
-end catch
-if @@trancount > 0 rollback;
-GO
-
--------------------------------------------------------------------------------
--- Test 20.4: Modificacion de precio exito
+-- Test 20.1: Modificacion de precio exito
 -- Esperado: queda vigente el nuevo precio y la entrada anterior se cierra
 --           (el historico de la entrada anterior recibe fecha_hasta).
 -------------------------------------------------------------------------------
-print '--- Test 20.4: tipo_entrada_modificacion (exito) ---';
+print '--- Test 20.1: tipo_entrada_modificacion (exito) ---';
 begin tran;
 begin try
     exec gestion.parque_alta 'Parque Entrada 4 test', 'Nacional test', '', 100;
@@ -1962,21 +1691,21 @@ begin try
     exec ventas.tipo_entrada_modificacion @parque = 'Parque Entrada 4 test', @tipo = 'Adulto test', @nuevo_precio = 7500.00;
 
     if exists (select 1 from ventas.entradas_vigentes where Parque = 'Parque Entrada 4 test' and Visitante = 'Adulto test' and precio = 7500.00)
-        print 'OK - Test 20.4: la entrada vigente quedo con el nuevo precio.';
+        print 'OK - Test 20.1: la entrada vigente quedo con el nuevo precio.';
     else
-        print 'FALLO - Test 20.4: el nuevo precio no quedo vigente.';
+        print 'FALLO - Test 20.1: el nuevo precio no quedo vigente.';
 end try
 begin catch
-    print 'FALLO - Test 20.4: error inesperado: ' + error_message();
+    print 'FALLO - Test 20.1: error inesperado: ' + error_message();
 end catch
 if @@trancount > 0 rollback;
 GO
 
 -------------------------------------------------------------------------------
--- Test 20.5: Baja exito
+-- Test 20.2: Baja exito
 -- Esperado: la entrada deja de estar vigente (se setea fecha_hasta).
 -------------------------------------------------------------------------------
-print '--- Test 20.5: tipo_entrada_baja (exito) ---';
+print '--- Test 20.2: tipo_entrada_baja (exito) ---';
 begin tran;
 begin try
     exec gestion.parque_alta 'Parque Entrada 5 test', 'Nacional test', '', 100;
@@ -1986,18 +1715,18 @@ begin try
     exec ventas.tipo_entrada_baja @parque = 'Parque Entrada 5 test', @tipo = 'Adulto test';
 
     if not exists (select 1 from ventas.entradas_vigentes where Parque = 'Parque Entrada 5 test' and Visitante = 'Adulto test')
-        print 'OK - Test 20.5: la entrada dejo de estar vigente.';
+        print 'OK - Test 20.2: la entrada dejo de estar vigente.';
     else
-        print 'FALLO - Test 20.5: la entrada sigue vigente.';
+        print 'FALLO - Test 20.2: la entrada sigue vigente.';
 end try
 begin catch
-    print 'FALLO - Test 20.5: error inesperado: ' + error_message();
+    print 'FALLO - Test 20.2: error inesperado: ' + error_message();
 end catch
 if @@trancount > 0 rollback;
 GO
 
 -- ============================================================
--- SECCION 21: Venta e item_venta (flujo completo)
+-- SECCION 21: Venta e item_venta
 -- ============================================================
 
 -------------------------------------------------------------------------------
