@@ -26,44 +26,44 @@ GO
 -- TEST 1.1: Registro exitoso
 PRINT '--- TEST 1.1: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Cardiologia';
+	@descripcion = 'Cardiologia test';
 GO
 
 -- TEST 1.2: Registro exitoso
 PRINT '--- TEST 1.2: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Fauna silvestre';
+	@descripcion = 'Fauna silvestre test';
 GO
 
 -- TEST 1.3: Registro exitoso
 PRINT '--- TEST 1.3: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Flora nativa';
+	@descripcion = 'Flora nativa test';
 GO
 
 -- TEST 1.4: Registro exitoso
 PRINT '--- TEST 1.4: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Avistamiento de aves';
+	@descripcion = 'Avistamiento de aves test';
 GO
 
 -- TEST 1.5: Registro exitoso
 PRINT '--- TEST 1.5: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Primeros auxilios en campo';
+	@descripcion = 'Primeros auxilios en campo test';
 GO
 
 -- TEST 1.6: Registro exitoso
 PRINT '--- TEST 1.6: Registrar especialidad exitosamente ---';
 EXEC personal.especialidad_alta
-	@descripcion = 'Interpretación geológica';
+	@descripcion = 'Interpretacion geologica test';
 GO
 
 -- TEST 1.7: Especialidad duplicada (debe fallar)
 PRINT '--- TEST 1.7: Especialidad ya registrada (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_alta
-    @descripcion = 'Flora nativa';
+    @descripcion = 'Flora nativa test';
     PRINT 'FALLO - Test 1.7: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -71,8 +71,8 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 1.8: Descripción vacía (debe fallar)
-PRINT '--- TEST 1.8: Descripción vacía (debe fallar) ---';
+-- TEST 1.8: Descripcion vacia (debe fallar)
+PRINT '--- TEST 1.8: Descripcion vacia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_alta
     @descripcion = '';
@@ -83,8 +83,8 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 1.9: Descripción NULL (debe fallar)
-PRINT '--- TEST 1.9: Descripción NULL (debe fallar) ---';
+-- TEST 1.9: Descripcion NULL (debe fallar)
+PRINT '--- TEST 1.9: Descripcion NULL (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_alta
     @descripcion = NULL;
@@ -95,8 +95,8 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 1.10: Descripción con solo espacios (debe fallar)
-PRINT '--- TEST 1.10: Descripción con solo espacios (debe fallar) ---';
+-- TEST 1.10: Descripcion con solo espacios (debe fallar)
+PRINT '--- TEST 1.10: Descripcion con solo espacios (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_alta
     @descripcion = '   ';
@@ -119,7 +119,7 @@ PRINT '--- TEST 2.1: Especialidad no registrada (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_asignar
     @dni = '25123456',
-    @especialidad = 'Fauna marina';
+    @especialidad = 'Fauna marina test';
     PRINT 'FALLO - Test 2.1: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -141,11 +141,11 @@ END CATCH
 GO
 
 -- TEST 2.3: DNI NULL (debe fallar)
-PRINT '--- TEST 2.3: Falta especificar el DNI del guía (debe fallar) ---';
+PRINT '--- TEST 2.3: Falta especificar el DNI del guia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_asignar
     @dni = NULL,
-    @especialidad = 'Fauna silvestre';
+    @especialidad = 'Fauna silvestre test';
     PRINT 'FALLO - Test 2.3: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -153,19 +153,19 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 2.4: Asignación exitosa
+-- TEST 2.4: Asignacion exitosa
 PRINT '--- TEST 2.4: Asignar especialidad exitosamente ---';
 EXEC personal.especialidad_asignar
 	@dni = '25123456',
-	@especialidad = 'Fauna silvestre';
+	@especialidad = 'Fauna silvestre test';
 GO
 
--- TEST 2.5: Especialidad ya asignada al guía (debe fallar)
-PRINT '--- TEST 2.5: El guía ya posee esa especialidad (debe fallar) ---';
+-- TEST 2.5: Especialidad ya asignada al guia (debe fallar)
+PRINT '--- TEST 2.5: El guia ya posee esa especialidad (debe fallar) ---';
 BEGIN TRY
     EXEC personal.especialidad_asignar
     @dni = '25123456',
-    @especialidad = 'Fauna silvestre';
+    @especialidad = 'Fauna silvestre test';
     PRINT 'FALLO - Test 2.5: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -173,11 +173,11 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 2.6: Asignación exitosa
+-- TEST 2.6: Asignacion exitosa
 PRINT '--- TEST 2.6: Asignar especialidad exitosamente ---';
 EXEC personal.especialidad_asignar
 	@dni = '25123456',
-	@especialidad = 'Flora nativa';
+	@especialidad = 'Flora nativa test';
 GO
 
 -- ============================================================
@@ -188,7 +188,7 @@ PRINT '=== ACTUALIZACION DE ACREDITACION ===';
 GO
 
 -- TEST 3.1: DNI NULL (debe fallar)
-PRINT '--- TEST 3.1: Falta especificar el DNI del guía (debe fallar) ---';
+PRINT '--- TEST 3.1: Falta especificar el DNI del guia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.acreditacion_actualizar
     @dni = NULL,
@@ -200,8 +200,8 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 3.2: Guía inexistente (debe fallar)
-PRINT '--- TEST 3.2: DNI no pertenece a ningún guía (debe fallar) ---';
+-- TEST 3.2: Guia inexistente (debe fallar)
+PRINT '--- TEST 3.2: DNI no pertenece a ningun guia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.acreditacion_actualizar
     @dni = '25128779',
@@ -226,8 +226,8 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 3.4: Actualización exitosa
-PRINT '--- TEST 3.4: Actualizar acreditación exitosamente ---';
+-- TEST 3.4: Actualizacion exitosa
+PRINT '--- TEST 3.4: Actualizar acreditacion exitosamente ---';
 EXEC personal.acreditacion_actualizar
 	@dni = '25123456',
 	@fecha_vencimiento_acreditacion = '2027-08-12';
@@ -241,12 +241,12 @@ PRINT '=== ASIGNACION DE TITULACION A GUIA ===';
 GO
 
 -- TEST 4.1: DNI NULL (debe fallar)
-PRINT '--- TEST 4.1: Falta especificar el DNI del guía (debe fallar) ---';
+PRINT '--- TEST 4.1: Falta especificar el DNI del guia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = NULL,
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 4.1: se esperaba error y no ocurrio.';
 END TRY
@@ -255,13 +255,13 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 4.2: Descripción del título NULL (debe fallar)
-PRINT '--- TEST 4.2: Falta especificar el título (debe fallar) ---';
+-- TEST 4.2: Descripcion del titulo NULL (debe fallar)
+PRINT '--- TEST 4.2: Falta especificar el titulo (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = '25123456',
     @descripcion = NULL,
-    @institucion = 'UNLAM',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 4.2: se esperaba error y no ocurrio.';
 END TRY
@@ -270,12 +270,12 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 4.3: Institución NULL (debe fallar)
-PRINT '--- TEST 4.3: Falta especificar la institución (debe fallar) ---';
+-- TEST 4.3: Institucion NULL (debe fallar)
+PRINT '--- TEST 4.3: Falta especificar la institucion (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina',
+    @descripcion = 'Especializado en flora nativa Argentina test',
     @institucion = NULL,
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 4.3: se esperaba error y no ocurrio.';
@@ -285,13 +285,13 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 4.4: Fecha de emisión NULL (debe fallar)
-PRINT '--- TEST 4.4: Falta especificar la fecha de emisión (debe fallar) ---';
+-- TEST 4.4: Fecha de emision NULL (debe fallar)
+PRINT '--- TEST 4.4: Falta especificar la fecha de emision (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = NULL;
     PRINT 'FALLO - Test 4.4: se esperaba error y no ocurrio.';
 END TRY
@@ -300,22 +300,22 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 4.5: Asignación exitosa
-PRINT '--- TEST 4.5: Asignar titulación exitosamente ---';
+-- TEST 4.5: Asignacion exitosa
+PRINT '--- TEST 4.5: Asignar titulacion exitosamente ---';
 EXEC personal.titulacion_asignar
 	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
+	@descripcion = 'Especializado en flora nativa Argentina test',
+	@institucion = 'UNLAM test',
 	@fecha_emision = '2020-04-15';
 GO
 
--- TEST 4.6: Título ya asignado al guía (debe fallar)
-PRINT '--- TEST 4.6: El guía ya posee esa titulación (debe fallar) ---';
+-- TEST 4.6: Titulo ya asignado al guia (debe fallar)
+PRINT '--- TEST 4.6: El guia ya posee esa titulacion (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-09-15';
     PRINT 'FALLO - Test 4.6: se esperaba error y no ocurrio.';
 END TRY
@@ -324,12 +324,12 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 4.7: Asignación exitosa
-PRINT '--- TEST 4.7: Asignar titulación exitosamente ---';
+-- TEST 4.7: Asignacion exitosa
+PRINT '--- TEST 4.7: Asignar titulacion exitosamente ---';
 EXEC personal.titulacion_asignar
 	@dni = '25123456',
-	@descripcion = 'Licensiatura en fauna silvestre Argentina',
-	@institucion = 'UBA',
+	@descripcion = 'Licensiatura en fauna silvestre Argentina test',
+	@institucion = 'UBA test',
 	@fecha_emision = '2024-04-25';
 GO
 
@@ -341,12 +341,12 @@ PRINT '=== ACTUALIZAR TITULO A GUIA ===';
 GO
 
 -- TEST 5.1: DNI NULL (debe fallar)
-PRINT '--- TEST 5.1: Falta especificar el DNI del guía (debe fallar) ---';
+PRINT '--- TEST 5.1: Falta especificar el DNI del guia (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulo_modificacion
     @dni = NULL,
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 5.1: se esperaba error y no ocurrio.';
 END TRY
@@ -355,13 +355,13 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 5.2: Descripción del título NULL (debe fallar)
-PRINT '--- TEST 5.2: Falta especificar el título (debe fallar) ---';
+-- TEST 5.2: Descripcion del titulo NULL (debe fallar)
+PRINT '--- TEST 5.2: Falta especificar el titulo (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulo_modificacion
     @dni = '25123456',
     @descripcion = NULL,
-    @institucion = 'UNLAM',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 5.2: se esperaba error y no ocurrio.';
 END TRY
@@ -370,12 +370,12 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 5.3: Institución NULL (debe fallar)
-PRINT '--- TEST 5.3: Falta especificar la institución (debe fallar) ---';
+-- TEST 5.3: Institucion NULL (debe fallar)
+PRINT '--- TEST 5.3: Falta especificar la institucion (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulo_modificacion
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina',
+    @descripcion = 'Especializado en flora nativa Argentina test',
     @institucion = NULL,
     @fecha_emision = '2020-04-15';
     PRINT 'FALLO - Test 5.3: se esperaba error y no ocurrio.';
@@ -385,13 +385,13 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 5.4: Fecha de emisión NULL (debe fallar)
-PRINT '--- TEST 5.4: Falta especificar la fecha de emisión (debe fallar) ---';
+-- TEST 5.4: Fecha de emision NULL (debe fallar)
+PRINT '--- TEST 5.4: Falta especificar la fecha de emision (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulo_modificacion
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = NULL;
     PRINT 'FALLO - Test 5.4: se esperaba error y no ocurrio.';
 END TRY
@@ -401,21 +401,21 @@ END CATCH
 GO
 
 -- TEST 5.5: Actualizacion exitosa
-PRINT '--- TEST 5.5: Asignar titulación exitosamente ---';
+PRINT '--- TEST 5.5: Asignar titulacion exitosamente ---';
 EXEC personal.titulo_modificacion
 	@dni = '25123456',
-	@descripcion = 'Especializado en flora nativa Argentina',
-	@institucion = 'UNLAM',
+	@descripcion = 'Especializado en flora nativa Argentina test',
+	@institucion = 'UNLAM test',
 	@fecha_emision = '2012-04-15';
 GO
 
--- TEST 5.6: Título no asignado al guía (debe fallar)
-PRINT '--- TEST 5.6: El guía no posee esa titulación (debe fallar) ---';
+-- TEST 5.6: Titulo no asignado al guia (debe fallar)
+PRINT '--- TEST 5.6: El guia no posee esa titulacion (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulo_modificacion
     @dni = '30456789',
-    @descripcion = 'Especializado en flora nativa Argentina',
-    @institucion = 'UNLAM',
+    @descripcion = 'Especializado en flora nativa Argentina test',
+    @institucion = 'UNLAM test',
     @fecha_emision = '2020-09-15';
     PRINT 'FALLO - Test 5.6: se esperaba error y no ocurrio.';
 END TRY
