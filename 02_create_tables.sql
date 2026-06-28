@@ -61,7 +61,7 @@ BEGIN
 		id_parque INT NOT NULL,
 		id_guardaparque INT NOT NULL,
 		CONSTRAINT fk_asignacion_parque FOREIGN KEY (id_parque) REFERENCES gestion.Parque(id),
-		CONSTRAINT fk_asignacion_guardaparque FOREIGN KEY (id_guardaparque) REFERENCES gestion.Guardaparque(id)
+		CONSTRAINT fk_asignacion_guardaparque FOREIGN KEY (id_guardaparque) REFERENCES personal.Guardaparque(id)
 	);
 END
 GO
@@ -93,7 +93,7 @@ BEGIN
         nombre VARCHAR(30) NOT NULL,
         apellido VARCHAR(30) NOT NULL,
 		estado CHAR(8) check(estado = 'ACTIVO' or estado = 'INACTIVO'),
-        id_acreditacion INT REFERENCES guia.Acreditacion(id) NOT NULL UNIQUE
+        id_acreditacion INT REFERENCES personal.Acreditacion(id) NOT NULL UNIQUE
     )
 END
 GO
@@ -217,7 +217,7 @@ end
 go
 
 --Creación de tabla para los tipos de visitantes, los cuales definen el precio de las entradas
-IF OBJECT_ID('parques_nacionales.ventas.tipo_visitante','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Tipo_visitante','U') IS NULL
 CREATE TABLE ventas.tipo_visitante
 (
 	id INT IDENTITY(1,1) PRIMARY KEY,
@@ -227,7 +227,7 @@ CREATE TABLE ventas.tipo_visitante
 GO
 
 --Creación de los puntos de ventas, donde se realizan las ventas en los parques
-IF OBJECT_ID('parques_nacionales.ventas.punto_de_venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Punto_de_venta','U') IS NULL
 CREATE TABLE ventas.punto_de_venta
 (
 	id INT IDENTITY(1,1) PRIMARY KEY,
@@ -239,7 +239,7 @@ CREATE TABLE ventas.punto_de_venta
 GO
 
 --Creación de tabla para los métodos de pago como puede ser Efectivo, débito, crédito, transferencia, etc.
-IF OBJECT_ID('parques_nacionales.ventas.metodo_de_pago','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Metodo_de_pago','U') IS NULL
 CREATE TABLE ventas.metodo_de_pago
 (
 	id INT IDENTITY (1,1) PRIMARY KEY,
@@ -249,7 +249,7 @@ CREATE TABLE ventas.metodo_de_pago
 GO
 
 --Creación de los tipos de entrada
-IF OBJECT_ID('parques_nacionales.ventas.entrada','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Entrada','U') IS NULL
 CREATE TABLE ventas.entrada
 (
 	id INT IDENTITY(1, 1) PRIMARY KEY,
@@ -264,7 +264,7 @@ CREATE TABLE ventas.entrada
 GO
 
 --Creación de tabla para las ventas. Cada venta puede tener varias entradas y actividades
-IF OBJECT_ID('parques_nacionales.ventas.venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Venta','U') IS NULL
 CREATE TABLE ventas.venta
 (
 	id INT IDENTITY(1,1) PRIMARY KEY,
@@ -280,7 +280,7 @@ CREATE TABLE ventas.venta
 GO
 
 --Creación de tabla para los items que van asociados a cada venta
-IF OBJECT_ID('parques_nacionales.ventas.item_venta','U') IS NULL
+IF OBJECT_ID('parques_nacionales.ventas.Item_venta','U') IS NULL
 CREATE TABLE ventas.item_venta
 (
 	id INT IDENTITY(1, 1) PRIMARY KEY,
