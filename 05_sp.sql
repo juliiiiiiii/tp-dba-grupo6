@@ -694,3 +694,102 @@ create or alter procedure concesiones.consultar_historico_canones (
     order by cp.fecha_generacion;
 end;
 go
+
+/*
+====================================================
+		SP REGISTRAR VENTA INDIVIDUAL
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE ventas.ingresar_venta(@venta NVARCHAR(MAX))
+AS
+BEGIN
+    DECLARE @id_venta INT
+
+    SET NOCOUNT ON
+    IF OBJECT_ID('[tempdb].[dbo].[#json_venta]') IS NOT NULL DROP TABLE tempdb.dbo.#json_venta
+    SELECT IDENTITY(INT, 1, 1) as fila, parque, fecha, pos, metodo, concepto, fecha_acceso, cantidad, precio
+    INTO #json_venta
+    FROM OpenJson(@venta)
+    WITH (
+        parque VARCHAR(50) '$.parque',
+        fecha CHAR(8) '$.fecha',
+        pos VARCHAR(20) '$.pos',
+        metodo VARCHAR(20) '$.metodo',
+        items NVARCHAR(MAX) '$.items' AS JSON)
+            CROSS APPLY OPENJSON(items)
+            WITH (
+                concepto VARCHAR(50) '$.concepto',
+                fecha_acceso CHAR(8) '$.fecha_acceso',
+                cantidad VARCHAR(10) '$.cantidad',
+                precio VARCHAR(10) '$.precio'
+    )
+    DECLARE @nuevo_parque VARCHAR(50), @nueva_fecha DATE, @nuevo_pos VARCHAR(25), @nuevo_metodo VARCHAR(20)
+
+    SELECT @nuevo_parque = parque, @nueva_fecha = fecha, @nuevo_pos = pos, @nuevo_metodo = metodo
+    FROM #json_venta
+
+    EXEC ventas.venta_alta @parque = @nuevo_parque,
+                            @fecha = @nueva_fecha,
+                            @pov = @nuevo_pos,
+                            @metodo = @nuevo_metodo,
+                            @id_creado = @id_venta OUTPUT
+
+    DECLARE @cant INT, @i INT
+    SET @i = 1
+    SET @cant = (SELECT COUNT(1) FROM #json_venta)
+
+    WHILE (@i <= @cant)
+    BEGIN
+        DECLARE @nuevo_concepto VARCHAR(50), @fecha DATE, @nueva_cantidad INT, @nuevo_precio DECIMAL(10,2)
+        SELECT @nuevo_concepto = concepto, @fecha = fecha_acceso, @nueva_cantidad = cantidad, @nuevo_precio = precio
+        FROM #json_venta
+        WHERE fila = @i
+        EXEC ventas.item_venta_alta
+            @venta = @id_venta,
+            @concepto = @nuevo_concepto,
+            @cantidad = @nueva_cantidad,
+            @fecha_acceso = @fecha
+    END
+END
+GO
+/*
+====================================================
+		SP REGISTRAR VENTAS MASIVAS
+====================================================
+*/
+
+CREATE OR ALTER PROCEDURE ventas.ingresar_ventas_masivo (@ruta VARCHAR(MAX))
+AS
+BEGIN
+    DECLARE @id_venta INT
+
+    DROP TABLE IF EXISTS #json_ventas
+    
+    create table #json_ventas(
+            [key] INT IDENTITY(1,1) PRIMARY KEY,
+            [value] NVARCHAR(MAX))
+
+    DECLARE @cadenaSQL NVARCHAR(MAX)
+
+    SET @cadenaSQL = N'
+    INSERT INTO #json_ventas ([value])
+    SELECT [value]
+    FROM OPENROWSET(BULK ''' + @ruta + N''', SINGLE_CLOB) AS JsonFile
+    CROSS APPLY OPENJSON(JsonFile.BulkColumn);';
+    DECLARE @i INT, @cant INT
+    EXEC sp_executesql @cadenaSQL;
+
+    SET @cant = (SELECT count(1) FROM #json_ventas)
+    SET @i = 1
+    WHILE (@i <= @cant)
+    BEGIN
+        DECLARE @entrada_actual NVARCHAR(MAX)
+        SELECT @entrada_actual = [value]
+        FROM #json_ventas
+        WHERE [key] = @i
+        EXEC ventas.ingresar_venta @venta = @entrada_actual
+        SET @i += 1
+    END
+END
+GO
