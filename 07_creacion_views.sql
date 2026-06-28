@@ -21,7 +21,8 @@ Genera una view que muestra las ventas con sus respectivos visitantes
 =================
 */
 
-CREATE OR ALTER VIEW ventas.ventas_con_visitantes AS
+CREATE OR ALTER VIEW ventas.ventas_con_visitantes
+AS
 	SELECT v.parque, v.id as venta, i.id AS item, v.fecha, i.concepto, i.cantidad, v.total
 	FROM
 	ventas.venta v
@@ -91,21 +92,6 @@ as
 --SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales ORDER BY parque, mes, año
 --SELECT DISTINCT parque, año, total_año FROM ventas.visitas_anuales ORDER BY parque, año
 GO
-CREATE OR ALTER VIEW ventas.visitas_por_mes
-AS
-	SELECT parque, mes, año, sum(visitas) as visitas FROM ventas.visitas_por_semana GROUP BY parque, mes, año
-GO
-
-/*
-=================
-Genera una view que muestra el total de visitantes por parque y año
-=================
-*/
-CREATE OR ALTER VIEW ventas.visitas_por_año
-AS
-	SELECT parque, año, sum(visitas) as visitas FROM ventas.visitas_por_mes GROUP BY parque, año
-GO
-
 /*
 ===========================================
 vw_entradas_vigentes: Vista sólo con las entradas que están vigentes
