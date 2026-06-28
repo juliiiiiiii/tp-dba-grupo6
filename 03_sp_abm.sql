@@ -1518,15 +1518,15 @@ BEGIN
     SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
 	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
         BEGIN
-            SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
-            SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
         END
     ELSE
         BEGIN
-            SET @id_concepto = (SELECT id FROM gestion.Actividad WHERE nombre = @concepto)
-            SET @precio = (SELECT costo FROM gestion.Actividad WHERE descripcion = @concepto)
+        SET @id_concepto = (SELECT id FROM gestion.Actividad WHERE nombre = @concepto)
+        SET @precio = (SELECT costo FROM gestion.Actividad WHERE id = @id_concepto)
         END
-	
+
     IF (SELECT 1 FROM ventas.venta WHERE id = @venta) IS NULL
        SET @errores += 'La venta indicada no existe.' + CHAR(10)
     IF (@id_concepto = NULL)
@@ -1538,16 +1538,15 @@ BEGIN
 		BEGIN TRY
 			INSERT INTO ventas.item_venta
 			VALUES (@venta, @id_concepto, @concepto, @cantidad, @precio, @cantidad * @precio, @fecha_acceso)
-
 			UPDATE ventas.venta
 			SET total = total + (@cantidad * @precio)
 			WHERE id = @venta
-			
+
 			COMMIT
 		END TRY
 		BEGIN CATCH
 			IF XACT_STATE() <>0
-				ROLLBACK
+                ROLLBACK
 		END CATCH
 END
 GO
