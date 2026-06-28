@@ -260,12 +260,22 @@ DECLARE @id_guia_ana INT = (SELECT id FROM personal.Guia WHERE dni = '35111222')
 DECLARE @id_guia_carlos INT = (SELECT id FROM personal.Guia WHERE dni = '36222333');
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Coordina WHERE id_actividad = @id_actividad_iguazu AND id_guia = @id_guia_ana)
-    INSERT INTO gestion.Coordina (id_actividad, id_guia, fecha_desde, fecha_hasta)
-    VALUES (@id_actividad_iguazu, @id_guia_ana, '2026-10-01', '2026-10-31');
+    EXEC gestion.coordina_alta
+        @dni = '35111222',
+        @nombre_actividad = 'Circuito Garganta del Diablo',
+        @nombre_parque = 'Parque Nacional Iguazï¿½',
+        @fecha_actividad = '2026-10-15',
+        @f_desde = '2026-10-01',
+        @f_hasta = '2026-10-31';
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Coordina WHERE id_actividad = @id_actividad_glaciares AND id_guia = @id_guia_carlos)
-    INSERT INTO gestion.Coordina (id_actividad, id_guia, fecha_desde, fecha_hasta)
-    VALUES (@id_actividad_glaciares, @id_guia_carlos, '2026-11-01', '2026-11-30');
+    EXEC gestion.coordina_alta
+        @dni = '36222333',
+        @nombre_actividad = 'Navegacion Lago Argentino',
+        @nombre_parque = 'Parque Nacional Los Glaciares',
+        @fecha_actividad = '2026-11-20',
+        @f_desde = '2026-11-01',
+        @f_hasta = '2026-11-30';
 GO
 
 -----------------------------------------------------------
@@ -428,6 +438,8 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Misiones')
     EXEC gestion.ubicacion_alta 'Misiones';
 IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Buenos Aires')
     EXEC gestion.ubicacion_alta 'Buenos Aires';
+IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Salta')
+    EXEC gestion.ubicacion_alta 'Salta';
 GO
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque WHERE nombre = 'Parque Nacional Lago Puelo')
@@ -513,11 +525,11 @@ WHILE @n <= 27
 BEGIN
     SET @nombre_actividad = CONCAT('Seed Tour ', RIGHT('00' + CAST(@n AS VARCHAR(2)), 2));
     SET @nombre_parque_actividad = CASE (@n % 10)
-        WHEN 0 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazú')
+        WHEN 0 THEN 'Parque Nacional Iguazï¿½'
         WHEN 1 THEN 'Parque Nacional Los Glaciares'
         WHEN 2 THEN 'Parque Nacional Nahuel Huapi'
         WHEN 3 THEN 'Parque Nacional Lago Puelo'
-        WHEN 4 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico')
+        WHEN 4 THEN 'Parque Nacional Tierra del Fuego, Antï¿½rtida e Islas del Atlï¿½ntico'
         WHEN 5 THEN 'Parque Nacional El Palmar'
         WHEN 6 THEN 'Parque Nacional Ibera'
         WHEN 7 THEN 'Parque Nacional Calilegua'
@@ -593,9 +605,9 @@ IF NOT EXISTS (SELECT 1 FROM concesiones.Empresa WHERE nombre = 'Tienda Ciervo')
 GO
 
 IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Resto Iguazu Norte' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Resto Iguazu Norte', @parque = 'Parque Nacional Iguazu', @canon_mensual = 250000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+    EXEC concesiones.concesion_alta @empresa = 'Resto Iguazu Norte', @parque = 'Parque Nacional Iguazï¿½', @canon_mensual = 250000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
 IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Tienda Iguazu Sur' AND c.fecha_inicio = '2026-07-01')
-    EXEC concesiones.concesion_alta @empresa = 'Tienda Iguazu Sur', @parque = 'Parque Nacional Iguazu', @canon_mensual = 115000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
+    EXEC concesiones.concesion_alta @empresa = 'Tienda Iguazu Sur', @parque = 'Parque Nacional Iguazï¿½', @canon_mensual = 115000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
 IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Nautica Glaciares' AND c.fecha_inicio = '2026-07-01')
     EXEC concesiones.concesion_alta @empresa = 'Nautica Glaciares', @parque = 'Parque Nacional Los Glaciares', @canon_mensual = 420000.00, @fecha_inicio = '2026-07-01', @actividad = NULL;
 IF NOT EXISTS (SELECT 1 FROM concesiones.Concesion c INNER JOIN concesiones.Empresa e ON e.id = c.id_empresa WHERE e.nombre = 'Cafe Glaciares' AND c.fecha_inicio = '2026-07-01')
@@ -693,7 +705,7 @@ BEGIN
         WHEN 1 THEN 'Parque Nacional Los Glaciares'
         WHEN 2 THEN 'Parque Nacional Nahuel Huapi'
         WHEN 3 THEN 'Parque Nacional Lago Puelo'
-        WHEN 4 THEN (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Tierra del Fuego, Antártida e Islas del Atlántico')
+        WHEN 4 THEN 'Parque Nacional Tierra del Fuego, Antï¿½rtida e Islas del Atlï¿½ntico'
         WHEN 5 THEN 'Parque Nacional El Palmar'
         WHEN 6 THEN 'Parque Nacional Ibera'
         WHEN 7 THEN 'Parque Nacional Calilegua'
@@ -721,17 +733,41 @@ GO
 
 DECLARE @id_actividad_coordina INT;
 DECLARE @id_guia_coordina INT;
+DECLARE @dni_guia_coordina CHAR(8);
+DECLARE @nombre_parque_coordina VARCHAR(100);
+DECLARE @nombre_actividad_coordina VARCHAR(50);
+DECLARE @fecha_actividad_coordina DATE;
 DECLARE @c INT = 28;
 WHILE @c <= 45
 BEGIN
-    SET @id_actividad_coordina = (SELECT id FROM gestion.Actividad WHERE nombre = CONCAT('Tour Informe ', RIGHT('00' + CAST(@c AS VARCHAR(2)), 2)));
-    SET @id_guia_coordina = (SELECT id FROM personal.Guia WHERE dni = RIGHT('00000000' + CAST(41000000 + (((@c - 1) % 17) + 1) AS VARCHAR(8)), 8));
+    SET @nombre_actividad_coordina = CONCAT('Tour Informe ', RIGHT('00' + CAST(@c AS VARCHAR(2)), 2));
+    SET @nombre_parque_coordina = CASE (@c % 10)
+        WHEN 0 THEN 'Parque Nacional Iguazï¿½'
+        WHEN 1 THEN 'Parque Nacional Los Glaciares'
+        WHEN 2 THEN 'Parque Nacional Nahuel Huapi'
+        WHEN 3 THEN 'Parque Nacional Lago Puelo'
+        WHEN 4 THEN 'Parque Nacional Tierra del Fuego, Antï¿½rtida e Islas del Atlï¿½ntico'
+        WHEN 5 THEN 'Parque Nacional El Palmar'
+        WHEN 6 THEN 'Parque Nacional Ibera'
+        WHEN 7 THEN 'Parque Nacional Calilegua'
+        WHEN 8 THEN 'Parque Nacional Los Cardones'
+        ELSE 'Parque Nacional Ciervo de los Pantanos'
+    END;
+    SET @fecha_actividad_coordina = DATEADD(DAY, (@c % 14), '2026-09-22');
+    SET @dni_guia_coordina = RIGHT('00000000' + CAST(41000000 + (((@c - 1) % 17) + 1) AS VARCHAR(8)), 8);
+    SET @id_actividad_coordina = (SELECT id FROM gestion.Actividad WHERE nombre = @nombre_actividad_coordina);
+    SET @id_guia_coordina = (SELECT id FROM personal.Guia WHERE dni = @dni_guia_coordina);
 
     IF @id_actividad_coordina IS NOT NULL
        AND @id_guia_coordina IS NOT NULL
        AND NOT EXISTS (SELECT 1 FROM gestion.Coordina WHERE id_actividad = @id_actividad_coordina AND id_guia = @id_guia_coordina)
-        INSERT INTO gestion.Coordina (id_actividad, id_guia, fecha_desde, fecha_hasta)
-        VALUES (@id_actividad_coordina, @id_guia_coordina, '2026-09-20', '2026-10-10');
+        EXEC gestion.coordina_alta
+            @dni = @dni_guia_coordina,
+            @nombre_actividad = @nombre_actividad_coordina,
+            @nombre_parque = @nombre_parque_coordina,
+            @fecha_actividad = @fecha_actividad_coordina,
+            @f_desde = '2026-09-20',
+            @f_hasta = '2026-10-10';
 
     SET @c += 1;
 END
@@ -745,8 +781,8 @@ DECLARE @canon_inicio DATE;
 DECLARE canon_cursor CURSOR LOCAL FAST_FORWARD FOR
 SELECT empresa, parque, fecha_inicio
 FROM (VALUES
-    ('Resto Iguazu Norte', 'Parque Nacional Iguazu', CAST('2026-07-01' AS DATE)),
-    ('Tienda Iguazu Sur', 'Parque Nacional Iguazu', CAST('2026-07-01' AS DATE)),
+    ('Resto Iguazu Norte', 'Parque Nacional Iguazï¿½', CAST('2026-07-01' AS DATE)),
+    ('Tienda Iguazu Sur', 'Parque Nacional Iguazï¿½', CAST('2026-07-01' AS DATE)),
     ('Nautica Glaciares', 'Parque Nacional Los Glaciares', CAST('2026-07-01' AS DATE)),
     ('Cafe Glaciares', 'Parque Nacional Los Glaciares', CAST('2026-07-01' AS DATE)),
     ('Camping Nahuel', 'Parque Nacional Nahuel Huapi', CAST('2026-07-01' AS DATE)),
@@ -810,22 +846,25 @@ GO
 DECLARE @fecha_venta DATE = '2026-08-24';
 DECLARE @venta_reporte INT;
 DECLARE @dia INT = 0;
+DECLARE @calculate_date DATE;
+DECLARE @cantidad_random INT;
+DECLARE @cantidad_random_1 INT;
 WHILE @dia < 90
 BEGIN
-    declare @calculate_date DATE = DATEADD(DAY, @dia, @fecha_venta)
+    SET @calculate_date = DATEADD(DAY, @dia, @fecha_venta)
 
     IF NOT EXISTS (
         SELECT 1
         FROM ventas.venta v
         INNER JOIN gestion.Parque p ON p.id = v.parque
-        WHERE p.nombre = 'Parque Nacional Iguazu'
+        WHERE p.nombre = 'Parque Nacional Iguazï¿½'
           AND v.fecha = @calculate_date
     )
     BEGIN  
-        declare @cantidad_random int = cast(rand()*11 as int);
-        declare @cantidad_random_1 int = cast(rand()*11 as int);
+        SET @cantidad_random = 1 + CAST(RAND() * 10 AS INT);
+        SET @cantidad_random_1 = 1 + CAST(RAND() * 10 AS INT);
 
-        EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazu', @fecha = @calculate_date, @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
+        EXEC ventas.venta_alta @parque = 'Parque Nacional Iguazï¿½', @fecha = @calculate_date, @pov = 'Boleteria principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
         EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
         EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Menor', @cantidad = @cantidad_random_1, @fecha_acceso = @calculate_date;
     END
@@ -838,7 +877,7 @@ BEGIN
           AND v.fecha = @calculate_date
     )
     BEGIN
-        set @cantidad_random = cast(rand()*11 as int);
+        SET @cantidad_random = 1 + CAST(RAND() * 10 AS INT);
         EXEC ventas.venta_alta @parque = 'Parque Nacional Los Glaciares', @fecha = @calculate_date, @pov = 'Centro visitantes', @metodo = 'Credito', @id_creado = @venta_reporte OUTPUT;
         EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
     END
@@ -851,8 +890,8 @@ BEGIN
           AND v.fecha =@calculate_date
     )
     BEGIN
-        set @cantidad_random = cast(rand()*11 as int);
-        set @cantidad_random_1 = cast(rand()*11 as int);
+        SET @cantidad_random = 1 + CAST(RAND() * 10 AS INT);
+        SET @cantidad_random_1 = 1 + CAST(RAND() * 10 AS INT);
 
         EXEC ventas.venta_alta @parque = 'Parque Nacional Nahuel Huapi', @fecha = @calculate_date, @pov = 'Porteria sur', @metodo = 'Debito', @id_creado = @venta_reporte OUTPUT;
         EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
@@ -867,8 +906,8 @@ BEGIN
           AND v.fecha = @calculate_date
     )
     BEGIN
-        set @cantidad_random = cast(rand()*11 as int);
-        set @cantidad_random_1 = cast(rand()*11 as int);
+        SET @cantidad_random = 1 + CAST(RAND() * 10 AS INT);
+        SET @cantidad_random_1 = 1 + CAST(RAND() * 10 AS INT);
 
         EXEC ventas.venta_alta @parque = 'Parque Nacional El Palmar', @fecha = @calculate_date, @pov = 'Acceso principal', @metodo = 'Efectivo', @id_creado = @venta_reporte OUTPUT;
         EXEC ventas.item_venta_alta @venta = @venta_reporte, @concepto = 'Adulto', @cantidad = @cantidad_random, @fecha_acceso = @calculate_date;
