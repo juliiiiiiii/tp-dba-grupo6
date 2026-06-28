@@ -1,0 +1,20 @@
+08_poblacion.sql
+  s_c833a24ab62af1::t_f5b62fe511cb92 222,266,494,496,498,506,528,532,561,608,610,704,708,745,749,784-785,860,867
+  s_c833a24ab62af1::t_b31c4404a2c1cb 36-37,39-40,90,92,108,158,216,290,294,320,325,348-349,355-356,358-359,373,379,429-432,447-448,450,479,483,558,624,626,653,658,792-793
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "71ce014e6fba7aeb2762bee564f7222d2a6cfb2e",
+  "prompts": {},
+  "sessions": {
+    "s_c833a24ab62af1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f0f48-fa72-71f3-b172-9d1a3415cf87",
+        "model": "gpt-5.5"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    }
+  }
+}
