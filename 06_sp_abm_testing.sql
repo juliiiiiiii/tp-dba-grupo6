@@ -22,8 +22,9 @@ GO
  
 PRINT '=== ALTA DE PARQUE ===';
 GO
- SELECT * from gestion.Parque
  
+ exec gestion.ubicacion_alta 'Misiones'
+
 -- TEST 1.1: exitoso
 PRINT '--- TEST 1.1: Registrar parque exitoso ---';
 EXEC gestion.parque_alta
@@ -32,6 +33,8 @@ EXEC gestion.parque_alta
     @ubicacion = 'Misiones',
     @superficie = 67620;
 GO
+SELECT * from gestion.Parque
+
  
 -- TEST 1.2: nombre duplicado
 PRINT '--- TEST 1.2: Nombre de parque duplicado (debe fallar) ---';

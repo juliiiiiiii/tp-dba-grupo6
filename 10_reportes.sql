@@ -28,12 +28,14 @@ AS
 	--for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
 
---EXEC ventas.generar_reporte_visitas_por_mes
+SELECT 'Reporte de visitas por mes'
+EXEC ventas.generar_reporte_visitas_por_mes
 go
 
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
 AS
-	SET @año = '225';
+	--SET @año = '225'; para que le pisa el parametro?
+
 	SELECT DISTINCT p.nombre, mes, total_mes AS visitas FROM ventas.visitas_anuales v
 	LEFT JOIN
 	gestion.parque p
@@ -48,16 +50,16 @@ AS
 	SELECT
 		p.nombre AS 'Parque',
 		FORMAT(mes, '00') + '/' + cast(año as char(4)) as 'Mes',
-		visitas as 'Visitantes'
-	FROM ventas.visitas_por_mes v
-	LEFT JOIN
-	gestion.parque p ON p.id = v.parque
+		total_mes as 'Visitantes'
+	FROM ventas.visitas_mensuales v
+	LEFT JOIN gestion.parque p ON p.nombre = v.parque
 	WHERE p.nombre = @parque
 	ORDER BY parque, mes, año
 	for XML AUTO -- o AUTO?
 GO
 
---exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
+select 'Reporte de visitas mensuales'
+exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
 go
 
 /*
@@ -87,15 +89,16 @@ BEGIN
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
 END
---exec ventas.pivot_ventas_por_mes 2026
+go
 
+select 'Reporte de matriz de visitas'
+exec ventas.pivot_ventas_por_mes 2026
+go
 
 /*
 =================
 REPORTE CON API (VISITAS EN FERIADOS)
 =================
-*/
-
 ----API----
 ---Fuente: https://api.argentinadatos.com/v1/feriados/{año}
 -- API gratuita que devuelve los feriados de un año específico.
@@ -103,13 +106,15 @@ REPORTE CON API (VISITAS EN FERIADOS)
 --	"fecha": "string",
 --	"tipo": "string",
 --	"nombre": "string"
-
+*/
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
-GO
+go
+
 EXEC sp_configure 'Ole Automation Procedures', 1;
 RECONFIGURE
-GO
+go
+
 CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/feriados/';
@@ -137,10 +142,9 @@ CREATE OR ALTER PROCEDURE ventas.api_feriados @año CHAR(4)
 	);
 GO
 
-
 CREATE OR ALTER PROCEDURE ventas.ventas_en_feriados @año CHAR(4)
 AS
-	EXEC api_feriados @año;
+	EXEC ventas.api_feriados @año;
 
 	SELECT * FROM ventas.visitas_por_fecha
 	WHERE YEAR(fecha) = @año
@@ -148,44 +152,9 @@ AS
 	DROP TABLE [dbo].[##feriados]
 GO
 
---EXEC sp_ventas_en_feriados '2026'
-
-/*
-=================
-VENTAS POR AÑO Y PARQUE
-=================
-*/
-
-CREATE OR ALTER PROCEDURE ventas.ventas_por_año @parque VARCHAR(50)
-AS
-BEGIN
-	DECLARE @id_parque INT;
-	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
-	SELECT p.nombre, v.año, v.visitas 
-	FROM ventas.ventas_por_año v
-	LEFT JOIN gestion.parque p ON p.id = v.parque
-	WHERE p.id = @id_parque
-END
-GO
-	
---EXEC ventas.ventas_por_año 'Ibera'
-
-
---exec ventas.sp_ventas_por_semana 'Glaciares'
-
-CREATE OR ALTER PROCEDURE ventas.reporte_visitas_por_semana @parque VARCHAR(50)
-AS
-	DECLARE @id_parque INT;
-	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
-
-	select nombre, semana, visitas
-	from ventas.visitas_por_semana v
-	LEFT JOIN gestion.parque p ON p.id = v.parque
-	WHERE p.id = @id_parque
-	order by parque, semana
-GO
---EXEC ventas.reporte_visitas_por_semana 'Ibera'
-
+select 'Reporte con API ventas de feriados'
+EXEC ventas.ventas_en_feriados '2026'
+go
 
 ----API----
 ---Fuente:  https://api.argentinadatos.com/v1/cotizaciones/dolares
@@ -197,13 +166,14 @@ GO
 --"nombre": "string",
 --"moneda": "string",
 --"fechaActualizacion": "string"
-
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
 GO
+
 EXEC sp_configure 'Ole Automation Procedures', 1;
 RECONFIGURE
 GO
+
 CREATE OR ALTER PROCEDURE ventas.api_dolares
 	AS
 	DECLARE @URL NVARCHAR(250) = 'https://api.argentinadatos.com/v1/cotizaciones/dolares';
@@ -237,7 +207,7 @@ GENERA REPORTE CON API DE DÓLARES PARA CONVERSIÓN DE PRECIOS
 */
 CREATE OR ALTER PROCEDURE ventas.evolucion_entrada_dolar(@parque VARCHAR(50), @entrada VARCHAR(20))
 AS
-	EXEC api_dolares
+	EXEC ventas.api_dolares
 	DECLARE @parque_id INT, @entrada_id INT
 	SET @parque_id = (SELECT id_parque FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
 	SET @entrada_id = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @entrada)
@@ -249,7 +219,46 @@ AS
 	WHERE parque = @parque_id AND tipo = @entrada_id AND casa = 'oficial'
 	order by fecha
 GO
---EXEC ventas.sp_evolucion_entrada_dolar @parque = 'Iguazu', @entrada = 'Estudiante'
+
+--EXEC ventas.evolucion_entrada_dolar @parque = 'Parque Nacional Iguazú', @entrada = 'Estudiante'
+--GO
+
+/*
+=================
+VENTAS POR AÑO Y PARQUE
+=================
+*/
+CREATE OR ALTER PROCEDURE ventas.ventas_por_año @parque VARCHAR(50)
+AS
+BEGIN
+	DECLARE @id_parque INT;
+	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
+
+	SELECT p.nombre, v.año, v.visitas 
+	FROM ventas.ventas_por_año v --TODO: este rompe porque no existe
+	LEFT JOIN gestion.parque p ON p.id = v.parque
+	WHERE p.id = @id_parque
+END
+GO
+	
+--EXEC ventas.ventas_por_año 'Parque Nacional Ibera'
+--go
+
+CREATE OR ALTER PROCEDURE ventas.reporte_visitas_por_semana @parque VARCHAR(50)
+AS
+	DECLARE @id_parque INT;
+	SET @id_parque = (SELECT id FROM gestion.Parque WHERE nombre = @parque);
+
+	select nombre, semana, visitas
+	from ventas.visitas_por_semana v
+	LEFT JOIN gestion.parque p ON p.id = v.parque
+	WHERE p.id = @id_parque
+	order by parque, semana
+GO
+
+select 'Reporte de visitas por semana'
+EXEC ventas.reporte_visitas_por_semana 'Parque Nacional Iguazú'
+go
 
 -- Ingresos por anio, mes y semana por parque
 -- por semana se guarda el n° de semana del anio, capaz hay que preguntar si tiene que ser el n° semana del mes?
@@ -267,7 +276,8 @@ BEGIN
 END
 GO
 
---EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+select 'Reporte ingresos por parque, mes y año.'
+EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
 go
 
 CREATE OR ALTER PROCEDURE concesiones.reporte_concesiones_por_parque 
@@ -281,7 +291,7 @@ as BEGIN
 		from concesiones.Concesion as c
 		join concesiones.Empresa as e on c.id_empresa=e.id
 		left join gestion.Actividad as a on c.id_actividad=a.id
-		where p.id=c.id_empresa
+		where p.id=c.id_parque
 		for xml path
 	) as concesiones
 	from gestion.Parque as p 
@@ -289,10 +299,11 @@ as BEGIN
 end
 go
 
---exec concesiones.reporte_concesiones_por_parque
+select 'Reporte Parques y concesiones'
+exec concesiones.reporte_concesiones_por_parque
 go
 
-create or alter view concesiones.deudores as
+create or alter procedure concesiones.deudores as
 	select c.id, c.fecha_inicio, e.nombre as empresa, p.nombre as parque, cp.periodo, cp.monto
 	from concesiones.Concesion as c
     JOIN concesiones.Empresa AS e ON c.id_empresa = e.id
@@ -303,4 +314,5 @@ create or alter view concesiones.deudores as
 	fecha_pagado is null
 go
 
---select * from concesiones.deudores;
+SELECT 'Reporte de Deudores'
+exec concesiones.deudores;
