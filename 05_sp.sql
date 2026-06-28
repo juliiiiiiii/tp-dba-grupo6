@@ -1,3 +1,4 @@
+
 -- Universidad: Universidad de la Matanza
 -- Materia: 3641 - Bases de Datos Aplicadas
 
@@ -34,7 +35,7 @@ BEGIN
 	IF NOT EXISTS (SELECT id FROM gestion.Parque WHERE id = @id_parque)
 		SET @errores += 'El parque al que se le quiere asignar no existe.' + CHAR(10);
 
-	IF NOT EXISTS (SELECT id FROM gestion.Guardaparque WHERE id = @id_guardaparque)
+	IF NOT EXISTS (SELECT id FROM personal.Guardaparque WHERE id = @id_guardaparque)
 		SET @errores += 'El guardaparque que se quiere asignar no existe.' + CHAR(10);
 
 	IF EXISTS (SELECT id_parque FROM gestion.Parque_asignado WHERE id_parque = @id_parque AND fecha_egreso IS NULL)
@@ -50,7 +51,7 @@ BEGIN
 		INSERT INTO gestion.Parque_asignado (id_parque, id_guardaparque, fecha_ingreso)
 		VALUES (@id_parque, @id_guardaparque, GETDATE());
 
-		UPDATE gestion.Guardaparque SET estado = 'Activo' WHERE id = @id_guardaparque;
+		UPDATE personal.Guardaparque SET estado = 'Activo' WHERE id = @id_guardaparque;
 	COMMIT;
 END
 GO
@@ -85,7 +86,7 @@ BEGIN
     BEGIN TRANSACTION;
         UPDATE gestion.Parque_asignado SET fecha_egreso = @fecha_egreso, motivo = @motivo WHERE id = @id;
  
-        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id = @id);
+        UPDATE personal.Guardaparque SET estado = 'Inactivo' WHERE id = (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id = @id);
     COMMIT;
 END
 GO
@@ -96,7 +97,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE guia.especialidad_asignar
+CREATE OR ALTER PROCEDURE personal.especialidad_asignar
 @dni CHAR(8),
 @especialidad VARCHAR(50)
 AS
@@ -111,7 +112,7 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
+        SET @id_guia = (SELECT id from personal.Guia WHERE dni = @dni);
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
     END
@@ -120,19 +121,19 @@ BEGIN
         SET @error += 'Se debe especificar la especializacion.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_especialidad = (SELECT id from guia.Especialidad WHERE descripcion = @especialidad);
+        SET @id_especialidad = (SELECT id from personal.Especialidad WHERE descripcion = @especialidad);
         IF @id_especialidad IS NULL
             SET @error += 'La especialidad no se encuentra registrada.' + CHAR(10);
     END
 
     IF @especialidad IS NOT NULL AND @dni IS NOT NULL
-        IF EXISTS (SELECT id FROM guia.Especializado_en WHERE id_guia = @id_guia AND id_especialidad = @id_especialidad)
+        IF EXISTS (SELECT id FROM personal.Especializado_en WHERE id_guia = @id_guia AND id_especialidad = @id_especialidad)
             SET @error += 'El guia ya tiene asignada esa especializacion.' + CHAR(10);   
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        INSERT INTO guia.Especializado_en VALUES(@id_guia, @id_especialidad)
+        INSERT INTO personal.Especializado_en VALUES(@id_guia, @id_especialidad)
 END
 GO
 
@@ -142,7 +143,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE guia.acreditacion_actualizar
+CREATE OR ALTER PROCEDURE personal.acreditacion_actualizar
 @dni CHAR(8),
 @fecha_vencimiento_acreditacion DATE
 AS
@@ -158,12 +159,12 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
+        SET @id_guia = (SELECT id from personal.Guia WHERE dni = @dni);
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
         ELSE
         BEGIN
-            SET @id_acreditacion = (SELECT id_acreditacion FROM gestion.Guia WHERE id = @id_guia);
+            SET @id_acreditacion = (SELECT id_acreditacion FROM personal.Guia WHERE id = @id_guia);
             IF @id_acreditacion IS NULL
                 SET @error += 'El guia no posee una acreditacion.' + CHAR(10);
         END
@@ -182,7 +183,7 @@ BEGIN
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        UPDATE guia.Acreditacion SET fecha_vencimiento = @fecha_vencimiento_acreditacion, estado = @estado_acreditacion 
+        UPDATE personal.Acreditacion SET fecha_vencimiento = @fecha_vencimiento_acreditacion, estado = @estado_acreditacion 
         WHERE id = @id_acreditacion;
 END
 GO
@@ -193,7 +194,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE guia.titulacion_asignar
+CREATE OR ALTER PROCEDURE personal.titulacion_asignar
     @dni CHAR(8),
     @descripcion VARCHAR(80),
     @institucion VARCHAR(30),
@@ -210,7 +211,7 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
+        SET @id_guia = (SELECT id from personal.Guia WHERE dni = @dni);
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
     END
@@ -219,27 +220,27 @@ BEGIN
         SET @error += 'El titulo debe tener descripcion.' + CHAR(10);
 
     IF EXISTS(
-            SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
+            SELECT t.id FROM personal.Titulo t INNER JOIN personal.Titulacion_guia tg on tg.id_titulo = t.id
             WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
-        SET @error += 'El guia ya tiene asignada ese titulo.' + CHAR(10);   
+        SET @error += 'El guia ya tiene asignada ese titulo.' + CHAR(10);
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
     BEGIN
         BEGIN TRANSACTION
-            INSERT INTO guia.Titulo VALUES(@descripcion, @institucion, @fecha_emision);
+            INSERT INTO personal.Titulo VALUES(@descripcion, @institucion, @fecha_emision);
 
             SET @id_titulo = SCOPE_IDENTITY();
 
-            INSERT INTO guia.Titulacion_guia VALUES(@id_guia, @id_titulo);
+            INSERT INTO personal.Titulacion_guia VALUES(@id_guia, @id_titulo);
         COMMIT
     END
 END
 GO
 
-CREATE OR ALTER PROCEDURE guia.titulo_modificacion
+CREATE OR ALTER PROCEDURE personal.titulo_modificacion
 @dni CHAR(8),
 @descripcion VARCHAR(80),
 @institucion VARCHAR(30),
@@ -256,7 +257,7 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id from gestion.Guia WHERE dni = @dni);
+        SET @id_guia = (SELECT id from personal.Guia WHERE dni = @dni);
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
     END
@@ -267,7 +268,7 @@ BEGIN
     IF @id_guia IS NOT NULL AND @descripcion IS NOT NULL AND @institucion IS NOT NULL
     BEGIN
         SET @id_titulo = (
-                SELECT t.id FROM guia.Titulo t INNER JOIN guia.Titulacion_guia tg on tg.id_titulo = t.id
+                SELECT t.id FROM personal.Titulo t INNER JOIN personal.Titulacion_guia tg on tg.id_titulo = t.id
                 WHERE descripcion = @descripcion AND tg.id_guia = @id_guia
         )
         IF @id_titulo IS NULL
@@ -276,7 +277,7 @@ BEGIN
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        UPDATE guia.titulo SET fecha_emision = @fecha_emision, institucion = @institucion WHERE id = @id_titulo;
+        UPDATE personal.titulo SET fecha_emision = @fecha_emision, institucion = @institucion WHERE id = @id_titulo;
 END
 GO
 
@@ -306,7 +307,7 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        SET @id_guia = (SELECT id FROM personal.Guia WHERE dni = @dni);  
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
     END
@@ -336,14 +337,14 @@ BEGIN
     IF @f_desde IS NULL OR @f_hasta IS NULL
         SET @error += 'Se debe especificar la fecha desde y fecha hasta' + CHAR(10); 
     
-    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
-			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM personal.Guia g
+			INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
 			WHERE g.id = @id_guia AND a.estado = 'vencido'
     )
         SET @error += 'El guia posee la acreditacion vencida' + CHAR(10); 
 
-    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM gestion.Guia g
-			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+    IF @id_guia IS NOT NULL AND EXISTS (SELECT g.id FROM personal.Guia g
+			INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
 			WHERE g.id = @id_guia AND g.estado = 'INACTIVO'
     )
         SET @error += 'El guia se encuentra inactivo' + CHAR(10); 
@@ -389,7 +390,7 @@ BEGIN
         SET @error += 'Se debe especificar el dni del guia.' + CHAR(10);
     ELSE
     BEGIN
-        SET @id_guia = (SELECT id FROM gestion.Guia WHERE dni = @dni);  
+        SET @id_guia = (SELECT id FROM personal.Guia WHERE dni = @dni);  
         IF @id_guia IS NULL
             SET @error += 'El dni no pertenece a ningun guia.' + CHAR(10);
     END
@@ -660,6 +661,7 @@ go
 		SP CONSULTAR HISTORICO DE PAGOS
 ====================================================
 */
+
 create or alter procedure concesiones.consultar_historico_canones (
     @empresa varchar(25),
     @parque varchar(100),

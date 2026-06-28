@@ -232,7 +232,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE gestion.guardaparque_alta
+CREATE OR ALTER PROCEDURE personal.Guardaparque_alta
 	@dni CHAR(8),
 	@nombre CHAR(30),
 	@apellido CHAR(30)
@@ -243,7 +243,7 @@ BEGIN
 	DECLARE @errores VARCHAR(50);
 	SET @errores = '';
 
-	IF EXISTS (SELECT dni FROM gestion.Guardaparque WHERE dni = @dni)
+	IF EXISTS (SELECT dni FROM personal.Guardaparque WHERE dni = @dni)
 		SET @errores += 'El dni del guardaparque ya esta registrado.' + CHAR(10);
 
     IF (@nombre IS NULL OR @apellido IS NULL)
@@ -252,12 +252,12 @@ BEGIN
 	IF @errores != ''
 		THROW 50000, @errores, 1;
 
-	INSERT INTO gestion.Guardaparque (dni, nombre, apellido, estado)
+	INSERT INTO personal.Guardaparque (dni, nombre, apellido, estado)
 	VALUES (@dni, @nombre, @apellido, 'Inactivo');
 END
 GO
 
-CREATE OR ALTER PROCEDURE gestion.guardaparque_baja
+CREATE OR ALTER PROCEDURE personal.Guardaparque_baja
 	@dni CHAR(8)
 AS
 BEGIN
@@ -267,11 +267,11 @@ BEGIN
     DECLARE @id INT = NULL;
 	SET @errores = '';
 
-    SELECT @id = id FROM gestion.Guardaparque WHERE dni = @dni
+    SELECT @id = id FROM personal.Guardaparque WHERE dni = @dni
 	IF @id IS NULL
 		SET @errores += 'El guardaparque que se quiere dar de baja no existe.' + CHAR(10);
     ELSE
-	    IF (SELECT estado FROM gestion.Guardaparque WHERE id = @id) != 'Activo'
+	    IF (SELECT estado FROM personal.Guardaparque WHERE id = @id) != 'Activo'
 		    SET @errores += 'El guardaparque no se encuentra asignado a ningun parque.' + CHAR(10);
 
 	IF @errores != ''
@@ -281,12 +281,12 @@ BEGIN
         IF EXISTS (SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
             UPDATE gestion.Parque_asignado SET fecha_egreso = GETDATE() WHERE id_guardaparque = @id AND fecha_egreso IS NULL;
 
-        UPDATE gestion.Guardaparque SET estado = 'Inactivo' WHERE id = @id;
+        UPDATE personal.Guardaparque SET estado = 'Inactivo' WHERE id = @id;
     COMMIT;
 END
 GO
 
-CREATE OR ALTER PROCEDURE gestion.guardaparque_modificacion
+CREATE OR ALTER PROCEDURE personal.Guardaparque_modificacion
     @dni CHAR(8),
     @nombre CHAR(30),
     @apellido CHAR(30),
@@ -299,7 +299,7 @@ BEGIN
     DECLARE @id INT = NULL;
     SET @errores = '';
  
-    SELECT @id = id FROM gestion.Guardaparque WHERE dni = @dni;
+    SELECT @id = id FROM personal.Guardaparque WHERE dni = @dni;
 
     IF @id IS NULL
         SET @errores += 'El guardaparque que se desea modificar no existe.' + CHAR(10);
@@ -310,15 +310,15 @@ BEGIN
         ELSE
         BEGIN
             IF @nombre IS NULL
-                SELECT @nombre = nombre FROM gestion.Guardaparque WHERE id = @id;
+                SELECT @nombre = nombre FROM personal.Guardaparque WHERE id = @id;
 
             IF @apellido IS NULL
-                SELECT @apellido = apellido FROM gestion.Guardaparque WHERE id = @id;
+                SELECT @apellido = apellido FROM personal.Guardaparque WHERE id = @id;
 
             IF @estado IS NOT NULL AND @estado NOT IN ('Activo', 'Inactivo')
                 SET @errores += 'El estado ingresado no es valido. Los valores permitidos son: Activo o Inactivo.' + CHAR(10);
             ELSE IF @estado IS NULL
-                SELECT @estado = estado FROM gestion.Guardaparque WHERE id = @id;
+                SELECT @estado = estado FROM personal.Guardaparque WHERE id = @id;
  
             IF @estado = 'Activo'
             AND NOT EXISTS(SELECT id_guardaparque FROM gestion.Parque_asignado WHERE id_guardaparque = @id AND fecha_egreso IS NULL)
@@ -329,7 +329,7 @@ BEGIN
     IF @errores != ''
         THROW 50000, @errores, 1;
  
-    UPDATE gestion.Guardaparque SET nombre = @nombre, apellido = @apellido, estado = @estado WHERE id = @id;
+    UPDATE personal.Guardaparque SET nombre = @nombre, apellido = @apellido, estado = @estado WHERE id = @id;
 END
 GO
 
@@ -339,7 +339,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE guia.especialidad_alta
+CREATE OR ALTER PROCEDURE personal.especialidad_alta
     @descripcion VARCHAR(50)
 AS
 BEGIN
@@ -349,17 +349,17 @@ BEGIN
     IF @descripcion IS NULL OR @descripcion = ''
         SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
     ELSE
-        IF EXISTS (SELECT descripcion from guia.Especialidad WHERE descripcion = @descripcion)
+        IF EXISTS (SELECT descripcion from personal.Especialidad WHERE descripcion = @descripcion)
             SET @error += 'La especialidad ya se encuentra registrada.' + CHAR(10);
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        INSERT INTO guia.Especialidad VALUES(@descripcion); 
+        INSERT INTO personal.Especialidad VALUES(@descripcion); 
 END
 GO
 
-CREATE OR ALTER PROCEDURE guia.especialidad_baja
+CREATE OR ALTER PROCEDURE personal.especialidad_baja
     @descripcion VARCHAR(50)
 AS
 BEGIN
@@ -371,22 +371,22 @@ BEGIN
         SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
     ELSE
     BEGIN
-        SELECT @id_especialidad = id FROM guia.Especialidad WHERE descripcion = @descripcion;
+        SELECT @id_especialidad = id FROM personal.Especialidad WHERE descripcion = @descripcion;
 
         IF @id_especialidad IS NULL
             SET @error += 'La especialidad no se encuentra registrada.' + CHAR(10);
-        ELSE IF EXISTS (SELECT 1 FROM guia.Especializado_en WHERE id_especialidad = @id_especialidad)
+        ELSE IF EXISTS (SELECT 1 FROM personal.Especializado_en WHERE id_especialidad = @id_especialidad)
             SET @error += 'La especialidad se encuentra registrada a un guia.' + CHAR(10);
     END
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        DELETE FROM guia.Especialidad WHERE id = @id_especialidad;
+        DELETE FROM personal.Especialidad WHERE id = @id_especialidad;
 END
 GO
 
-CREATE OR ALTER PROCEDURE guia.especialidad_modificacion
+CREATE OR ALTER PROCEDURE personal.especialidad_modificacion
     @descripcion VARCHAR(50),
     @descripcion_nueva VARCHAR(50)
 AS
@@ -399,16 +399,16 @@ BEGIN
         SET @error += 'Se debe especificar la descripcion de la especialidad.' + CHAR(10);
     ELSE
     BEGIN
-        IF NOT EXISTS (SELECT descripcion FROM guia.Especialidad WHERE descripcion = @descripcion)
+        IF NOT EXISTS (SELECT descripcion FROM personal.Especialidad WHERE descripcion = @descripcion)
             SET @error += 'La especialidad no se encuentra registrada.' + CHAR(10);
 
-        SELECT @id_especialidad = id FROM guia.Especialidad WHERE descripcion = @descripcion;
+        SELECT @id_especialidad = id FROM personal.Especialidad WHERE descripcion = @descripcion;
     END
 
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        UPDATE guia.Especialidad SET descripcion = @descripcion_nueva WHERE  id = @id_especialidad;
+        UPDATE personal.Especialidad SET descripcion = @descripcion_nueva WHERE  id = @id_especialidad;
 END
 GO
 
@@ -418,7 +418,7 @@ GO
 ====================================================
 */
 
-CREATE OR ALTER PROCEDURE gestion.guia_alta
+CREATE OR ALTER PROCEDURE personal.Guia_alta
     @dni CHAR(8),
     @nombre VARCHAR(30),
     @apellido VARCHAR(30), 
@@ -438,7 +438,7 @@ BEGIN
             SET @error += 'Ingresar dni valido.' + CHAR(10);
         ELSE
         BEGIN
-            IF EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+            IF EXISTS (SELECT id FROM personal.Guia WHERE dni = @dni)
                 SET @error += 'El dni ya pertenece a un guia.' + CHAR(10);
         END    
     END
@@ -462,11 +462,11 @@ BEGIN
     BEGIN
         BEGIN TRY
             BEGIN TRANSACTION
-                INSERT INTO guia.Acreditacion VALUES(@fecha_vencimiento_acreditacion, @estado_acreditacion);
+                INSERT INTO personal.Acreditacion VALUES(@fecha_vencimiento_acreditacion, @estado_acreditacion);
             
                 SET @id_acreditacion = SCOPE_IDENTITY();
 
-                INSERT INTO gestion.Guia (dni, nombre, apellido, estado, id_acreditacion) VALUES (@dni, @nombre, @apellido, 'ACTIVO', @id_acreditacion);
+                INSERT INTO personal.Guia (dni, nombre, apellido, estado, id_acreditacion) VALUES (@dni, @nombre, @apellido, 'ACTIVO', @id_acreditacion);
             COMMIT
         END TRY
         BEGIN CATCH
@@ -477,7 +477,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE gestion.guia_baja
+CREATE OR ALTER PROCEDURE personal.Guia_baja
     @dni CHAR(8)
 AS
 BEGIN
@@ -492,9 +492,9 @@ BEGIN
             SET @error += 'Ingresar dni valido.' + CHAR(10);
         ELSE
         BEGIN
-            IF NOT EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = @dni)
+            IF NOT EXISTS (SELECT 1 FROM personal.Guia WHERE dni = @dni)
                 SET @error += 'El dni no pertenece a un guia.' + CHAR(10);
-            IF EXISTS (SELECT 1 FROM gestion.Guia WHERE dni = @dni AND estado = 'INACTIVO')
+            IF EXISTS (SELECT 1 FROM personal.Guia WHERE dni = @dni AND estado = 'INACTIVO')
                 SET @error += 'El guia ya esta dado de baja.' + CHAR(10);
         END    
     END
@@ -502,11 +502,11 @@ BEGIN
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        UPDATE gestion.Guia SET estado = 'INACTIVO' WHERE dni = @dni;
+        UPDATE personal.Guia SET estado = 'INACTIVO' WHERE dni = @dni;
 END
 GO
 
-CREATE OR ALTER PROCEDURE gestion.guia_modificacion
+CREATE OR ALTER PROCEDURE personal.Guia_modificacion
     @dni CHAR(8),
     @nombre VARCHAR(30),
     @apellido VARCHAR(30)
@@ -528,19 +528,19 @@ BEGIN
             IF @dni NOT LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
                 SET @error += 'Ingresar dni valido.' + CHAR(10);
             ELSE
-                IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE dni = @dni)
+                IF NOT EXISTS (SELECT id FROM personal.Guia WHERE dni = @dni)
                     SET @error += 'El dni no pertenece a un guia.' + CHAR(10);
 
             IF @nombre IS NULL
-                SELECT @nombre = nombre FROM gestion.Guia WHERE dni = @dni;
+                SELECT @nombre = nombre FROM personal.Guia WHERE dni = @dni;
             IF @apellido IS NULL
-                SELECT @apellido = apellido FROM gestion.Guia WHERE dni = @dni;
+                SELECT @apellido = apellido FROM personal.Guia WHERE dni = @dni;
         END
     END
     IF @error != ''
         THROW 50000, @error, 1;
     ELSE
-        UPDATE gestion.Guia SET nombre = @nombre, apellido = @apellido WHERE dni = @dni
+        UPDATE personal.Guia SET nombre = @nombre, apellido = @apellido WHERE dni = @dni
 END
 GO
 
@@ -655,13 +655,13 @@ BEGIN
     IF @id_parque IS NULL
         SET @errores += 'El parque en el que se quiere registrar la actividad no existe.' + CHAR(10);
 
-    SELECT @id_guia = id FROM gestion.Guia WHERE dni = @dni_guia;
+    SELECT @id_guia = id FROM personal.Guia WHERE dni = @dni_guia;
     IF @id_guia IS NULL
         SET @errores += 'El guia en el que se quiere registrar la actividad no existe.' + CHAR(10);
     ELSE
         IF NOT EXISTS(
-			SELECT g.id FROM gestion.Guia g
-			INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+			SELECT g.id FROM personal.Guia g
+			INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
 			WHERE g.id = @id_guia AND a.estado = 'vigente' AND a.fecha_vencimiento >= GETDATE()
 		)
 			SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
@@ -691,8 +691,8 @@ BEGIN
 	IF @errores != ''
 		THROW 50000, @errores, 1;
 
-	INSERT INTO gestion.Actividad (id_parque, id_guia, id_tipo, nombre, descripcion, costo, fecha, duracion, cupo, estado)
-	VALUES (@id_parque, @id_guia, @id_tipo, @nombre, @descripcion, @costo, @fecha, @duracion, @cupo, 'Programado');
+	INSERT INTO gestion.Actividad (id_parque, id_tipo, nombre, descripcion, costo, fecha, duracion, cupo, estado)
+	VALUES (@id_parque, @id_tipo, @nombre, @descripcion, @costo, @fecha, @duracion, @cupo, 'Programado');
 END
 GO
 
@@ -760,13 +760,13 @@ BEGIN
             SET @errores += 'No se puede modificar una actividad que esta ' + RTRIM(@estado_actual) + '.' + CHAR(10);
     END
 
-    SELECT @id_guia = id FROM gestion.Guia WHERE dni = @dni_guia;
-    IF NOT EXISTS (SELECT id FROM gestion.Guia WHERE id = @id_guia)
+    SELECT @id_guia = id FROM personal.Guia WHERE dni = @dni_guia;
+    IF NOT EXISTS (SELECT id FROM personal.Guia WHERE id = @id_guia)
         SET @errores += 'El guia especificado no existe.' + CHAR(10);
     ELSE
     BEGIN
-        IF NOT EXISTS (SELECT g.id FROM gestion.Guia g
-            INNER JOIN guia.Acreditacion a ON g.id_acreditacion = a.id
+        IF NOT EXISTS (SELECT g.id FROM personal.Guia g
+            INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
             WHERE g.id = @id_guia
               AND a.estado = 'Activo'
               AND a.fecha_vencimiento >= GETDATE()
@@ -798,7 +798,7 @@ BEGIN
     IF @errores != ''
         THROW 50000, @errores, 1;
  
-    UPDATE gestion.Actividad SET id_guia = @id_guia, id_tipo = @id_tipo, descripcion = @descripcion, costo = @costo, fecha = @fecha, duracion = @duracion, cupo = @cupo, estado = @estado
+    UPDATE gestion.Actividad SET id_tipo = @id_tipo, descripcion = @descripcion, costo = @costo, fecha = @fecha, duracion = @duracion, cupo = @cupo, estado = @estado
     WHERE id = @id_actividad;
 END
 GO
@@ -1572,7 +1572,7 @@ CREATE OR ALTER PROCEDURE ventas.item_venta_modificacion (@venta INT, @item INT,
 AS
 BEGIN
 	DECLARE @subtotal_actualizado DECIMAL(10,2), @subtotal DECIMAL (10,2), @errores VARCHAR(200);;
-	SET @subtotal = (SELECT subotal FROM ventas.item_id WHERE id = @item)
+	SET @subtotal = (SELECT subtotal FROM ventas.item_venta WHERE id = @item)
 	SET @subtotal_actualizado = (SELECT precio FROM ventas.item_venta WHERE id = @item) * @nueva_cantidad
 
     IF (SELECT 1 FROM ventas.item_venta WHERE id = @item) IS NULL

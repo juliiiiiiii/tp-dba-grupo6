@@ -31,8 +31,8 @@ IF SCHEMA_ID('gestion') IS NULL
 	EXEC('CREATE SCHEMA gestion');
 GO
 
-IF SCHEMA_ID('guia') IS NULL
-	EXEC('CREATE SCHEMA guia');
+IF SCHEMA_ID('personal') IS NULL
+	EXEC('CREATE SCHEMA personal');
 GO
 
 IF SCHEMA_ID('ventas') IS NULL
@@ -41,4 +41,8 @@ GO
 
 IF SCHEMA_ID('importacion') IS NULL
 	EXEC('CREATE SCHEMA importacion');
+GO
+
+IF SCHEMA_ID('reportes') IS NULL
+	EXEC('CREATE SCHEMA reportes');
 GO

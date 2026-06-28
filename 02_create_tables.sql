@@ -39,9 +39,9 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID('[gestion].[Guardaparque]', 'U') IS NULL
+IF OBJECT_ID('[personal].[Guardaparque]', 'U') IS NULL
 BEGIN
-	CREATE TABLE gestion.Guardaparque (
+	CREATE TABLE personal.Guardaparque (
 		id INT IDENTITY(1,1) PRIMARY KEY,
 		dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
 		nombre CHAR(20) NOT NULL,
@@ -75,9 +75,9 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Acreditacion]', N'U') IS NULL
+IF OBJECT_ID(N'[personal].[Acreditacion]', N'U') IS NULL
 BEGIN
-    CREATE TABLE guia.Acreditacion (
+    CREATE TABLE personal.Acreditacion (
         id INT IDENTITY(1,1) PRIMARY KEY,
         fecha_vencimiento DATE NOT NULL,
         estado CHAR(7) CHECK(estado IN ('vigente', 'vencido'))
@@ -85,9 +85,9 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'[gestion].[Guia]', N'U') IS NULL 
+IF OBJECT_ID(N'[personal].[Guia]', N'U') IS NULL 
 BEGIN
-    CREATE TABLE gestion.Guia (
+    CREATE TABLE personal.Guia (
         id INT IDENTITY(1,1) PRIMARY KEY,
         dni CHAR(8) UNIQUE NOT NULL CHECK(dni LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
         nombre VARCHAR(30) NOT NULL,
@@ -110,18 +110,16 @@ BEGIN
 		cupo INT NOT NULL CHECK(cupo > 0),
 		estado CHAR(10) NOT NULL CHECK(estado IN('Programado', 'Cancelado', 'Finalizado', 'En curso', 'Cupo lleno')),
 		id_parque INT NOT NULL,
-		id_guia INT NOT NULL,
 		id_tipo INT NOT NULL,
 		CONSTRAINT fk_actividad_parque FOREIGN KEY (id_parque) REFERENCES gestion.Parque(id),
-		CONSTRAINT fk_actividad_guia FOREIGN KEY (id_guia) REFERENCES gestion.Guia(id),
 		CONSTRAINT fk_actividad_tipo FOREIGN KEY (id_tipo) REFERENCES gestion.Tipo_actividad(id)
 	);
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Titulo]', N'U') IS NULL
+IF OBJECT_ID(N'[personal].[Titulo]', N'U') IS NULL
 BEGIN
-    CREATE TABLE guia.Titulo (
+    CREATE TABLE personal.Titulo (
         id INT IDENTITY(1,1) PRIMARY KEY,
         descripcion VARCHAR(80) NOT NULL,
         institucion VARCHAR(30),
@@ -130,31 +128,31 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Especialidad]', N'U') IS NULL
+IF OBJECT_ID(N'[personal].[Especialidad]', N'U') IS NULL
 BEGIN
-    CREATE TABLE guia.Especialidad (
+    CREATE TABLE personal.Especialidad (
         id INT IDENTITY(1,1) PRIMARY KEY,
         descripcion VARCHAR(50) NOT NULL UNIQUE
     )
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Especializado_en]', N'U') IS NULL
+IF OBJECT_ID(N'[personal].[Especializado_en]', N'U') IS NULL
 BEGIN
-    CREATE TABLE guia.Especializado_en (
+    CREATE TABLE personal.Especializado_en (
         id INT IDENTITY(1,1) PRIMARY KEY,
-        id_guia INT REFERENCES gestion.Guia(id),
-        id_especialidad INT REFERENCES guia.Especialidad(id)
+        id_guia INT REFERENCES personal.Guia(id),
+        id_especialidad INT REFERENCES personal.Especialidad(id)
     )
 END
 GO
 
-IF OBJECT_ID(N'[guia].[Titulacion_guia]', N'U') IS NULL
+IF OBJECT_ID(N'[personal].[Titulacion_guia]', N'U') IS NULL
 BEGIN
-    CREATE TABLE guia.Titulacion_guia (
+    CREATE TABLE personal.Titulacion_guia (
         id INT IDENTITY(1,1) PRIMARY KEY,
-        id_guia INT REFERENCES gestion.Guia(id),
-        id_titulo INT REFERENCES guia.Titulo(id)
+        id_guia INT REFERENCES personal.Guia(id),
+        id_titulo INT REFERENCES personal.Titulo(id)
     )
 END
 GO
@@ -165,7 +163,7 @@ BEGIN
         id INT IDENTITY(1,1) PRIMARY KEY,
 		estado CHAR(10) NOT NULL CHECK(estado IN('ACTIVO', 'INACTIVO')),
         id_actividad INT REFERENCES gestion.Actividad(id) NOT NULL,
-        id_guia INT REFERENCES gestion.Guia(id) NOT NULL,
+        id_guia INT REFERENCES personal.Guia(id) NOT NULL,
         fecha_desde DATE NOT NULL,
         fecha_hasta DATE NOT NULL
     )
