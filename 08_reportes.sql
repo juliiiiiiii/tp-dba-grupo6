@@ -31,18 +31,14 @@ GO
 --EXEC ventas.generar_reporte_visitas_por_mes
 go
 
-CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
+CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas_mensuales_por_parque @parque VARCHAR(50), @año CHAR(4)
 AS
-	SET @año = '225';
-	SELECT DISTINCT p.nombre, mes, total_mes AS visitas FROM ventas.visitas_anuales v
-	LEFT JOIN
-	gestion.parque p
-	ON v.parque = p.id
-	WHERE p.id = @parque AND año = @año
+	SELECT DISTINCT parque, mes, total_mes AS visitas FROM ventas.visitas_anuales
+	WHERE parque = @parque AND año = @año
 	ORDER BY mes
 	FOR XML PATH('Visitas'), ROOT('Reporte')
 GO
-
+--EXEC ventas.generar_xml_visitas_mensuales_por_parque @parque = 'Parque Nacional El Palmar', @año = '2026'
 CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas @parque VARCHAR(50)
 AS
 	SELECT

@@ -75,6 +75,7 @@ AS
 	)
 	SELECT parque, semana, mes, año, sum(total) AS visitas FROM totales_por_mes group by parque, semana, mes, año
 GO
+
 CREATE OR ALTER VIEW ventas.visitas_anuales
 AS
 	SELECT p.nombre as parque, semana, mes, año, visitas,
