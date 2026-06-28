@@ -57,19 +57,19 @@ GO
  
 -- TEST 2.1: exitoso
 PRINT '--- TEST 2.1: Registrar guardaparque exitoso ---';
-EXEC gestion.guardaparque_alta
+EXEC personal.Guardaparque_alta
     @dni      = 30123456,
     @nombre   = 'Carlos',
     @apellido = 'Mendez';
  
 -- Evidencia
-SELECT id, dni, nombre, apellido, estado FROM gestion.Guardaparque WHERE dni = 30123456;
+SELECT id, dni, nombre, apellido, estado FROM personal.Guardaparque WHERE dni = 30123456;
 GO
  
 -- TEST 2.2: DNI duplicado
 PRINT '--- TEST 2.2: DNI duplicado (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guardaparque_alta
+    EXEC personal.Guardaparque_alta
     @dni      = 30123456,
     @nombre   = 'Otro',
     @apellido = 'Nombre';
@@ -81,7 +81,7 @@ END CATCH
 GO
  
 -- Registrar un segundo guardaparque para tests posteriores
-EXEC gestion.guardaparque_alta
+EXEC personal.Guardaparque_alta
     @dni      = 40999888,
     @nombre   = 'Laura',
     @apellido = 'Gomez';
@@ -96,24 +96,24 @@ GO
  
 -- TEST 3.1: exitoso
 PRINT '--- TEST 3.1: Asignacion exitosa ---';
-select * from gestion.guardaparque
+select * from personal.Guardaparque
 select * from gestion.Parque_asignado
 EXEC gestion.guardaparque_asignar
-    @id_parque       = 2,
+    @id_parque = 2,
     @id_guardaparque = 1;
  
 -- Evidencia: asignacion creada y guardaparque en estado Activo
 SELECT pa.id, pa.id_parque, pa.id_guardaparque, pa.fecha_ingreso, pa.fecha_egreso, pa.motivo
 FROM gestion.Parque_asignado pa WHERE pa.id_parque = 1;
  
-SELECT id, nombre, estado FROM gestion.Guardaparque WHERE id = 1;
+SELECT id, nombre, estado FROM personal.Guardaparque WHERE id = 1;
 GO
  
 -- TEST 3.2: parque inexistente
 PRINT '--- TEST 3.2: Parque inexistente (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.guardaparque_asignar
-    @id_parque       = 999,
+    @id_parque = 999,
     @id_guardaparque = 2;
     PRINT 'FALLO - Test 3.2: se esperaba error y no ocurrio.';
 END TRY
@@ -126,7 +126,7 @@ GO
 PRINT '--- TEST 3.3: Guardaparque inexistente (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.guardaparque_asignar
-    @id_parque       = 1,
+    @id_parque = 1,
     @id_guardaparque = 999;
     PRINT 'FALLO - Test 3.3: se esperaba error y no ocurrio.';
 END TRY
@@ -139,7 +139,7 @@ GO
 PRINT '--- TEST 3.4: Parque ya ocupado (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.guardaparque_asignar
-    @id_parque       = 1,
+    @id_parque = 1,
     @id_guardaparque = 2;
     PRINT 'FALLO - Test 3.4: se esperaba error y no ocurrio.';
 END TRY
@@ -160,7 +160,7 @@ GO
 PRINT '--- TEST 3.5: Guardaparque ya asignado en otro parque (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.guardaparque_asignar
-    @id_parque       = 2,
+    @id_parque = 2,
     @id_guardaparque = 1   -- guardaparque 1 ya esta asignado al parque 1;
     PRINT 'FALLO - Test 3.5: se esperaba error y no ocurrio.';
 END TRY
@@ -188,8 +188,8 @@ GO
 -- TEST 4.1: exitoso
 PRINT '--- TEST 4.1: Registrar actividad exitosa ---';
 EXEC gestion.actividad_alta
-    @id_parque   = 1,
-    @id_guia     = 1,
+    @nombre_parque = 'Parque Nacional Iguazï¿½',
+    @dni_guia = '35111222',
     @nombre      = 'Trekking Cataratas',
     @descripcion = 'Caminata por circuito superior',
     @tipo        = 'Tour guiado',
@@ -209,9 +209,8 @@ GO
 PRINT '--- TEST 4.2: Parque inexistente (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_alta
-    @id_parque   = 999,
-    @id_guia     = 1,
-    @nombre      = 'Test',
+    @nombre_parque = 'Parque inexistente',
+    @dni_guia = '35111222',
     @descripcion = 'Test',
     @tipo        = 'Tour guiado',
     @costo       = 0,
@@ -229,9 +228,8 @@ GO
 PRINT '--- TEST 4.3: Guia con acreditacion vencida (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_alta
-    @id_parque   = 1,
-    @id_guia     = 2,
-    @nombre      = 'Test',
+    @nombre_parque = 'Parque Nacional Iguazï¿½',
+    @dni_guia = '25123456',
     @descripcion = 'Test',
     @tipo        = 'Tour guiado',
     @costo       = 0,
@@ -249,9 +247,8 @@ GO
 PRINT '--- TEST 4.4: Guia con acreditacion inactiva (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_alta
-    @id_parque   = 1,
-    @id_guia     = 3,
-    @nombre      = 'Test',
+    @nombre_parque = 'Parque Nacional Iguazï¿½',
+    @dni_guia = '38912345',
     @descripcion = 'Test',
     @tipo        = 'Tour guiado',
     @costo       = 0,
@@ -269,9 +266,8 @@ GO
 PRINT '--- TEST 4.5: Fecha pasada (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_alta
-    @id_parque   = 1,
-    @id_guia     = 1,
-    @nombre      = 'Test',
+    @nombre_parque = 'Parque Nacional Iguazï¿½',
+    @dni_guia = '35111222',
     @descripcion = 'Test',
     @tipo        = 'Tour guiado',
     @costo       = 0,
@@ -289,9 +285,8 @@ GO
 PRINT '--- TEST 4.6: Multiples errores acumulados (debe mostrar todos juntos) ---';
 BEGIN TRY
     EXEC gestion.actividad_alta
-        @id_parque   = 999, -- parque no existe
-        @id_guia     = 999, -- guia no existe
-        @nombre      = 'Test',
+        @nombre_parque = 'Parque inexistente', -- parque no existe
+        @dni_guia = '99999999', -- guia no existe
         @descripcion = 'Test',
         @tipo        = 'Tour no guiado', -- tipo invalido
         @costo       = 0,
@@ -312,26 +307,26 @@ GO
  -- TODO: test de baja
  select * from gestion.Parque
  EXEC gestion.parque_baja
-    @id   = 2;
+    @nombre = 'Parque Nahuel Huapi';
 
 PRINT '=== BAJA DE GUARDAPARQUE ===';
 GO
  
 -- TEST 5.1: exitoso (con asignacion activa, debe cerrarla automaticamente)
 PRINT '--- TEST 5.1: Baja de guardaparque con asignacion activa ---';
-EXEC gestion.guardaparque_baja
-    @id      = 1;
+EXEC personal.Guardaparque_baja
+    @dni = 30123456;
  
 -- Evidencia: guardaparque inactivo y asignacion cerrada con fecha_egreso
-SELECT id, nombre, estado FROM gestion.Guardaparque WHERE id = 1;
+SELECT id, nombre, estado FROM personal.Guardaparque WHERE id = 1;
 SELECT id, id_guardaparque, fecha_ingreso, fecha_egreso FROM gestion.Parque_asignado WHERE id_guardaparque = 1;
 GO
  
 -- TEST 5.2: guardaparque inexistente
 PRINT '--- TEST 5.2: Guardaparque inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guardaparque_baja
-    @id      = 999;
+    EXEC personal.Guardaparque_baja
+    @dni = 99999999;
     PRINT 'FALLO - Test 5.2: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -350,7 +345,6 @@ GO
 select * from gestion.Parque
 PRINT '--- TEST 6.1: Modificar parque exitoso ---';
 EXEC gestion.parque_modificacion
-    @id         = 2,
     @nombre     = 'Parque Nacional Iguazú',
     @tipo       = 'Nacional',
     @ubicacion  = 'Misiones',
@@ -364,8 +358,7 @@ GO
 PRINT '--- TEST 6.2: Parque inexistente (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.parque_modificacion
-    @id         = 999,
-    @nombre     = 'Test',
+    @nombre = 'Parque inexistente',
     @tipo       = 'Test',
     @ubicacion  = 'Test',
     @superficie = 100;
@@ -380,7 +373,6 @@ GO
 PRINT '--- TEST 6.3: Nombre duplicado en modificacion (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.parque_modificacion
-    @id         = 2,
     @nombre     = 'Parque Nacional Iguazú',  -- nombre que ya usa el parque 1
     @tipo       = 'Nacional',
     @ubicacion  = 'Rio Negro',
@@ -401,21 +393,21 @@ GO
  
 -- TEST 7.1: exitoso
 PRINT '--- TEST 7.1: Modificar guardaparque exitoso ---';
-EXEC gestion.guardaparque_modificacion
-    @id       = 2,
+EXEC personal.Guardaparque_modificacion
+    @dni = 40999888,
     @nombre   = 'Laura Beatriz',
     @apellido = 'Gomez',
     @estado   = 'Inactivo';
  
 -- Evidencia
-SELECT id, nombre, apellido, estado FROM gestion.Guardaparque WHERE id = 2;
+SELECT id, nombre, apellido, estado FROM personal.Guardaparque WHERE id = 2;
 GO
  
 -- TEST 7.2: estado invalido
 PRINT '--- TEST 7.2: Estado invalido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guardaparque_modificacion
-    @id       = 2,
+    EXEC personal.Guardaparque_modificacion
+    @dni = 40999888,
     @nombre   = 'Laura',
     @apellido = 'Gomez',
     @estado   = 'Suspendido';
@@ -435,7 +427,7 @@ GO
  
 -- Primero reasignamos el guardaparque 1 para tener una asignacion activa
 EXEC gestion.guardaparque_asignar
-    @id_parque       = 1,
+    @id_parque = 1,
     @id_guardaparque = 1;
 GO
  
@@ -447,7 +439,7 @@ EXEC gestion.asignacion_modificacion
  
 -- Evidencia: asignacion con fecha_egreso y guardaparque en Inactivo
 SELECT id, id_guardaparque, fecha_ingreso, fecha_egreso, motivo FROM gestion.Parque_asignado WHERE id = 2;
-SELECT id, nombre, estado FROM gestion.Guardaparque WHERE id = 1;
+SELECT id, nombre, estado FROM personal.Guardaparque WHERE id = 1;
 GO
  
 -- TEST 8.2: asignacion ya cerrada
@@ -473,9 +465,8 @@ GO
 -- TEST 9.1: exitoso
 PRINT '--- TEST 9.1: Modificar actividad exitosa ---';
 EXEC gestion.actividad_modificacion
-    @id          = 1,
-    @id_guia     = 1,
-    @nombre      = 'Trekking Cataratas Actualizado',
+    @nombre = 'Trekking Cataratas',
+    @dni_guia = '35111222',
     @descripcion = 'Caminata por circuito superior e inferior',
     @tipo        = 'Tour guiado',
     @costo       = 3000.00,
@@ -492,9 +483,8 @@ GO
 PRINT '--- TEST 9.2: Cambiar guia por uno con acreditacion vencida (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_modificacion
-    @id          = 1,
-    @id_guia     = 2,
-    @nombre      = 'Test',
+    @nombre = 'Trekking Cataratas',
+    @dni_guia = '25123456',
     @descripcion = 'Test',
     @tipo        = 'Tour guiado',
     @costo       = 0,
@@ -513,9 +503,8 @@ GO
 PRINT '--- TEST 9.3: Multiples errores en modificacion (debe mostrar todos) ---';
 BEGIN TRY
     EXEC gestion.actividad_modificacion
-        @id          = 999,   -- no existe
-        @id_guia     = 999,   -- no existe
-        @nombre      = 'Test',
+        @nombre = 'Actividad inexistente',
+        @dni_guia = '99999999',   -- no existe
         @descripcion = 'Test',
         @tipo        = 'Tour guiado',
         @costo       = -100,       -- negativo
@@ -540,8 +529,7 @@ GO
 -- TEST 10.1: exitoso (cancelar actividad programada)
 PRINT '--- TEST 10.1: Baja de actividad exitosa ---';
 EXEC gestion.actividad_baja
-    @id     = 1,
-    @motivo = 'Cancelada por condiciones climaticas';
+    @nombre = 'Trekking Cataratas Actualizado';
 
 -- Evidencia: estado debe ser 'Cancelado'
 SELECT id, nombre, estado FROM gestion.Actividad WHERE id = 1;
@@ -551,8 +539,7 @@ GO
 PRINT '--- TEST 10.2: Actividad inexistente (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_baja
-    @id     = 999,
-    @motivo = 'Test';
+    @nombre = 'Actividad inexistente';
     PRINT 'FALLO - Test 10.2: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -564,8 +551,7 @@ GO
 PRINT '--- TEST 10.3: Actividad ya cancelada (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_baja
-    @id     = 1,
-    @motivo = 'Intento duplicado';
+    @nombre = 'Trekking Cataratas Actualizado';
     PRINT 'FALLO - Test 10.3: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
@@ -582,7 +568,7 @@ GO
 
 -- TEST 11.1: Registro exitoso
 PRINT '--- TEST 11.1: Registrar guía exitosamente ---';
-EXEC gestion.guia_alta
+EXEC personal.Guia_alta
     @dni = '30456789',
     @nombre = 'Lucía',
     @apellido = 'Ferreyra',
@@ -591,7 +577,7 @@ GO
 
 -- TEST 11.2: Registro exitoso
 PRINT '--- TEST 11.2: Registrar guía exitosamente ---';
-EXEC gestion.guia_alta
+EXEC personal.Guia_alta
     @dni = '25123456',
     @nombre = 'Marcos',
     @apellido = 'Villanueva',
@@ -601,7 +587,7 @@ GO
 -- TEST 11.3: DNI duplicado (debe fallar)
 PRINT '--- TEST 11.3: DNI duplicado (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = '30456789',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -616,7 +602,7 @@ GO
 -- TEST 11.4: DNI duplicado y nombre inválido (debe fallar)
 PRINT '--- TEST 11.4: DNI duplicado y falta de nombre/apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez',
@@ -631,7 +617,7 @@ GO
 -- TEST 11.5: Formato de DNI inválido (debe fallar)
 PRINT '--- TEST 11.5: DNI con formato inválido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = 'ABC12',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -646,7 +632,7 @@ GO
 -- TEST 11.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 11.6: Falta apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '',
@@ -661,7 +647,7 @@ GO
 -- TEST 11.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 11.7: Apellido NULL (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL,
@@ -676,7 +662,7 @@ GO
 -- TEST 11.8: Fecha de vencimiento NULL (debe fallar)
 PRINT '--- TEST 11.8: Falta fecha de vencimiento de la acreditacion (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -691,7 +677,7 @@ GO
 -- TEST 11.9: DNI NULL (debe fallar)
 PRINT '--- TEST 11.9: Falta DNI (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_alta
+    EXEC personal.Guia_alta
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -705,7 +691,7 @@ GO
 
 -- TEST 11.10: Registro exitoso
 PRINT '--- TEST 11.10: Registrar guía exitosamente ---';
-EXEC gestion.guia_alta
+EXEC personal.Guia_alta
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = 'Perez',
@@ -721,7 +707,7 @@ GO
 
 -- TEST 12.1: Actalizar exitoso
 PRINT '--- TEST 12.1: Actalizar guía exitosamente ---';
-EXEC gestion.guia_actualizar
+EXEC personal.Guia_modificacion
     @dni = '30456789',
     @nombre = 'Luciano',
     @apellido = 'Fernandez';
@@ -729,7 +715,7 @@ GO
 
 -- TEST 12.2: Actalizar exitoso
 PRINT '--- TEST 12.2: Actalizar guía exitosamente ---';
-EXEC gestion.guia_actualizar
+EXEC personal.Guia_modificacion
     @dni = '25123456',
     @nombre = 'Marcos',
     @apellido = 'Villanueva';
@@ -738,7 +724,7 @@ GO
 -- TEST 12.3: DNI sin guia (debe fallar)
 PRINT '--- TEST 12.3: DNI sin guia (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_actualizar
+    EXEC personal.Guia_modificacion
     @dni = '32000000',
     @nombre = 'Lucas',
     @apellido = 'Perez';
@@ -752,7 +738,7 @@ GO
 -- TEST 12.4: Nombre inválido (debe fallar)
 PRINT '--- TEST 12.4: Falta de nombre/apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_actualizar
+    EXEC personal.Guia_modificacion
     @dni = '30456789',
     @nombre = '',
     @apellido = 'Perez';
@@ -766,7 +752,7 @@ GO
 -- TEST 12.6: Apellido vacío (debe fallar)
 PRINT '--- TEST 12.6: Falta apellido (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_actualizar
+    EXEC personal.Guia_modificacion
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = '';
@@ -780,7 +766,7 @@ GO
 -- TEST 12.7: Apellido NULL (debe fallar)
 PRINT '--- TEST 12.7: Apellido NULL (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_actualizar
+    EXEC personal.Guia_modificacion
     @dni = '38912345',
     @nombre = 'Lucas',
     @apellido = NULL;
@@ -794,7 +780,7 @@ GO
 -- TEST 12.8: DNI NULL (debe fallar)
 PRINT '--- TEST 12.8: Falta DNI (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_actualizar
+    EXEC personal.Guia_modificacion
     @dni = NULL,
     @nombre = 'Lucas',
     @apellido = 'Perez';
@@ -814,8 +800,8 @@ GO
 
 PRINT '--- TEST 13.0: Registrar actividad exitosa ---';
 EXEC gestion.actividad_alta
-    @id_parque   = 1,
-    @id_guia     = 1,
+    @nombre_parque = 'Parque Nacional Iguazï¿½',
+    @dni_guia = '35111222',
     @nombre      = 'Trekking Cataratas',
     @descripcion = 'Caminata por circuito superior',
     @tipo        = 'Tour guiado',
@@ -826,7 +812,7 @@ EXEC gestion.actividad_alta
 
 -- TEST 13.1: Asignación exitosa
 PRINT '--- TEST 13.1: Asignar guía exitosamente ---';
-EXEC gestion.guia_asignar
+EXEC gestion.coordina_alta
 @dni = '30456789',
 @nombre_actividad = 'Trekking Cataratas',
 @nombre_parque = 'Parque Nacional Iguazú',
@@ -838,7 +824,7 @@ GO
 -- TEST 13.2: Actividad inexistente en el parque (debe fallar)
 PRINT '--- TEST 13.2: Actividad inexistente en el parque (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nahuel Huapi',
@@ -855,7 +841,7 @@ GO
  -- TEST 13.3: DNI NULL (debe fallar)
 PRINT '--- TEST 13.3: Falta especificar DNI del guía (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = NULL,
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -872,7 +858,7 @@ GO
 -- TEST 13.4: Guía inexistente (debe fallar)
 PRINT '--- TEST 13.4: DNI de guía inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '11122345',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -889,7 +875,7 @@ GO
 -- TEST 13.5: Nombre de actividad inexistente (debe fallar)
 PRINT '--- TEST 13.5: Actividad inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Escalda',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -906,7 +892,7 @@ GO
 -- TEST 13.6: Fecha de actividad incorrecta (debe fallar)
 PRINT '--- TEST 13.6: Fecha de actividad inexistente (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -923,7 +909,7 @@ GO
 -- TEST 13.7: Nombre de actividad NULL (debe fallar)
 PRINT '--- TEST 13.7: Falta nombre de actividad (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = NULL,
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -940,7 +926,7 @@ GO
 -- TEST 13.8: Fecha de actividad NULL (debe fallar)
 PRINT '--- TEST 13.8: Falta fecha de actividad (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -957,7 +943,7 @@ GO
 -- TEST 13.9: Fecha desde NULL (debe fallar)
 PRINT '--- TEST 13.9: Falta fecha desde (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -974,7 +960,7 @@ GO
 -- TEST 13.10: Fecha hasta NULL (debe fallar)
 PRINT '--- TEST 13.10: Falta fecha hasta (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -991,7 +977,7 @@ GO
 -- TEST 13.11: Asignación duplicada (debe fallar)
 PRINT '--- TEST 13.11: La actividad ya está asignada al guía (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '30456789',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -1008,7 +994,7 @@ GO
 -- TEST 13.12: Guía con acreditación vencida (debe fallar)
 PRINT '--- TEST 13.12: Guía con acreditación vencida (debe fallar) ---';
 BEGIN TRY
-    EXEC gestion.guia_asignar
+    EXEC gestion.coordina_alta
     @dni = '25123456',
     @nombre_actividad = 'Trekking Cataratas',
     @nombre_parque = 'Parque Nacional Iguazú',
@@ -1040,7 +1026,7 @@ begin try
     exec concesiones.concesion_alta @empresa = 'Canon Test 1', @parque = 'Parque Test Canon 1', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     declare @c1 int = (select top 1 id from concesiones.Concesion where id_empresa = @e1 order by id desc);
 
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 1', @parque = 'Parque Test Canon 1', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 1', @parque = 'Parque Test Canon 1', @fecha_inicio = '2026-01-01';
 
     select * from concesiones.Canon_pagar where id_concesion = @c1;
 
@@ -1068,9 +1054,9 @@ begin try
     declare @e2 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 2' order by id desc);
     exec concesiones.concesion_alta @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     declare @c2 int = (select top 1 id from concesiones.Concesion where id_empresa = @e2 order by id desc);
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
 
-    exec concesiones.canon_pagar_modificacion @fecha_generacion = '2026-02-01', @periodo = 'Enero 2026 (ajustado)', @monto = 1500.00, @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_modificacion @periodo = 'Enero 2026 (ajustado)', @monto = 1500.00, @empresa = 'Canon Test 2', @parque = 'Parque Test Canon 2', @fecha_inicio = '2026-01-01';
 
     select * from concesiones.Canon_pagar where id_concesion = @c2;
 
@@ -1097,9 +1083,9 @@ begin try
     declare @e3 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 3' order by id desc);
     exec concesiones.concesion_alta @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     declare @c3 int = (select top 1 id from concesiones.Concesion where id_empresa = @e3 order by id desc);
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
 
-    exec concesiones.canon_pagar_abonar @fecha_pago = '2026-02-05', @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_abonar @fecha_pago = '2026-02-05', @empresa = 'Canon Test 3', @parque = 'Parque Test Canon 3', @fecha_inicio = '2026-01-01';
 
     select * from concesiones.Canon_pagar where id_concesion = @c3;
 
@@ -1126,9 +1112,9 @@ begin try
     declare @e4 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 4' order by id desc);
     exec concesiones.concesion_alta @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     declare @c4 int = (select top 1 id from concesiones.Concesion where id_empresa = @e4 order by id desc);
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
 
-    exec concesiones.canon_pagar_baja @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_baja @empresa = 'Canon Test 4', @parque = 'Parque Test Canon 4', @fecha_inicio = '2026-01-01';
 
     if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c4 and estado = 'INVALIDO')
         print 'OK - Test 4: el canon quedo INVALIDO (baja logica).';
@@ -1149,7 +1135,7 @@ begin tran;
 begin try
     exec gestion.parque_alta 'Parque Test Canon 5', 'Test', '', 100.00;
 
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Empresa inexistente', @parque = 'Parque Test Canon 5', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Empresa inexistente', @parque = 'Parque Test Canon 5', @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 14.5: se esperaba error por empresa inexistente y no ocurrio.';
 end try
 begin catch
@@ -1166,7 +1152,7 @@ begin tran;
 begin try
     exec concesiones.empresa_alta @nombre = 'Canon Test 6', @tipo = 'tienda', @cuit = '30123456789';
 
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 6', @parque = 'Parque inexistente', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 6', @parque = 'Parque inexistente', @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 14.6: se esperaba error por parque inexistente y no ocurrio.';
 end try
 begin catch
@@ -1186,7 +1172,7 @@ begin try
 
     exec concesiones.empresa_alta @nombre = 'Canon Test 7', @tipo = 'tienda', @cuit = '30123456789';
 
-    exec concesiones.canon_pagar_alta @fecha_generacion = '2026-02-01', @empresa = 'Canon Test 7', @parque = 'Parque Test Canon 7', @fecha_inicio = '2026-01-01';
+    exec concesiones.canon_pagar_alta @empresa = 'Canon Test 7', @parque = 'Parque Test Canon 7', @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 14.7: se esperaba error por concesion inexistente y no ocurrio.';
 end try
 begin catch
@@ -1244,7 +1230,7 @@ begin try
     exec concesiones.concesion_alta @empresa = 'Concesionaria Test 2', @parque = 'Parque Test Concesion 2', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
     declare @idCon2 int = (select top 1 id from concesiones.Concesion where id_empresa = @idEmp2 order by id desc);
 
-    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 2', @parque = 'Parque Test Concesion 2', @fecha_inicio = '2026-01-01', @fecha_fin = '2026-12-31', @estado = 'INACTIVO', @canon = 999.99;
+    exec concesiones.concesion_modificacion @empresa = 'Concesionaria Test 2', @parque = 'Parque Test Concesion 2', @fecha_inicio = '2026-01-01', @fecha_fin = '2026-12-31', @estado = 'INACTIVO', @canon = 999.99;
 
     select * from concesiones.Concesion where id = @idCon2;
 
@@ -1266,7 +1252,7 @@ if @@trancount > 0 rollback;
 -- Test 15.3: Baja exito
 -- Esperado: la concesion queda con estado 'INACTIVO'.
 -------------------------------------------------------------------------------
-print '--- Test 15.3: sp_baja_concesion (exito, baja logica) ---';
+print '--- Test 15.3: concesion_baja (exito, baja logica) ---';
 begin tran;
 begin try
         exec gestion.parque_alta 'Parque Test Concesion 3', 'Test', '', 100.00;
@@ -1276,7 +1262,7 @@ begin try
     exec concesiones.concesion_alta @empresa = 'Concesionaria Test 3', @parque = 'Parque Test Concesion 3', @canon_mensual = 1200.00, @fecha_inicio = '2026-01-01';
     declare @idCon3 int = (select top 1 id from concesiones.Concesion where id_empresa = @idEmp3 order by id desc);
 
-    exec concesiones.sp_baja_concesion @empresa = 'Concesionaria Test 3', @parque = 'Parque Test Concesion 3', @fecha_inicio = '2026-01-01';
+    exec concesiones.concesion_baja @empresa = 'Concesionaria Test 3', @parque = 'Parque Test Concesion 3', @fecha_inicio = '2026-01-01';
 
     if exists (select 1 from concesiones.Concesion where id = @idCon3 and estado = 'INACTIVO')
         print 'OK - Test 15.3: la concesion quedo INACTIVO (baja logica).';
@@ -1349,14 +1335,14 @@ if @@trancount > 0 rollback;
 -- Test 15.7: Baja con concesion inexistente
 -- Esperado: el SP rechaza la operacion porque no encuentra la concesion.
 -------------------------------------------------------------------------------
-print '--- Test 15.7: sp_baja_concesion con concesion inexistente (validacion) ---';
+print '--- Test 15.7: concesion_baja con concesion inexistente (validacion) ---';
 begin tran;
 begin try
     exec gestion.parque_alta 'Parque Test Concesion 7', 'Test', '', 100.00;
 
     exec concesiones.empresa_alta @nombre = 'Concesionaria Test 7', @tipo = 'tienda', @cuit = '30123456789';
 
-    exec concesiones.sp_baja_concesion @empresa = 'Concesionaria Test 7', @parque = 'Parque Test Concesion 7', @fecha_inicio = '2026-01-01';
+    exec concesiones.concesion_baja @empresa = 'Concesionaria Test 7', @parque = 'Parque Test Concesion 7', @fecha_inicio = '2026-01-01';
     print 'FALLO - Test 15.7: se esperaba error por concesion inexistente y no ocurrio.';
 end try
 begin catch
@@ -1376,7 +1362,7 @@ begin try
     exec concesiones.empresa_alta @nombre = 'Concesionaria Test 8', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.concesion_alta @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
 
-    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @fecha_inicio = '2026-01-01', @estado = 'RARO';
+    exec concesiones.concesion_modificacion @empresa = 'Concesionaria Test 8', @parque = 'Parque Test Concesion 8', @fecha_inicio = '2026-01-01', @estado = 'RARO';
     print 'FALLO - Test 15.8: se esperaba error de CHECK por estado invalido y no ocurrio.';
 end try
 begin catch
@@ -1396,7 +1382,7 @@ begin try
     exec concesiones.empresa_alta @nombre = 'Concesionaria Test 9', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.concesion_alta @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
 
-    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @fecha_inicio = '2026-01-01', @empresa_nueva = 'Empresa nueva inexistente';
+    exec concesiones.concesion_modificacion @empresa = 'Concesionaria Test 9', @parque = 'Parque Test Concesion 9', @fecha_inicio = '2026-01-01', @empresa_nueva = 'Empresa nueva inexistente';
     print 'FALLO - Test 15.9: se esperaba error por empresa nueva inexistente y no ocurrio.';
 end try
 begin catch
@@ -1416,7 +1402,7 @@ begin try
     exec concesiones.empresa_alta @nombre = 'Concesionaria Test 10', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.concesion_alta @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @canon_mensual = 800.00, @fecha_inicio = '2026-01-01';
 
-    exec concesiones.sp_modificacion_concesion @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @fecha_inicio = '2026-01-01', @parque_nuevo = 'Parque nuevo inexistente';
+    exec concesiones.concesion_modificacion @empresa = 'Concesionaria Test 10', @parque = 'Parque Test Concesion 10', @fecha_inicio = '2026-01-01', @parque_nuevo = 'Parque nuevo inexistente';
     print 'FALLO - Test 15.10: se esperaba error por parque nuevo inexistente y no ocurrio.';
 end try
 begin catch
@@ -1456,13 +1442,13 @@ if @@trancount > 0 rollback;
 -- Test 16.2: Modificacion exito
 -- Esperado: nombre cambia a 'Resto del Lago SRL'; tipo y cuit quedan igual.
 -------------------------------------------------------------------------------
-print '--- Test 16.2: empresa_modifiacion (exito, modificacion parcial) ---';
+print '--- Test 16.2: empresa_modificacion (exito, modificacion parcial) ---';
 begin tran;
 begin try
     exec concesiones.empresa_alta @nombre = 'Empresa 1', @tipo = 'restaurante', @cuit = '30123456789';
     declare @idEmp int = (select top 1 id from concesiones.Empresa where nombre = 'Empresa 1' order by id desc);
 
-    exec concesiones.empresa_modifiacion @nombre = 'Empresa 1', @nuevo_nombre = 'Empresa 2';
+    exec concesiones.empresa_modificacion @nombre = 'Empresa 1', @nuevo_nombre = 'Empresa 2';
 
     select * from concesiones.Empresa where id = @idEmp;
 
@@ -1565,10 +1551,10 @@ if @@trancount > 0 rollback;
 -- Test 8: Modificacion con empresa inexistente
 -- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
 -------------------------------------------------------------------------------
-print '--- Test 16.8: empresa_modifiacion con empresa inexistente (validacion) ---';
+print '--- Test 16.8: empresa_modificacion con empresa inexistente (validacion) ---';
 begin tran;
 begin try
-    exec concesiones.empresa_modifiacion @nombre = 'Empresa inexistente', @nuevo_nombre = 'Empresa Nueva';
+    exec concesiones.empresa_modificacion @nombre = 'Empresa inexistente', @nuevo_nombre = 'Empresa Nueva';
     print 'FALLO - Test 16.8: se esperaba error por empresa inexistente y no ocurrio.';
 end try
 begin catch
@@ -1580,13 +1566,13 @@ if @@trancount > 0 rollback;
 -- Test 9: Modificacion con nombre nuevo duplicado
 -- Esperado: el SP rechaza la operacion porque el nombre nuevo ya existe.
 -------------------------------------------------------------------------------
-print '--- Test 16.9: empresa_modifiacion con nombre duplicado (validacion) ---';
+print '--- Test 16.9: empresa_modificacion con nombre duplicado (validacion) ---';
 begin tran;
 begin try
     exec concesiones.empresa_alta @nombre = 'Empresa Original', @tipo = 'tienda', @cuit = '30123456789';
     exec concesiones.empresa_alta @nombre = 'Empresa Existente', @tipo = 'tienda', @cuit = '30123456780';
 
-    exec concesiones.empresa_modifiacion @nombre = 'Empresa Original', @nuevo_nombre = 'Empresa Existente';
+    exec concesiones.empresa_modificacion @nombre = 'Empresa Original', @nuevo_nombre = 'Empresa Existente';
     print 'FALLO - Test 16.9: se esperaba error por nombre duplicado y no ocurrio.';
 end try
 begin catch
