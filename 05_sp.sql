@@ -290,10 +290,10 @@ GO
 CREATE OR ALTER PROCEDURE gestion.coordina_alta
     @dni CHAR(8),
     @nombre_actividad VARCHAR(50),
-    @nombre_parque VARCHAR(50),
+    @nombre_parque VARCHAR(100),
     @fecha_actividad DATETIME,
     @f_desde DATE,
-    @f_hasta DATE
+    @f_hasta DATE 
 AS
 BEGIN
     DECLARE @error VARCHAR(150);

@@ -44,8 +44,8 @@
           <FullPath>01_create_db_scheme.sql</FullPath>
         </FileNode>
         <FileNode Name="02_create_tables.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-F2AHUDD\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-F2AHUDD\SQLEXPRESS</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>02_create_tables.sql</FullPath>
         </FileNode>
@@ -79,17 +79,17 @@
           <AssociatedConnUserName />
           <FullPath>07_sp_test.sql</FullPath>
         </FileNode>
-        <FileNode Name="08_poblacion.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-PKP4HHQ\SQLEXPRESS01:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-PKP4HHQ\SQLEXPRESS01</AssociatedConnSrvName>
-          <AssociatedConnUserName />
-          <FullPath>08_poblacion.sql</FullPath>
-        </FileNode>
-        <FileNode Name="09_creacion_views.sql">
+        <FileNode Name="08_creacion_views.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-F2AHUDD\SQLEXPRESS:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-F2AHUDD\SQLEXPRESS</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>09_creacion_views.sql</FullPath>
+          <FullPath>08_creacion_views.sql</FullPath>
+        </FileNode>
+        <FileNode Name="09_poblacion.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-F2AHUDD\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-F2AHUDD\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>09_poblacion.sql</FullPath>
         </FileNode>
         <FileNode Name="10_reportes.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-F2AHUDD\SQLEXPRESS:True</AssociatedConnectionMoniker>
