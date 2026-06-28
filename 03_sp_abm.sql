@@ -1033,11 +1033,12 @@ go
 */
 
 create or alter procedure concesiones.canon_pagar_alta (
-    @fecha_generacion date,
     @empresa varchar(25),
     @parque varchar(100),
-    @fecha_inicio date
+    @fecha_inicio date,
+    @fecha_generacion date = null
 ) as begin
+    set @fecha_generacion = isnull(@fecha_generacion, getdate());
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
     declare @periodo varchar(50) = concat(year(@fecha_generacion), '-', right('0' + cast(month(@fecha_generacion) as varchar(2)), 2));
@@ -1342,7 +1343,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-    IF EXISTS ( SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+    IF EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
 		SET @errores += 'Ya existe la entrada. Utilice modificación. ' + CHAR(10)
 	IF @tipo_id IS NULL
 		SET @errores += 'No existe el tipo de visitante. Debe darlo de alta para proseguir. ' + CHAR(10)
@@ -1371,7 +1372,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo)
 
-    IF NOT EXISTS ( SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+    IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
 		SET @errores += 'No existe la entrada seleccionada. ' + CHAR(10)
 
     IF @errores <> ''
@@ -1398,7 +1399,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-	IF NOT EXISTS (SELECT 1 FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @tipo)
+	IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
 		SET @errores += 'No existe una entrada vigente. Debe darla de alta antes de modificarla. '
 
     IF @errores <> ''

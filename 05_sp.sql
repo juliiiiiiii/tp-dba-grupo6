@@ -550,8 +550,9 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
     @empresa varchar(25),
     @parque varchar(100),
     @fecha_inicio date,
-    @fecha_generacion date = getdate
+    @fecha_generacion date = null
 ) as begin
+    set @fecha_generacion = isnull(@fecha_generacion, getdate());
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
 

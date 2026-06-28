@@ -101,12 +101,8 @@ CREATE OR ALTER VIEW ventas.entradas_vigentes
 AS
 	SELECT p.id AS id_parque, p.nombre AS Parque, t.id AS id_visitante, t.descripcion as Visitante, precio
 	FROM ventas.entrada e
-	LEFT JOIN
-	gestion.parque p
-	ON e.parque = p.id
-	LEFT JOIN
-	ventas.tipo_visitante t
-	ON e.tipo = t.id
+	LEFT JOIN gestion.parque p ON e.parque = p.id
+	LEFT JOIN ventas.tipo_visitante t ON e.tipo = t.id
 	WHERE fecha_hasta IS NULL
 GO
 

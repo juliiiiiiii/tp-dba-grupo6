@@ -15,7 +15,15 @@
  
 USE parques_nacionales;
 GO
- 
+
+/*
+delete from personal.Guardaparque;
+delete from personal.Guia;
+delete from gestion.Parque_asignado;
+delete from gestion.Parque;
+delete from gestion.Ubicacion;
+*/
+
 -- ============================================================
 -- SECCION 1: ALTA DE PARQUE
 -- ============================================================
@@ -23,15 +31,15 @@ GO
 PRINT '=== ALTA DE PARQUE ===';
 GO
  
- exec gestion.ubicacion_alta 'Misiones test'
- exec gestion.ubicacion_alta 'Rio Negro test'
+ exec gestion.ubicacion_alta 'Misiones'
+ exec gestion.ubicacion_alta 'Rio Negro'
 
 -- TEST 1.1: exitoso
 PRINT '--- TEST 1.1: Registrar parque exitoso ---';
 EXEC gestion.parque_alta
     @nombre    = 'Parque Nacional Iguazu test',
     @tipo      = 'Nacional test',
-    @ubicacion = 'Misiones test',
+    @ubicacion = 'Misiones',
     @superficie = 67620;
 GO
 SELECT * from gestion.Parque
@@ -43,7 +51,7 @@ BEGIN TRY
     EXEC gestion.parque_alta
     @nombre    = 'Parque Nacional Iguazu test',
     @tipo      = 'Nacional test',
-    @ubicacion = 'Misiones test',
+    @ubicacion = 'Misiones',
     @superficie = 67620;
     PRINT 'FALLO - Test 1.2: se esperaba error y no ocurrio.';
 END TRY
@@ -157,7 +165,7 @@ GO
 EXEC gestion.parque_alta
     @nombre    = 'Parque Nahuel Huapi test',
     @tipo      = 'Nacional test',
-    @ubicacion = 'Rio Negro test',
+    @ubicacion = 'Rio Negro',
     @superficie = 717261;
 GO
  
@@ -187,6 +195,15 @@ GO
 
 EXEC gestion.tipo_actividad_alta
     @descripcion = 'Tour guiado test';
+GO
+
+-- TEST 11.10: Registro exitoso
+PRINT '--- TEST 11.10: Registrar guia exitosamente ---';
+EXEC personal.Guia_alta
+    @dni = '38912345',
+    @nombre = 'Lucas test',
+    @apellido = 'Perez test',
+    @fecha_vencimiento_acreditacion = '2030-03-29';
 GO
 
 -- TEST 4.1: exitoso
@@ -379,7 +396,7 @@ BEGIN TRY
     EXEC gestion.parque_modificacion
     @nombre     = 'Parque Nacional Iguazu test',  -- nombre que ya usa el parque 1
     @tipo       = 'Nacional test',
-    @ubicacion  = 'Rio Negro test',
+    @ubicacion  = 'Rio Negro',
     @superficie = 717261;
     PRINT 'FALLO - Test 6.3: se esperaba error y no ocurrio.';
 END TRY
@@ -691,15 +708,6 @@ END TRY
 BEGIN CATCH
     PRINT 'OK - Test 11.9: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
 END CATCH
-GO
-
--- TEST 11.10: Registro exitoso
-PRINT '--- TEST 11.10: Registrar guia exitosamente ---';
-EXEC personal.Guia_alta
-    @dni = '38912345',
-    @nombre = 'Lucas test',
-    @apellido = 'Perez test',
-    @fecha_vencimiento_acreditacion = '2030-03-29';
 GO
 
 -- ============================================================
@@ -1026,8 +1034,8 @@ begin try
     exec gestion.parque_alta 'Parque Test Canon 1 test', 'Test test', '', 100.00;
 
     exec concesiones.empresa_alta @nombre = 'Canon Test 1 test', @tipo = 'tienda test', @cuit = '30123456789';
-    declare @e1 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 1 test' order by id desc);
     exec concesiones.concesion_alta @empresa = 'Canon Test 1 test', @parque = 'Parque Test Canon 1 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    declare @e1 int = (select top 1 id from concesiones.Empresa where nombre = 'Canon Test 1 test' order by id desc);
     declare @c1 int = (select top 1 id from concesiones.Concesion where id_empresa = @e1 order by id desc);
 
     exec concesiones.canon_pagar_alta @empresa = 'Canon Test 1 test', @parque = 'Parque Test Canon 1 test', @fecha_inicio = '2026-01-01';
