@@ -1,0 +1,21 @@
+06_sp_abm_testing.sql
+  s_ccfdc37f182789::t_83093eb0730d1d 1585-2233
+07_sp_test.sql
+  s_ccfdc37f182789::t_5d4c7ed7553ce7 425-748
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ea90cc525003404815bb23ebd639a5c953af2c54",
+  "prompts": {},
+  "sessions": {
+    "s_ccfdc37f182789": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2feed78b-5f60-4575-b663-4043fa868772",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "nbellis_meli <nahuel.bellis@mercadolibre.com>"
+    }
+  }
+}
