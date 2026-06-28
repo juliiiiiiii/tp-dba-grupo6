@@ -423,3 +423,326 @@ BEGIN CATCH
     PRINT 'OK - Test 5.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
 END CATCH
 GO
+
+-- ############################################################
+-- TESTS AGREGADOS: LOGICA DE NEGOCIO DE CONCESIONES Y VENTAS
+-- (SPs de 05_sp.sql)
+-- Cubren: concesion_registrar_gestion, canon_pagar_generar_cuota_mensual,
+--         consultar_historico_canones, ingresar_venta, ingresar_ventas_masivo.
+-- Se usa aislamiento con begin tran / rollback para no dejar datos.
+-- Cada test es su propio batch (GO) para reutilizar variables.
+-- ############################################################
+
+-- ============================================================
+-- SECCION 6: REGISTRAR GESTION DE CONCESION (concesion_registrar_gestion)
+-- ============================================================
+
+PRINT '=== REGISTRAR GESTION DE CONCESION ===';
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 6.1: Registro exitoso
+-- Esperado: se crea la concesion en estado ACTIVO y su primer canon PENDIENTE.
+-- NOTA: el SP no da de alta la empresa, asi que esta debe existir previamente.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 6.1: concesion_registrar_gestion (exito) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Gestion 1 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Gestion Empresa 1 test', @tipo = 'tienda test', @cuit = '30123456789';
+    DECLARE @ide INT = (SELECT TOP 1 id FROM concesiones.Empresa WHERE nombre = 'Gestion Empresa 1 test' ORDER BY id DESC);
+
+    EXEC concesiones.concesion_registrar_gestion
+        @empresa = 'Gestion Empresa 1 test',
+        @tipo_empresa = 'tienda test',
+        @cuit = '30123456789',
+        @parque = 'Parque Gestion 1 test',
+        @canon_mensual = 1000.00,
+        @fecha_inicio = '2026-01-01';
+
+    DECLARE @idc INT = (SELECT TOP 1 id FROM concesiones.Concesion WHERE id_empresa = @ide ORDER BY id DESC);
+
+    IF EXISTS (SELECT 1 FROM concesiones.Concesion WHERE id = @idc AND RTRIM(estado) = 'ACTIVO')
+       AND EXISTS (SELECT 1 FROM concesiones.Canon_pagar WHERE id_concesion = @idc AND estado = 'PENDIENTE')
+        PRINT 'OK - Test 6.1: concesion ACTIVO y primer canon PENDIENTE generados.';
+    ELSE
+        PRINT 'FALLO - Test 6.1: no se genero la concesion o el canon esperados.';
+END TRY
+BEGIN CATCH
+    PRINT 'FALLO - Test 6.1: error inesperado: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 6.2: Parque inexistente (debe fallar)
+-- Esperado: el SP rechaza la operacion porque no encuentra el parque.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 6.2: concesion_registrar_gestion con parque inexistente (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC concesiones.empresa_alta @nombre = 'Gestion Empresa 2 test', @tipo = 'tienda test', @cuit = '30123456789';
+
+    EXEC concesiones.concesion_registrar_gestion
+        @empresa = 'Gestion Empresa 2 test',
+        @tipo_empresa = 'tienda test',
+        @cuit = '30123456789',
+        @parque = 'Parque inexistente test',
+        @canon_mensual = 1000.00,
+        @fecha_inicio = '2026-01-01';
+    PRINT 'FALLO - Test 6.2: se esperaba error por parque inexistente y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 6.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 6.3: Empresa inexistente (debe fallar)
+-- Esperado: el SP rechaza la operacion porque no encuentra la empresa.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 6.3: concesion_registrar_gestion con empresa inexistente (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Gestion 3 test', 'Nacional test', '', 100;
+
+    EXEC concesiones.concesion_registrar_gestion
+        @empresa = 'Empresa inexistente test',
+        @tipo_empresa = 'tienda test',
+        @cuit = '30123456789',
+        @parque = 'Parque Gestion 3 test',
+        @canon_mensual = 1000.00,
+        @fecha_inicio = '2026-01-01';
+    PRINT 'FALLO - Test 6.3: se esperaba error por empresa inexistente y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 6.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 6.4: Concesion duplicada (debe fallar)
+-- Esperado: el SP rechaza una segunda gestion con misma empresa/parque/fecha.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 6.4: concesion_registrar_gestion duplicada (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Gestion 4 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Gestion Empresa 4 test', @tipo = 'tienda test', @cuit = '30123456789';
+
+    EXEC concesiones.concesion_registrar_gestion
+        @empresa = 'Gestion Empresa 4 test', @tipo_empresa = 'tienda test', @cuit = '30123456789',
+        @parque = 'Parque Gestion 4 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+
+    EXEC concesiones.concesion_registrar_gestion
+        @empresa = 'Gestion Empresa 4 test', @tipo_empresa = 'tienda test', @cuit = '30123456789',
+        @parque = 'Parque Gestion 4 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    PRINT 'FALLO - Test 6.4: se esperaba error por concesion duplicada y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 6.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-- ============================================================
+-- SECCION 7: GENERAR CUOTA MENSUAL DE CANON (canon_pagar_generar_cuota_mensual)
+-- ============================================================
+
+PRINT '=== GENERAR CUOTA MENSUAL DE CANON ===';
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 7.1: Generacion exitosa de una nueva cuota
+-- Esperado: se genera un canon PENDIENTE para la fecha de generacion indicada.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 7.1: canon_pagar_generar_cuota_mensual (exito) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Cuota 1 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Cuota Empresa 1 test', @tipo = 'tienda test', @cuit = '30123456789';
+    DECLARE @ide INT = (SELECT TOP 1 id FROM concesiones.Empresa WHERE nombre = 'Cuota Empresa 1 test' ORDER BY id DESC);
+    EXEC concesiones.concesion_alta @empresa = 'Cuota Empresa 1 test', @parque = 'Parque Cuota 1 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    DECLARE @idc INT = (SELECT TOP 1 id FROM concesiones.Concesion WHERE id_empresa = @ide ORDER BY id DESC);
+
+    EXEC concesiones.canon_pagar_generar_cuota_mensual
+        @empresa = 'Cuota Empresa 1 test',
+        @parque = 'Parque Cuota 1 test',
+        @fecha_inicio = '2026-01-01',
+        @fecha_generacion = '2026-02-01';
+
+    IF EXISTS (SELECT 1 FROM concesiones.Canon_pagar WHERE id_concesion = @idc AND fecha_generacion = '2026-02-01' AND estado = 'PENDIENTE')
+        PRINT 'OK - Test 7.1: cuota mensual generada en estado PENDIENTE.';
+    ELSE
+        PRINT 'FALLO - Test 7.1: no se genero la cuota esperada.';
+END TRY
+BEGIN CATCH
+    PRINT 'FALLO - Test 7.1: error inesperado: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 7.2: Cuota duplicada para el mismo mes (debe fallar)
+-- Esperado: el SP rechaza generar dos cuotas con la misma fecha de generacion.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 7.2: canon_pagar_generar_cuota_mensual duplicada (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Cuota 2 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Cuota Empresa 2 test', @tipo = 'tienda test', @cuit = '30123456789';
+    EXEC concesiones.concesion_alta @empresa = 'Cuota Empresa 2 test', @parque = 'Parque Cuota 2 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+
+    EXEC concesiones.canon_pagar_generar_cuota_mensual @empresa = 'Cuota Empresa 2 test', @parque = 'Parque Cuota 2 test', @fecha_inicio = '2026-01-01', @fecha_generacion = '2026-02-01';
+    EXEC concesiones.canon_pagar_generar_cuota_mensual @empresa = 'Cuota Empresa 2 test', @parque = 'Parque Cuota 2 test', @fecha_inicio = '2026-01-01', @fecha_generacion = '2026-02-01';
+    PRINT 'FALLO - Test 7.2: se esperaba error por cuota duplicada y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 7.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 7.3: Concesion inexistente (debe fallar)
+-- Esperado: el SP rechaza la operacion porque no encuentra la concesion.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 7.3: canon_pagar_generar_cuota_mensual con concesion inexistente (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Cuota 3 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Cuota Empresa 3 test', @tipo = 'tienda test', @cuit = '30123456789';
+
+    EXEC concesiones.canon_pagar_generar_cuota_mensual @empresa = 'Cuota Empresa 3 test', @parque = 'Parque Cuota 3 test', @fecha_inicio = '2026-01-01', @fecha_generacion = '2026-02-01';
+    PRINT 'FALLO - Test 7.3: se esperaba error por concesion inexistente y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 7.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-- ============================================================
+-- SECCION 8: CONSULTAR HISTORICO DE CANONES (consultar_historico_canones)
+-- ============================================================
+
+PRINT '=== CONSULTAR HISTORICO DE CANONES ===';
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 8.1: Consulta exitosa
+-- Esperado: devuelve todos los canones de la concesion (aqui, 2).
+-- Se captura el result set con INSERT-EXEC para poder asertar la cantidad.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 8.1: consultar_historico_canones (exito) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Hist 1 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Hist Empresa 1 test', @tipo = 'tienda test', @cuit = '30123456789';
+    EXEC concesiones.concesion_alta @empresa = 'Hist Empresa 1 test', @parque = 'Parque Hist 1 test', @canon_mensual = 1000.00, @fecha_inicio = '2026-01-01';
+    -- primer canon
+    EXEC concesiones.canon_pagar_alta @fecha_generacion = '2026-01-01', @empresa = 'Hist Empresa 1 test', @parque = 'Parque Hist 1 test', @fecha_inicio = '2026-01-01';
+    -- segundo canon (otro mes)
+    EXEC concesiones.canon_pagar_generar_cuota_mensual @empresa = 'Hist Empresa 1 test', @parque = 'Parque Hist 1 test', @fecha_inicio = '2026-01-01', @fecha_generacion = '2026-02-01';
+
+    DECLARE @historico TABLE (id INT, fecha_generacion DATE, periodo VARCHAR(50), monto NUMERIC(10,2), estado VARCHAR(20), fecha_pagado DATE);
+    INSERT INTO @historico
+    EXEC concesiones.consultar_historico_canones @empresa = 'Hist Empresa 1 test', @parque = 'Parque Hist 1 test', @fecha_inicio = '2026-01-01';
+
+    IF (SELECT COUNT(1) FROM @historico) = 2
+        PRINT 'OK - Test 8.1: el historico devolvio los 2 canones esperados.';
+    ELSE
+        PRINT 'FALLO - Test 8.1: el historico no devolvio la cantidad esperada de canones.';
+END TRY
+BEGIN CATCH
+    PRINT 'FALLO - Test 8.1: error inesperado: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-------------------------------------------------------------------------------
+-- TEST 8.2: Concesion inexistente (debe fallar)
+-- Esperado: el SP rechaza la consulta porque no encuentra la concesion.
+-------------------------------------------------------------------------------
+PRINT '--- TEST 8.2: consultar_historico_canones con concesion inexistente (debe fallar) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque Hist 2 test', 'Nacional test', '', 100;
+    EXEC concesiones.empresa_alta @nombre = 'Hist Empresa 2 test', @tipo = 'tienda test', @cuit = '30123456789';
+
+    EXEC concesiones.consultar_historico_canones @empresa = 'Hist Empresa 2 test', @parque = 'Parque Hist 2 test', @fecha_inicio = '2026-01-01';
+    PRINT 'FALLO - Test 8.2: se esperaba error por concesion inexistente y no ocurrio.';
+END TRY
+BEGIN CATCH
+    PRINT 'OK - Test 8.2: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+
+-- ============================================================
+-- SECCION 9: INGRESO DE VENTAS POR JSON (ingresar_venta / ingresar_ventas_masivo)
+-- ============================================================
+--
+-- ATENCION - LEER ANTES DE DESCOMENTAR:
+--
+-- 1) ventas.ingresar_venta tiene un bug: el WHILE que recorre los items
+--    NUNCA incrementa @i (falta "SET @i += 1" dentro del loop), por lo que
+--    entra en BUCLE INFINITO insertando el mismo item para siempre.
+--    Por eso el test de abajo esta COMENTADO: si se corre tal cual, cuelga
+--    la sesion. Una vez corregido el SP, descomentar el TEST 9.1.
+--
+-- 2) ventas.ingresar_ventas_masivo depende de un archivo fisico leido con
+--    OPENROWSET(BULK ...), por lo que el test requiere una ruta valida y
+--    permisos de BULK en el servidor. Queda documentado y comentado.
+--
+-- Estructura del JSON esperado por ingresar_venta:
+--   { "parque":"...", "fecha":"AAAAMMDD", "pos":"...", "metodo":"...",
+--     "items":[ { "concepto":"...", "fecha_acceso":"AAAAMMDD",
+--                 "cantidad":"N", "precio":"N" } ] }
+-- ============================================================
+
+PRINT '=== INGRESO DE VENTAS POR JSON (tests comentados, ver nota) ===';
+GO
+
+/*  -- TEST 9.1: ingresar_venta (exito) - DESCOMENTAR SOLO TRAS CORREGIR EL BUCLE INFINITO
+PRINT '--- TEST 9.1: ingresar_venta (exito) ---';
+BEGIN TRAN;
+BEGIN TRY
+    EXEC gestion.parque_alta 'Parque JSON 1 test', 'Nacional test', '', 100;
+    EXEC ventas.punto_de_venta_alta @parque = 'Parque JSON 1 test', @pov = 'Caja 1 test';
+    EXEC ventas.metodo_de_pago_alta @descripcion = 'Efectivo test';
+    EXEC ventas.tipo_visitante_alta @descripcion = 'Adulto test';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque JSON 1 test', @tipo = 'Adulto test', @precio = 5000.00, @vigencia = '2026-01-01';
+
+    DECLARE @json NVARCHAR(MAX) = N'{
+        "parque":"Parque JSON 1 test",
+        "fecha":"20260301",
+        "pos":"Caja 1 test",
+        "metodo":"Efectivo test",
+        "items":[ {"concepto":"Adulto test","fecha_acceso":"20260301","cantidad":"2","precio":"5000"} ]
+    }';
+
+    EXEC ventas.ingresar_venta @venta = @json;
+
+    IF EXISTS (SELECT 1 FROM ventas.venta v
+               JOIN gestion.Parque p ON p.id = v.parque
+               WHERE p.nombre = 'Parque JSON 1 test')
+        PRINT 'OK - Test 9.1: la venta del JSON se registro.';
+    ELSE
+        PRINT 'FALLO - Test 9.1: no se registro la venta del JSON.';
+END TRY
+BEGIN CATCH
+    PRINT 'FALLO - Test 9.1: error inesperado: ' + ERROR_MESSAGE();
+END CATCH
+IF @@trancount > 0 ROLLBACK;
+GO
+*/
+
+/*  -- TEST 9.2: ingresar_ventas_masivo - REQUIERE ARCHIVO FISICO Y PERMISOS BULK
+PRINT '--- TEST 9.2: ingresar_ventas_masivo (exito) ---';
+-- Reemplazar la ruta por un archivo .json valido accesible por el servidor SQL.
+EXEC ventas.ingresar_ventas_masivo @ruta = 'C:\ruta\al\archivo\ventas.json';
+GO
+*/
