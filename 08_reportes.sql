@@ -22,18 +22,13 @@ GENERA REPORTE EN XML DE LAS VISITAS POR MES
 */
 CREATE OR ALTER PROCEDURE ventas.generar_reporte_visitas_por_mes
 AS
-	SELECT
-		p.nombre AS 'Parque',
-		FORMAT(mes, '00') + '/' + cast(año as char(4)) as 'Mes',
-		visitas as 'Visitantes'
-	FROM ventas.visitas_por_mes v
-	LEFT JOIN
-	gestion.parque p ON p.id = v.parque
-	ORDER BY parque, mes, año
-	for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
+	with visitas_por_mes as
+	( SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales)
+	SELECT * FROM visitas_por_mes ORDER BY parque, mes, año
+	--for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
 
-EXEC ventas.generar_reporte_visitas_por_mes
+--EXEC ventas.generar_reporte_visitas_por_mes
 go
 
 CREATE OR ALTER PROCEDURE ventas.generar_xml_visitas__mensuales_por_parque @parque INT, @año CHAR(4)
@@ -62,7 +57,7 @@ AS
 	for XML AUTO -- o AUTO?
 GO
 
-exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
+--exec ventas.generar_reporte_visitas @parque='Parque Nacional El Palmar'
 go
 
 /*
@@ -73,6 +68,7 @@ GENERA REPORTE EL PIVOT DE LA MATRIZ DE LAS VISITAS
 
 CREATE OR ALTER PROCEDURE ventas.pivot_ventas_por_mes @año int
 AS
+BEGIN
 	DECLARE @cadenaSQL nvarchar(max)
 
 	SET @cadenaSQL = '
@@ -82,6 +78,7 @@ AS
 		where año = ' + CAST(@año AS CHAR(4)) + ')
 		SELECT * FROM visitas
 		PIVOT (SUM(visitas) for mes in ('
+
 	SELECT  @cadenaSQL =  @cadenaSQL  + '[' + CAST((mes) AS CHAR(2)) + + ']' + ','
 	FROM ventas.visitas_anuales
 	GROUP BY mes
@@ -89,10 +86,9 @@ AS
 	SET @cadenaSQL = @cadenaSQL + ')) c'
 	--print(@cadenaSQL)
 	execute sp_executesql @cadenaSQL;
+END
+--exec ventas.pivot_ventas_por_mes 2026
 
-
-exec ventas.pivot_ventas_por_mes 2026
--- 
 
 /*
 =================
@@ -175,19 +171,6 @@ GO
 --EXEC ventas.ventas_por_año 'Ibera'
 
 
-/*
-=================
-VENTAS POR SEMANA
-=================
-*/
-CREATE OR ALTER VIEW ventas.visitas_por_semana
-AS
-	with visitas_por_semana(parque, fecha, semana, total) AS (
-		select parque, fecha, datepart(week, fecha) as semana, total from ventas.visitas_por_fecha
-	)
-	select parque, semana, sum(total) as total_semana from visitas_por_semana group by parque, semana
-GO
-
 --exec ventas.sp_ventas_por_semana 'Glaciares'
 
 CREATE OR ALTER PROCEDURE ventas.reporte_visitas_por_semana @parque VARCHAR(50)
@@ -195,7 +178,7 @@ AS
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 
-	select nombre, semana, total_semana
+	select nombre, semana, visitas
 	from ventas.visitas_por_semana v
 	LEFT JOIN gestion.parque p ON p.id = v.parque
 	WHERE p.id = @id_parque
@@ -284,7 +267,7 @@ BEGIN
 END
 GO
 
-EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
+--EXEC gestion.generar_reporte_ingresos @parque = 'parque nacional iguazu'
 go
 
 CREATE OR ALTER PROCEDURE concesiones.reporte_concesiones_por_parque 
@@ -306,7 +289,7 @@ as BEGIN
 end
 go
 
-exec concesiones.reporte_concesiones_por_parque
+--exec concesiones.reporte_concesiones_por_parque
 go
 
 create or alter view concesiones.deudores as
@@ -320,4 +303,4 @@ create or alter view concesiones.deudores as
 	fecha_pagado is null
 go
 
-select * from concesiones.deudores;
+--select * from concesiones.deudores;
