@@ -290,10 +290,10 @@ GO
 CREATE OR ALTER PROCEDURE gestion.coordina_alta
     @dni CHAR(8),
     @nombre_actividad VARCHAR(50),
-    @nombre_parque VARCHAR(50),
+    @nombre_parque VARCHAR(100),
     @fecha_actividad DATETIME,
     @f_desde DATE,
-    @f_hasta DATE
+    @f_hasta DATE 
 AS
 BEGIN
     DECLARE @error VARCHAR(150);
@@ -443,7 +443,6 @@ END
 GO
 
 -- TODO: test de registrar venta
--- TODO: test de estos sp
 
 /*
 ====================================================
@@ -551,8 +550,9 @@ create or alter procedure concesiones.canon_pagar_generar_cuota_mensual (
     @empresa varchar(25),
     @parque varchar(100),
     @fecha_inicio date,
-    @fecha_generacion date = getdate
+    @fecha_generacion date = null
 ) as begin
+    set @fecha_generacion = isnull(@fecha_generacion, getdate());
     declare @id_concesion int = null;
     declare @errores varchar(4000) = '';
 
@@ -750,6 +750,7 @@ BEGIN
             @concepto = @nuevo_concepto,
             @cantidad = @nueva_cantidad,
             @fecha_acceso = @fecha
+        SET @i = @i+1;
     END
 END
 GO
