@@ -37,8 +37,8 @@ AS
 	LEFT JOIN ventas.item_venta i ON v.id = i.venta
 	WHERE i.detalle IN (SELECT descripcion FROM ventas.tipo_visitante)
 GO
-select distinct nombre from reportes.ventas_con_visitantes;
-select distinct parque from ventas.venta;
+-- select distinct nombre from reportes.ventas_con_visitantes;
+-- select distinct parque from ventas.venta;
 
 
 /*
@@ -140,4 +140,4 @@ AS
 	GROUP BY nombre, cte.tipo, fecha_operacion
 GO
 
-SELECT distinct parque FROM reportes.ingresos_por_fecha where tipo='Ventas'
+-- SELECT distinct parque FROM reportes.ingresos_por_fecha where tipo='Ventas'

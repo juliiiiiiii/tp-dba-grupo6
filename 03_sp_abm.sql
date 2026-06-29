@@ -1571,11 +1571,33 @@ BEGIN
 
     IF (SELECT 1 FROM ventas.item_venta WHERE id = @item) IS NULL
         SET @errores += 'No existe el item indicado'
-    
-	DELETE FROM ventas.item_venta
-	WHERE venta = @venta
-	AND
-	id = @item
+
+    BEGIN TRANSACTION
+	BEGIN TRY
+
+        DECLARE @sub_total DECIMAL(10,2);
+        DECLARE @precio DECIMAL(10,2);
+        DECLARE @cantidad INT;
+
+        SELECT @cantidad = cantidad, @precio = precio FROM ventas.item_venta WHERE venta = @venta AND id = @item
+        
+        SET @sub_total = @cantidad * @precio;
+
+		UPDATE ventas.venta
+		SET total = total - @sub_total
+		WHERE id = @venta
+
+        DELETE FROM ventas.item_venta
+	    WHERE venta = @venta
+	    AND
+	    id = @item
+
+		COMMIT
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <>0
+            ROLLBACK
+	END CATCH
 END
 GO
 
