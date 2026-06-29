@@ -3,7 +3,7 @@ package ar.edu.unlam.parques.model;
 import io.javalin.http.Context;
 
 public record ParqueForm(
-        Integer id,
+        String nombreId,
         String nombre,
         String tipo,
         String ubicacion,
@@ -21,7 +21,7 @@ public record ParqueForm(
 
     public static ParqueForm fromModificacion(Context ctx) {
         return new ParqueForm(
-                parseInt(required(ctx, "id"), "id"),
+                required(ctx, "id"),
                 required(ctx, "nombre"),
                 required(ctx, "tipo"),
                 required(ctx, "ubicacion"),

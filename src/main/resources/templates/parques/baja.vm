@@ -17,7 +17,7 @@
             <select id="id" name="id" required>
                 <option value="">Seleccione un parque</option>
                 #foreach($parque in $parques)
-                    <option value="$parque.id">$parque.nombre</option>
+                    <option value="$parque.nombre">$parque.nombre</option>
                 #end
             </select>
         </div>

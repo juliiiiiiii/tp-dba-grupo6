@@ -100,19 +100,19 @@ GO
 */
 
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'l_importador' AND type = 'S')
-	CREATE LOGIN l_importador WITH PASSWORD = 'hola123';
+	CREATE LOGIN l_importador WITH PASSWORD = 'hola123', check_policy=off;
 
 IF USER_ID('u_importador') IS NULL
 	CREATE USER u_importador FOR LOGIN l_importador;
 
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'l_informe' AND type = 'S')
-	CREATE LOGIN l_informe WITH PASSWORD = 'hola123';
+	CREATE LOGIN l_informe WITH PASSWORD = 'hola123', check_policy=off;
 
 IF USER_ID('u_informe') IS NULL
 	CREATE USER u_informe FOR LOGIN l_informe;
 
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'l_app' AND type = 'S')
-	CREATE LOGIN l_app WITH PASSWORD = 'hola123';
+	CREATE LOGIN l_app WITH PASSWORD = 'hola123', check_policy=off;
 
 IF USER_ID('u_app') IS NULL
 	CREATE USER u_app FOR LOGIN l_app;

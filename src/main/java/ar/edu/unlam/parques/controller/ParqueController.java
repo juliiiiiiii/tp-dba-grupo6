@@ -46,8 +46,8 @@ public class ParqueController {
 
     private void baja(Context ctx) {
         try {
-            int id = parseInt(ctx.formParam("id"), "id");
-            parqueService.baja(id);
+            String nombreId = ctx.formParam("id");
+            parqueService.baja(nombreId);
             renderBaja(ctx, "Parque dado de baja correctamente.", null);
         } catch (Exception e) {
             renderBaja(ctx, null, readableMessage(e));

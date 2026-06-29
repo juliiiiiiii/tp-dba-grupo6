@@ -17,7 +17,7 @@
             <select id="parqueSelector" required>
                 <option value="">Seleccione un parque</option>
                 #foreach($parque in $parques)
-                    <option value="$parque.id"
+                    <option value="$parque.nombre"
                             data-nombre="$parque.nombre"
                             data-tipo="$parque.tipo"
                             data-ubicacion="$parque.ubicacion"

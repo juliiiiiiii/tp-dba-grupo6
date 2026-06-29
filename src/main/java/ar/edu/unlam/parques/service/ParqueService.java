@@ -22,8 +22,8 @@ public class ParqueService {
         parqueRepository.alta(parque);
     }
 
-    public void baja(int id) throws SQLException {
-        parqueRepository.baja(id);
+    public void baja(String nombre) throws SQLException {
+        parqueRepository.baja(nombre);
     }
 
     public void modificar(ParqueForm parque) throws SQLException {

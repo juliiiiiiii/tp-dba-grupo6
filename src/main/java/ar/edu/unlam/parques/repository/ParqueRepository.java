@@ -31,10 +31,10 @@ public class ParqueRepository {
     }
 
     //TODO: el store procedure recibe el id? deberia ir por nombre
-    public void baja(int id) throws SQLException {
+    public void baja(String nombre) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              CallableStatement statement = connection.prepareCall("{call gestion.parque_baja(?)}")) {
-            statement.setInt(1, id);
+            statement.setString(1, nombre);
             statement.execute();
         }
     }
@@ -43,11 +43,11 @@ public class ParqueRepository {
     public void modificar(ParqueForm parque) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              CallableStatement statement = connection.prepareCall("{call gestion.parque_modificacion(?, ?, ?, ?, ?)}")) {
-            statement.setInt(1, parque.id());
-            statement.setString(2, parque.nombre());
-            statement.setString(3, parque.tipo());
-            statement.setString(4, parque.ubicacion());
-            statement.setInt(5, parque.superficie());
+            statement.setString(1, parque.nombreId());
+            statement.setString(2, parque.tipo());
+            statement.setString(3, parque.ubicacion());
+            statement.setInt(4, parque.superficie());
+            statement.setString(5, parque.nombre());
             statement.execute();
         }
     }

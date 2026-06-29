@@ -178,7 +178,8 @@ CREATE OR ALTER PROCEDURE gestion.parque_modificacion
 	@nombre VARCHAR(100),
 	@tipo VARCHAR(50),
 	@ubicacion VARCHAR(50),
-	@superficie INT
+	@superficie INT,
+    @nombre_nuevo varchar(100) = null
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -216,13 +217,18 @@ BEGIN
                 SET @errores += 'La superficie debe ser un valor positivo.' + CHAR(10);
             ELSE IF @superficie IS NULL
                 SELECT @superficie = superficie FROM gestion.Parque WHERE id = @id;
+
+            IF @nombre_nuevo = '' or @nombre_nuevo is null
+                SET @errores += 'El nombre nuevo no puede ser vacio o null.' + CHAR(10);
+            IF exists (SELECT 1 FROM gestion.Parque WHERE nombre = @nombre_nuevo)
+                SET @errores += 'El nombre nuevo ya existe' + CHAR(10);
         END
     END
 
     IF @errores != ''
         THROW 50000, @errores, 1;
  
-    UPDATE gestion.Parque SET nombre = @nombre, tipo = @tipo, superficie = @superficie, id_ubicacion = @id_ubicacion WHERE id = @id;
+    UPDATE gestion.Parque SET nombre = isnull(@nombre_nuevo, nombre), tipo = @tipo, superficie = @superficie, id_ubicacion = @id_ubicacion WHERE id = @id;
 END
 GO
 
