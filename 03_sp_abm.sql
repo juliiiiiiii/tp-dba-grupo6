@@ -1070,11 +1070,12 @@ end
 go
 
 create or alter procedure concesiones.canon_pagar_baja (
-    @fecha_generacion date,
     @empresa varchar(100),
     @parque varchar(100),
-    @fecha_inicio date
+    @fecha_inicio date,
+    @fecha_generacion date = null
 ) as begin
+    set @fecha_generacion = isnull(@fecha_generacion, getdate());
     declare @id int;
     declare @errores varchar(4000) = '';
     declare @id_concesion int = null;
@@ -1104,13 +1105,14 @@ end
 go
 
 create or alter procedure concesiones.canon_pagar_modificacion (
-    @fecha_generacion date,
     @periodo varchar(50),
     @monto decimal(10, 2),
     @empresa varchar(25),
     @parque varchar(100),
-    @fecha_inicio date
+    @fecha_inicio date,
+    @fecha_generacion date = null
 ) as begin
+    set @fecha_generacion = isnull(@fecha_generacion, getdate());
     declare @errores varchar(4000) = '';
     declare @id_concesion int = null;
 
@@ -1392,7 +1394,6 @@ GO
 /* Modifica el precio según el parque y tipo de visitante. Cuando se modifica, el precio actual pasa al histórico.
 Ej: (Iguazu, estudiante, 3000) --> (Iguazu, estudiante, 4500)
 */
-
 CREATE OR ALTER PROCEDURE ventas.tipo_entrada_modificacion
 (
 	@parque varchar(50),
@@ -1412,7 +1413,7 @@ BEGIN
         THROW 50000, @errores, 1
 
 	BEGIN TRY
-		BEGIN TRANSACTION
+        BEGIN TRANSACTION
 			EXEC ventas.tipo_entrada_baja @parque = @parque, @tipo = @tipo;
 			EXEC ventas.tipo_entrada_alta @parque = @parque, @tipo = @tipo, @precio = @nuevo_precio;
 		COMMIT;
@@ -1497,15 +1498,19 @@ CREATE OR ALTER PROCEDURE ventas.venta_modificacion (@id_venta INT, @metodo VARC
 AS
 BEGIN
     DECLARE @errores VARCHAR(200)
+    declare @id_metodo int = (SELECT top 1 id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
     SET @errores = ''
     IF (SELECT 1 FROM ventas.venta WHERE id = @id_venta) IS NULL
-       SET @errores += 'La venta indicada no existe.'
+       SET @errores += 'La venta indicada no existe.' + char(10)
+
+    IF @id_metodo IS NULL
+       SET @errores += 'El metodo indicado no existe.' + char(10)
 
     IF @errores <> ''
         THROW 50000, @errores, 1
 
 	UPDATE ventas.venta
-	SET metodo_de_pago = @metodo
+	SET metodo_de_pago = @id_metodo
 	WHERE id = @id_venta
 END
 GO
@@ -1523,10 +1528,10 @@ BEGIN
 	SET @errores = ''
     SET @id_parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
     SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
-	IF @concepto IN (SELECT visitante FROM ventas.entradas_vigentes WHERE parque = @parque)
+	IF @concepto IN (SELECT visitante FROM reportes.entradas_vigentes WHERE parque = @parque)
         BEGIN
-        SET @id_concepto = (SELECT id_visitante FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
-        SET @precio = (SELECT precio FROM ventas.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        SET @id_concepto = (SELECT id_visitante FROM reportes.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
+        SET @precio = (SELECT precio FROM reportes.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
         END
     ELSE
         BEGIN

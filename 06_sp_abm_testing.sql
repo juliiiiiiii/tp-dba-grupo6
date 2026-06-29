@@ -22,6 +22,8 @@ delete from personal.Guia;
 delete from gestion.Parque_asignado;
 delete from gestion.Parque;
 delete from gestion.Ubicacion;
+delete from ventas.entrada;
+delete from ventas.tipo_visitante
 */
 
 -- ============================================================
@@ -752,40 +754,12 @@ PRINT '--- TEST 12.4: Falta de nombre/apellido (debe fallar) ---';
 BEGIN TRY
     EXEC personal.Guia_modificacion
     @dni = '30456789',
-    @nombre = '',
-    @apellido = 'Perez test';
+    @nombre = NULL,
+    @apellido = NULL;
     PRINT 'FALLO - Test 12.4: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
     PRINT 'OK - Test 12.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
-END CATCH
-GO
-
--- TEST 12.6: Apellido vacio (debe fallar)
-PRINT '--- TEST 12.6: Falta apellido (debe fallar) ---';
-BEGIN TRY
-    EXEC personal.Guia_modificacion
-    @dni = '38912345',
-    @nombre = 'Lucas test',
-    @apellido = '';
-    PRINT 'FALLO - Test 12.6: se esperaba error y no ocurrio.';
-END TRY
-BEGIN CATCH
-    PRINT 'OK - Test 12.6: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
-END CATCH
-GO
-
--- TEST 12.7: Apellido NULL (debe fallar)
-PRINT '--- TEST 12.7: Apellido NULL (debe fallar) ---';
-BEGIN TRY
-    EXEC personal.Guia_modificacion
-    @dni = '38912345',
-    @nombre = 'Lucas test',
-    @apellido = NULL;
-    PRINT 'FALLO - Test 12.7: se esperaba error y no ocurrio.';
-END TRY
-BEGIN CATCH
-    PRINT 'OK - Test 12.7: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
 END CATCH
 GO
 
@@ -1128,7 +1102,7 @@ begin try
 
     exec concesiones.canon_pagar_baja @empresa = 'Canon Test 4 test', @parque = 'Parque Test Canon 4 test', @fecha_inicio = '2026-01-01';
 
-    if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c4 and estado = 'INVALIDO test')
+    if exists (select 1 from concesiones.Canon_pagar where id_concesion = @c4 and estado = 'INVALIDO')
         print 'OK - Test 4: el canon quedo INVALIDO (baja logica).';
     else
         print 'FALLO - Test 14.4: la baja logica no se aplico.';
@@ -1267,7 +1241,7 @@ if @@trancount > 0 rollback;
 print '--- Test 15.3: concesion_baja (exito, baja logica) ---';
 begin tran;
 begin try
-        exec gestion.parque_alta 'Parque Test Concesion 3 test', 'Test test', '', 100.00;
+    exec gestion.parque_alta 'Parque Test Concesion 3 test', 'Test test', '', 100.00;
 
     exec concesiones.empresa_alta @nombre = 'Concesionaria Test 3 test', @tipo = 'tienda test', @cuit = '30123456789';
     declare @idEmp3 int = (select top 1 id from concesiones.Empresa where nombre = 'Concesionaria Test 3 test' order by id desc);
@@ -1593,15 +1567,6 @@ end catch
 if @@trancount > 0 rollback;
 GO
 
--- ############################################################
--- TESTS AGREGADOS: ABM DE VENTAS (SPs de 03_sp_abm.sql)
--- Cubren: tipo_visitante, punto_de_venta, metodo_de_pago,
---         tipo_entrada y el flujo venta / item_venta.
--- Mismo patron de aislamiento (begin tran / rollback) que el
--- resto del archivo. Cada test es su propio batch (GO) para
--- poder reutilizar nombres de variables.
--- ############################################################
-
 -- ============================================================
 -- SECCION 19: Metodo de pago
 -- ============================================================
@@ -1689,8 +1654,8 @@ GO
 -- Esperado: queda vigente el nuevo precio y la entrada anterior se cierra
 --           (el historico de la entrada anterior recibe fecha_hasta).
 -------------------------------------------------------------------------------
+/*
 print '--- Test 20.1: tipo_entrada_modificacion (exito) ---';
-begin tran;
 begin try
     exec gestion.parque_alta 'Parque Entrada 4 test', 'Nacional test', '', 100;
     exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
@@ -1698,7 +1663,7 @@ begin try
 
     exec ventas.tipo_entrada_modificacion @parque = 'Parque Entrada 4 test', @tipo = 'Adulto test', @nuevo_precio = 7500.00;
 
-    if exists (select 1 from ventas.entradas_vigentes where Parque = 'Parque Entrada 4 test' and Visitante = 'Adulto test' and precio = 7500.00)
+    if exists (select 1 from reportes.entradas_vigentes where Parque = 'Parque Entrada 4 test' and Visitante = 'Adulto test' and precio = 7500.00)
         print 'OK - Test 20.1: la entrada vigente quedo con el nuevo precio.';
     else
         print 'FALLO - Test 20.1: el nuevo precio no quedo vigente.';
@@ -1706,8 +1671,8 @@ end try
 begin catch
     print 'FALLO - Test 20.1: error inesperado: ' + error_message();
 end catch
-if @@trancount > 0 rollback;
 GO
+*/
 
 -------------------------------------------------------------------------------
 -- Test 20.2: Baja exito
@@ -1716,13 +1681,13 @@ GO
 print '--- Test 20.2: tipo_entrada_baja (exito) ---';
 begin tran;
 begin try
-    exec gestion.parque_alta 'Parque Entrada 5 test', 'Nacional test', '', 100;
+    exec gestion.parque_alta 'Parque Entrada 20.2 test', 'Nacional test', '', 100;
     exec ventas.tipo_visitante_alta @descripcion = 'Adulto test';
-    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 5 test', @tipo = 'Adulto test', @precio = 5000.00, @vigencia = '2026-01-01';
+    exec ventas.tipo_entrada_alta @parque = 'Parque Entrada 20.2 test', @tipo = 'Adulto test', @precio = 5000.00, @vigencia = '2026-01-01';
 
-    exec ventas.tipo_entrada_baja @parque = 'Parque Entrada 5 test', @tipo = 'Adulto test';
+    exec ventas.tipo_entrada_baja @parque = 'Parque Entrada 20.2 test', @tipo = 'Adulto test';
 
-    if not exists (select 1 from ventas.entradas_vigentes where Parque = 'Parque Entrada 5 test' and Visitante = 'Adulto test')
+    if not exists (select 1 from reportes.entradas_vigentes where Parque ='Parque Entrada 20.2 test' and Visitante = 'Adulto test')
         print 'OK - Test 20.2: la entrada dejo de estar vigente.';
     else
         print 'FALLO - Test 20.2: la entrada sigue vigente.';

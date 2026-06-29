@@ -362,67 +362,6 @@ IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.i
     EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-07-01';
 GO
 
-DECLARE @id_venta_iguazu INT;
-DECLARE @id_venta_glaciares INT;
-
-IF NOT EXISTS (
-    SELECT 1
-    FROM ventas.venta v
-    INNER JOIN gestion.Parque p ON p.id = v.parque
-    INNER JOIN ventas.punto_de_venta pv ON pv.id = v.punto_de_venta
-    WHERE p.nombre = 'Parque Nacional Iguazu'
-      AND pv.descripcion = 'Boleteria principal'
-      AND v.fecha = '2026-08-10'
-)
-BEGIN
-    EXEC ventas.venta_alta
-        @parque = 'Parque Nacional Iguazu',
-        @fecha = '2026-08-10',
-        @pov = 'Boleteria principal',
-        @metodo = 'Debito',
-        @id_creado = @id_venta_iguazu OUTPUT;
-
-    EXEC ventas.item_venta_alta
-        @venta = @id_venta_iguazu,
-        @concepto = 'Adulto',
-        @cantidad = 2,
-        @fecha_acceso = '2026-08-10';
-
-    EXEC ventas.item_venta_alta
-        @venta = @id_venta_iguazu,
-        @concepto = 'Menor',
-        @cantidad = 1,
-        @fecha_acceso = '2026-08-10';
-END
-
-IF NOT EXISTS (
-    SELECT 1
-    FROM ventas.venta v
-    INNER JOIN gestion.Parque p ON p.id = v.parque
-    INNER JOIN ventas.punto_de_venta pv ON pv.id = v.punto_de_venta
-    WHERE p.nombre = 'Parque Nacional Los Glaciares'
-      AND pv.descripcion = 'Centro visitantes'
-      AND v.fecha = '2026-08-11'
-)
-BEGIN
-    EXEC ventas.venta_alta
-        @parque = 'Parque Nacional Los Glaciares',
-        @fecha = '2026-08-11',
-        @pov = 'Centro visitantes',
-        @metodo = 'Credito',
-        @id_creado = @id_venta_glaciares OUTPUT;
-
-    EXEC ventas.item_venta_alta
-        @venta = @id_venta_glaciares,
-        @concepto = 'Adulto',
-        @cantidad = 3,
-        @fecha_acceso = '2026-08-11';
-END
-GO
-
------------------------------------------------------------
--- 7. Ampliacion para casos obligatorios de entrega
------------------------------------------------------------
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Ubicacion WHERE provincia = 'Chubut')
     EXEC gestion.ubicacion_alta 'Chubut';
@@ -521,7 +460,7 @@ DECLARE @dni_guia_actividad CHAR(8);
 DECLARE @nombre_parque_actividad VARCHAR(100);
 DECLARE @n INT = 13;
 DECLARE @nombre_actividad VARCHAR(50);
-WHILE @n <= 27
+WHILE @n <= 100
 BEGIN
     SET @nombre_actividad = CONCAT('Seed Tour ', RIGHT('00' + CAST(@n AS VARCHAR(2)), 2));
     SET @nombre_parque_actividad = CASE (@n % 10)

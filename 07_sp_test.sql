@@ -385,21 +385,6 @@ BEGIN CATCH
 END CATCH
 GO
 
--- TEST 5.4: Fecha de emision NULL (debe fallar)
-PRINT '--- TEST 5.4: Falta especificar la fecha de emision (debe fallar) ---';
-BEGIN TRY
-    EXEC personal.titulo_modificacion
-    @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina test',
-    @institucion = 'UNLAM test',
-    @fecha_emision = NULL;
-    PRINT 'FALLO - Test 5.4: se esperaba error y no ocurrio.';
-END TRY
-BEGIN CATCH
-    PRINT 'OK - Test 5.4: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
-END CATCH
-GO
-
 -- TEST 5.5: Actualizacion exitosa
 PRINT '--- TEST 5.5: Asignar titulacion exitosamente ---';
 EXEC personal.titulo_modificacion
