@@ -84,7 +84,7 @@ BEGIN
             SET @fecha_random = DATEADD( DAY, ABS(CHECKSUM(NEWID())) % (DATEDIFF(DAY, '2020-01-01', '2030-12-31') + 1), '2020-01-01');
 
             BEGIN TRY
-                EXEC gestion.guia_alta
+                EXEC personal.Guia_alta
                     @dni = @dni,
                     @nombre = @nombre,
                     @apellido = @apellido,
@@ -92,18 +92,18 @@ BEGIN
             END TRY
             BEGIN CATCH
                 SET @actualizar = 1;
-                EXEC gestion.guia_modificacion
+                EXEC personal.Guia_modificacion
                     @dni = @dni,
                     @nombre = @nombre,
                     @apellido = @apellido;
 
-                EXEC guia.acreditacion_actualizar
+                EXEC personal.acreditacion_actualizar
                     @dni = @dni,
                     @fecha_vencimiento_acreditacion = @fecha_random;
             END CATCH
 
             BEGIN TRY
-                EXEC guia.titulacion_asignar
+                EXEC personal.titulacion_asignar
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = NULL,
@@ -111,7 +111,7 @@ BEGIN
             END TRY
             BEGIN CATCH
                 SET @actualizar = 1;
-                EXEC guia.titulo_modificacion
+                EXEC personal.titulo_modificacion
                     @dni = @dni,
                     @descripcion = @titulo,
                     @institucion = NULL,

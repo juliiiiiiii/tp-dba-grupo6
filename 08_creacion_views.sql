@@ -20,7 +20,6 @@ GO
 Genera una view que muestra las ventas con sus respectivos visitantes
 =================
 */
-
 CREATE OR ALTER VIEW ventas.ventas_con_visitantes
 AS
 	SELECT v.parque, v.id as venta, i.id AS item, v.fecha, i.concepto, i.cantidad, v.total
@@ -59,7 +58,6 @@ GO
 Genera una view que muestra el total de visitantes por dia por parque y fecha
 =================
 */
-
 CREATE OR ALTER VIEW ventas.visitas_por_semana
 AS
 	WITH totales_por_mes(parque, semana, mes, año, total)
@@ -86,6 +84,7 @@ AS
 	gestion.parque p
 	ON p.id = v.parque
 GO
+
 CREATE OR ALTER VIEW ventas.visitas_mensuales
 as
 	SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales
@@ -102,12 +101,8 @@ CREATE OR ALTER VIEW ventas.entradas_vigentes
 AS
 	SELECT p.id AS id_parque, p.nombre AS Parque, t.id AS id_visitante, t.descripcion as Visitante, precio
 	FROM ventas.entrada e
-	LEFT JOIN
-	gestion.parque p
-	ON e.parque = p.id
-	LEFT JOIN
-	ventas.tipo_visitante t
-	ON e.tipo = t.id
+	LEFT JOIN gestion.parque p ON e.parque = p.id
+	LEFT JOIN ventas.tipo_visitante t ON e.tipo = t.id
 	WHERE fecha_hasta IS NULL
 GO
 
