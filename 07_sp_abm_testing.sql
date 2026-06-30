@@ -212,7 +212,7 @@ GO
 PRINT '--- TEST 4.1: Registrar actividad exitosa ---';
 EXEC gestion.actividad_alta
     @nombre_parque = 'Parque Nacional Iguazu test',
-    @dni_guia = '35111222',
+    @dni_guia = '38912345',
     @nombre      = 'Trekking Cataratas test',
     @descripcion = 'Caminata por circuito superior test',
     @tipo        = 'Tour guiado test',
@@ -369,15 +369,15 @@ GO
 PRINT '=== MODIFICACION DE PARQUE ===';
 GO
  
--- TEST 6.1: exitoso
+-- TEST 6.1: fallo
 select * from gestion.Parque
-PRINT '--- TEST 6.1: Modificar parque exitoso ---';
+PRINT '--- TEST 6.1: Modificar parque nombre repetido ---';
 EXEC gestion.parque_modificacion
     @nombre     = 'Parque Nacional Iguazu test',
     @tipo       = 'Nacional test',
-    @ubicacion  = 'Misiones test',
+    @ubicacion  = 'Misiones',
     @superficie = 70000,
-    @nombre_nuevo = 'Parque Nacional Iguazu';
+    @nombre_nuevo = 'Parque Nacional Iguazu test';
  
 -- Evidencia
 SELECT p.id, p.nombre, p.tipo, u.provincia, p.superficie

@@ -162,9 +162,9 @@ DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque N
 DECLARE @id_glaciares INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
 
-DECLARE @id_gp_martin INT = (SELECT id FROM personal.Guardaparque WHERE dni = 30111222);
-DECLARE @id_gp_laura INT = (SELECT id FROM personal.Guardaparque WHERE dni = 28444555);
-DECLARE @id_gp_sofia INT = (SELECT id FROM personal.Guardaparque WHERE dni = 32666777);
+DECLARE @id_gp_martin INT = (SELECT id FROM personal.Guardaparque WHERE dni = EncryptByPassPhrase('parques_nacionales_2026', dni));
+DECLARE @id_gp_laura INT = (SELECT id FROM personal.Guardaparque WHERE '35111222' = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)));
+DECLARE @id_gp_sofia INT = (SELECT id FROM personal.Guardaparque WHERE '36222333' = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)));
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque_asignado WHERE id_parque = @id_iguazu AND id_guardaparque = @id_gp_martin AND fecha_egreso IS NULL)
     EXEC gestion.guardaparque_asignar @id_parque = @id_iguazu, @id_guardaparque = @id_gp_martin;
@@ -257,10 +257,11 @@ IF NOT EXISTS (SELECT 1 FROM gestion.Actividad WHERE nombre = 'Avistaje Bosque A
         @cupo = 20;
 GO
 
+DECLARE @dni_guia CHAR(8)
 DECLARE @id_actividad_iguazu INT = (SELECT id FROM gestion.Actividad WHERE nombre = 'Circuito Garganta del Diablo');
 DECLARE @id_actividad_glaciares INT = (SELECT id FROM gestion.Actividad WHERE nombre = 'Navegacion Lago Argentino');
-DECLARE @id_guia_ana INT = (SELECT id FROM personal.Guia WHERE dni = '35111222');
-DECLARE @id_guia_carlos INT = (SELECT id FROM personal.Guia WHERE dni = '36222333');
+DECLARE @id_guia_ana INT = (SELECT id FROM personal.Guia WHERE @dni_guia = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', '35111222')));
+DECLARE @id_guia_carlos INT = (SELECT id FROM personal.Guia WHERE @dni_guia = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', '36222333')));
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Coordina WHERE id_actividad = @id_actividad_iguazu AND id_guia = @id_guia_ana)
     EXEC gestion.coordina_alta
