@@ -30,7 +30,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'gestion_administrar' AND type = 'R')
 	CREATE ROLE gestion_administrar;
 
-GRANT SELECT, EXECUTE ON SCHEMA::gestion TO gestion_consultas;
+GRANT SELECT, EXECUTE ON SCHEMA::gestion TO gestion_administrar;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'personal_consultas' AND type = 'R')
