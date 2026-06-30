@@ -218,8 +218,6 @@ BEGIN
             ELSE IF @superficie IS NULL
                 SELECT @superficie = superficie FROM gestion.Parque WHERE id = @id;
 
-            IF @nombre_nuevo = '' or @nombre_nuevo is null
-                SET @errores += 'El nombre nuevo no puede ser vacio o null.' + CHAR(10);
             IF @nombre_nuevo <> @nombre and exists (SELECT 1 FROM gestion.Parque WHERE nombre = @nombre_nuevo)
                 SET @errores += 'El nombre nuevo ya existe' + CHAR(10);
         END
