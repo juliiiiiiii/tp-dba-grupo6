@@ -308,3 +308,15 @@ BEGIN
     )
 END
 GO
+
+IF OBJECT_ID('parques_nacionales.ventas.Log_ventas', N'U') IS NULL 
+BEGIN
+    CREATE TABLE ventas.Log_ventas (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+		fecha DATETIME NOT NULL,
+		archivo VARCHAR(260) NOT NULL,
+		msj_error NVARCHAR(MAX),
+		num_error INT
+    )
+END
+GO

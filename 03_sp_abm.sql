@@ -1435,9 +1435,9 @@ CREATE OR ALTER PROCEDURE ventas.venta_alta (@parque VARCHAR(50), @fecha DATE = 
 AS
 BEGIN
 	IF @fecha IS NULL SET @fecha = GETDATE() --Si no se especifica fecha, asumimos que es del día
-
+    
 	DECLARE @id_parque INT, @id_pov VARCHAR(25), @id_metodo VARCHAR(25), @errores VARCHAR(200);
-
+    SET @errores = '';
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque)
     IF @id_parque IS NULL
         SET @errores += 'No existe el parque indicado.' + CHAR(10)
@@ -1445,21 +1445,22 @@ BEGIN
         SET @id_pov = (SELECT id FROM ventas.punto_de_venta WHERE descripcion = @pov AND parque = @id_parque)
 
     IF @id_pov IS NULL
-        SET @errores += 'No existe el punto de venta indicado.' + CHAR(10)
+        SET @errores = @errores + 'No existe el punto de venta indicado.' + CHAR(10)
     ELSE
        IF (SELECT estado FROM ventas.punto_de_venta WHERE id = @id_pov) = 'Inactivo'
-            SET @errores += 'El punto de venta no está habilitado. ' + CHAR(10)
+            SET @errores = @errores + 'El punto de venta no está habilitado. ' + CHAR(10)
 	SET @id_metodo = (SELECT id FROM ventas.metodo_de_pago WHERE descripcion = @metodo)
     IF (SELECT 1 FROM ventas.metodo_de_pago WHERE id = @id_metodo) IS NULL
-        SET @errores += 'No existe el método de pago especificado.' + CHAR(10)
+        SET @errores = @errores + 'No existe el método de pago especificado.' + CHAR(10)
     ELSE
        IF (SELECT estado FROM ventas.metodo_de_pago WHERE id = @id_metodo) = 'Inactivo'
-            SET @errores += 'El método de pago no está permitido. ' + CHAR(10)
+            SET @errores = @errores + 'El método de pago no está permitido. ' + CHAR(10);
+
     IF @errores <> ''
         THROW 50000, @errores, 1
-
-	INSERT INTO ventas.venta
-	VALUES(@id_parque, @fecha, @id_pov, @id_metodo, 0)
+    ELSE
+	    INSERT INTO ventas.venta
+	    VALUES(@id_parque, @fecha, @id_pov, @id_metodo, 0)
 	
 	SET @id_creado = (SELECT SCOPE_IDENTITY())
 
@@ -1541,7 +1542,7 @@ BEGIN
 
     IF (SELECT 1 FROM ventas.venta WHERE id = @venta) IS NULL
        SET @errores += 'La venta indicada no existe.' + CHAR(10)
-    IF (@id_concepto = NULL)
+    IF (@id_concepto IS NULL)
         SET @errores += 'El concepto ingresado no existe.' + CHAR(10)
     IF @errores <> ''
         THROW 50000, @errores, 1

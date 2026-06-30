@@ -728,13 +728,21 @@ BEGIN
 
     SELECT @nuevo_parque = parque, @nueva_fecha = fecha, @nuevo_pos = pos, @nuevo_metodo = metodo
     FROM #json_venta
-
-    EXEC ventas.venta_alta @parque = @nuevo_parque,
+    
+   BEGIN TRANSACTION
+        BEGIN TRY
+        EXEC ventas.venta_alta @parque = @nuevo_parque,
                             @fecha = @nueva_fecha,
                             @pov = @nuevo_pos,
                             @metodo = @nuevo_metodo,
                             @id_creado = @id_venta OUTPUT
-
+        COMMIT
+        END TRY
+        BEGIN CATCH
+            IF XACT_STATE() <>0
+                ROLLBACK;
+            THROW;
+		END CATCH
     DECLARE @cant INT, @i INT
     SET @i = 1
     SET @cant = (SELECT COUNT(1) FROM #json_venta)
@@ -745,11 +753,16 @@ BEGIN
         SELECT @nuevo_concepto = concepto, @fecha = fecha_acceso, @nueva_cantidad = cantidad, @nuevo_precio = precio
         FROM #json_venta
         WHERE fila = @i
-        EXEC ventas.item_venta_alta
-            @venta = @id_venta,
-            @concepto = @nuevo_concepto,
-            @cantidad = @nueva_cantidad,
-            @fecha_acceso = @fecha
+        BEGIN TRY
+            EXEC ventas.item_venta_alta
+                @venta = @id_venta,
+                @concepto = @nuevo_concepto,
+                @cantidad = @nueva_cantidad,
+                @fecha_acceso = @fecha
+        END TRY
+        BEGIN CATCH
+            PRINT 'Error en item'
+        END CATCH
         SET @i = @i+1;
     END
 END
@@ -788,8 +801,16 @@ BEGIN
         DECLARE @entrada_actual NVARCHAR(MAX)
         SELECT @entrada_actual = [value]
         FROM #json_ventas
-        WHERE [key] = @i
-        EXEC ventas.ingresar_venta @venta = @entrada_actual
+        WHERE [key] = @i;
+        BEGIN TRY
+            EXEC ventas.ingresar_venta @venta = @entrada_actual
+        END TRY
+        BEGIN CATCH
+            INSERT INTO ventas.Log_ventas
+            VALUES(GETDATE(), @ruta, ERROR_MESSAGE(), ERROR_NUMBER())
+            PRINT ERROR_MESSAGE()
+        END CATCH
+
         SET @i += 1
     END
 END
