@@ -161,10 +161,10 @@ GO
 DECLARE @id_iguazu INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Iguazu');
 DECLARE @id_glaciares INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Los Glaciares');
 DECLARE @id_nahuel INT = (SELECT id FROM gestion.Parque WHERE nombre = 'Parque Nacional Nahuel Huapi');
-
-DECLARE @id_gp_martin INT = (SELECT id FROM personal.Guardaparque WHERE dni = EncryptByPassPhrase('parques_nacionales_2026', dni));
-DECLARE @id_gp_laura INT = (SELECT id FROM personal.Guardaparque WHERE '35111222' = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)));
-DECLARE @id_gp_sofia INT = (SELECT id FROM personal.Guardaparque WHERE '36222333' = CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)));
+select * from personal.Guardaparque
+DECLARE @id_gp_martin INT = (SELECT id FROM personal.Guardaparque WHERE  CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)) = '30111222');
+DECLARE @id_gp_laura INT = (SELECT id FROM personal.Guardaparque WHERE CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)) = '28444555');
+DECLARE @id_gp_sofia INT = (SELECT id FROM personal.Guardaparque WHERE CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)) = '32666777');
 
 IF NOT EXISTS (SELECT 1 FROM gestion.Parque_asignado WHERE id_parque = @id_iguazu AND id_guardaparque = @id_gp_martin AND fecha_egreso IS NULL)
     EXEC gestion.guardaparque_asignar @id_parque = @id_iguazu, @id_guardaparque = @id_gp_martin;
