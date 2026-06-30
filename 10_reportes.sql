@@ -223,20 +223,20 @@ GO
 VENTAS POR AÑO Y PARQUE
 =================
 */
-CREATE OR ALTER PROCEDURE reportes.ventas_por_año @parque VARCHAR(50)
+CREATE OR ALTER PROCEDURE reportes.visitas_por_año @parque VARCHAR(50)
 AS
 BEGIN
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 
 	SELECT p.nombre, v.año, v.visitas 
-	FROM reportes.ventas_anuales v --TODO: este rompe porque no existe
-	LEFT JOIN gestion.parque p ON p.id = v.parque
+	FROM reportes.visitas_anuales v --TODO: este rompe porque no existe
+	LEFT JOIN gestion.parque p ON p.nombre = v.parque
 	WHERE p.id = @id_parque
 END
 GO
-	
---EXEC reportes.ventas_por_año 'Parque Nacional Ibera'
+
+--EXEC reportes.visitas_por_año 'Parque Nacional Iguazu'
 --go
 
 CREATE OR ALTER PROCEDURE reportes.reporte_visitas_por_semana @parque VARCHAR(50)
