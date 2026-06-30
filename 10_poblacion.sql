@@ -357,13 +357,13 @@ IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque 
 GO
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @precio = 15000.00, @vigencia = '2026-06-01';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @precio = 7000.00, @vigencia = '2026-06-01';
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Los Glaciares' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @precio = 18000.00, @vigencia = '2026-06-01';
 GO
 
 
@@ -777,13 +777,13 @@ IF NOT EXISTS (SELECT 1 FROM ventas.punto_de_venta pv INNER JOIN gestion.Parque 
 GO
 
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Adulto', @precio = 16000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Adulto', @precio = 16000.00, @vigencia = '2026-06-01';
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Menor', @precio = 8000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Menor', @precio = 8000.00, @vigencia = '2026-06-01';
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional El Palmar' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Adulto', @precio = 9000.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Adulto', @precio = 9000.00, @vigencia = '2026-06-01';
 IF NOT EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional El Palmar' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
-    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Menor', @precio = 4500.00, @vigencia = '2026-07-01';
+    EXEC ventas.tipo_entrada_alta @parque = 'Parque Nacional El Palmar', @tipo = 'Menor', @precio = 4500.00, @vigencia = '2026-06-01';
 GO
 
 DECLARE @fecha_venta DATE = '2026-08-24';
