@@ -1351,7 +1351,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-    IF EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
+    IF EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL)
 		SET @errores += 'Ya existe la entrada. Utilice modificación. ' + CHAR(10)
 	IF @tipo_id IS NULL
 		SET @errores += 'No existe el tipo de visitante. Debe darlo de alta para proseguir. ' + CHAR(10)
@@ -1421,7 +1421,8 @@ BEGIN
 	END TRY
 	BEGIN CATCH
 		IF XACT_STATE() <> 0 --IF @@TRANCOUNT > 0?
-			ROLLBACK
+			ROLLBACK;
+        THROW
 	END CATCH
 END
 GO
