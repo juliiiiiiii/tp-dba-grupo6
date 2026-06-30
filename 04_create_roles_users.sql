@@ -75,6 +75,17 @@ IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'importador' A
 GRANT SELECT, EXECUTE ON SCHEMA::importacion TO importador;
 GO
 
+USE master
+Go
+
+IF NOT EXISTS (SELECT 1 FROM sys.server_principals  WHERE name = 'importador_server' AND type = 'R')
+	CREATE SERVER ROLE importador_server;
+
+GRANT ADMINISTER BULK OPERATIONS TO importador_server;
+
+USE parques_nacionales
+Go
+
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'informe' AND type = 'R')
 	CREATE ROLE informe;
 
@@ -122,6 +133,15 @@ IF USER_ID('u_app') IS NULL
 		ASGINAR USUARIOS A ROLES
 ====================================================
 */
+
+USE master
+Go
+
+ALTER SERVER ROLE importador_server ADD MEMBER l_importador;
+GO
+
+USE parques_nacionales
+GO
 
 ALTER ROLE importador ADD MEMBER u_importador;
 

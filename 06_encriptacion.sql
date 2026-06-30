@@ -499,7 +499,7 @@ BEGIN
     ELSE
     BEGIN
         SET @id_guia = (SELECT id FROM personal.Guia
-                        WHERE dni = EncryptByPassPhrase('parques_nacionales_2026', @dni));
+                        where CONVERT(CHAR(8), DecryptByPassPhrase('parques_nacionales_2026', dni)) = @dni);
         IF @id_guia IS NULL
             SET @error += 'El DNI no pertenece a ningun guia.' + CHAR(10);
     END
