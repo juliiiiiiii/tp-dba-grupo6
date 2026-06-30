@@ -236,8 +236,9 @@ BEGIN
 END
 GO
 
---EXEC reportes.visitas_por_año 'Parque Nacional Iguazu'
---go
+select 'Reporte visitas por año'
+EXEC reportes.visitas_por_año 'Parque Nacional Iguazu'
+go
 
 CREATE OR ALTER PROCEDURE reportes.reporte_visitas_por_semana @parque VARCHAR(50)
 AS
