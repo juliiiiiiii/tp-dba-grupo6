@@ -1,0 +1,983 @@
+[
+  {
+    "parque": "Parque Nacional Iguazu",
+    "fecha": "20260621",
+    "pos": "Boleteria principal",
+    "metodo": "Efectivo",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20260203",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20260803",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Circuito Garganta del Diablo                      ",
+        "fecha_acceso": "20261018",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 01                                      ",
+        "fecha_acceso": "20260321",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 02                                      ",
+        "fecha_acceso": "20260924",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 03                                      ",
+        "fecha_acceso": "20260820",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 20                                      ",
+        "fecha_acceso": "20260605",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 30                                      ",
+        "fecha_acceso": "20260910",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 40                                      ",
+        "fecha_acceso": "20261013",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 50                                      ",
+        "fecha_acceso": "20260610",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 60                                      ",
+        "fecha_acceso": "20260902",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 70                                      ",
+        "fecha_acceso": "20260705",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 80                                      ",
+        "fecha_acceso": "20260715",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 90                                      ",
+        "fecha_acceso": "20260404",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 0*                                      ",
+        "fecha_acceso": "20261023",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Tour Cupo Completo                                ",
+        "fecha_acceso": "20261227",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 30                                   ",
+        "fecha_acceso": "20260217",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Tour Informe 40                                   ",
+        "fecha_acceso": "20261211",
+        "cantidad": 3
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Iguazu",
+    "fecha": "20261216",
+    "pos": "Boleteria principal",
+    "metodo": "Debito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261226",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20260527",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Circuito Garganta del Diablo                      ",
+        "fecha_acceso": "20260619",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 01                                      ",
+        "fecha_acceso": "20261207",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 02                                      ",
+        "fecha_acceso": "20260605",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 03                                      ",
+        "fecha_acceso": "20260504",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 20                                      ",
+        "fecha_acceso": "20260708",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 30                                      ",
+        "fecha_acceso": "20260722",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 40                                      ",
+        "fecha_acceso": "20260621",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 50                                      ",
+        "fecha_acceso": "20261017",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 60                                      ",
+        "fecha_acceso": "20260220",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 70                                      ",
+        "fecha_acceso": "20260301",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 80                                      ",
+        "fecha_acceso": "20260514",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 90                                      ",
+        "fecha_acceso": "20260721",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 0*                                      ",
+        "fecha_acceso": "20260906",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Tour Cupo Completo                                ",
+        "fecha_acceso": "20261128",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Tour Informe 30                                   ",
+        "fecha_acceso": "20260506",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 40                                   ",
+        "fecha_acceso": "20260909",
+        "cantidad": 5
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Iguazu",
+    "fecha": "20261108",
+    "pos": "Boleteria principal",
+    "metodo": "Credito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261006",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20260702",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Circuito Garganta del Diablo                      ",
+        "fecha_acceso": "20260413",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 01                                      ",
+        "fecha_acceso": "20260729",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 02                                      ",
+        "fecha_acceso": "20260209",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 03                                      ",
+        "fecha_acceso": "20260408",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 20                                      ",
+        "fecha_acceso": "20261127",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 30                                      ",
+        "fecha_acceso": "20260330",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 40                                      ",
+        "fecha_acceso": "20260831",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 50                                      ",
+        "fecha_acceso": "20261205",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 60                                      ",
+        "fecha_acceso": "20260617",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 70                                      ",
+        "fecha_acceso": "20260427",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 80                                      ",
+        "fecha_acceso": "20261116",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 90                                      ",
+        "fecha_acceso": "20260627",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 0*                                      ",
+        "fecha_acceso": "20260314",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Cupo Completo                                ",
+        "fecha_acceso": "20260809",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Tour Informe 30                                   ",
+        "fecha_acceso": "20260515",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 40                                   ",
+        "fecha_acceso": "20261002",
+        "cantidad": 1
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Los Glaciares",
+    "fecha": "20260803",
+    "pos": "Centro visitantes",
+    "metodo": "Efectivo",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20260623",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Navegacion Lago Argentino                         ",
+        "fecha_acceso": "20260222",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 04                                      ",
+        "fecha_acceso": "20261013",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 21                                      ",
+        "fecha_acceso": "20260804",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 31                                      ",
+        "fecha_acceso": "20260105",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 41                                      ",
+        "fecha_acceso": "20261224",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 51                                      ",
+        "fecha_acceso": "20260223",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 61                                      ",
+        "fecha_acceso": "20260915",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 71                                      ",
+        "fecha_acceso": "20261212",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 81                                      ",
+        "fecha_acceso": "20260818",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 91                                      ",
+        "fecha_acceso": "20261102",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Tour Informe 31                                   ",
+        "fecha_acceso": "20261025",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Tour Informe 41                                   ",
+        "fecha_acceso": "20260619",
+        "cantidad": 4
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Los Glaciares",
+    "fecha": "20260803",
+    "pos": "Centro visitantes",
+    "metodo": "Debito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261227",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Navegacion Lago Argentino                         ",
+        "fecha_acceso": "20260501",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 04                                      ",
+        "fecha_acceso": "20260703",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 21                                      ",
+        "fecha_acceso": "20260712",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 31                                      ",
+        "fecha_acceso": "20260820",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 41                                      ",
+        "fecha_acceso": "20260213",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 51                                      ",
+        "fecha_acceso": "20260813",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 61                                      ",
+        "fecha_acceso": "20260417",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 71                                      ",
+        "fecha_acceso": "20261227",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 81                                      ",
+        "fecha_acceso": "20260216",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 91                                      ",
+        "fecha_acceso": "20261208",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 31                                   ",
+        "fecha_acceso": "20260428",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 41                                   ",
+        "fecha_acceso": "20260831",
+        "cantidad": 2
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Los Glaciares",
+    "fecha": "20261105",
+    "pos": "Centro visitantes",
+    "metodo": "Credito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20260222",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Navegacion Lago Argentino                         ",
+        "fecha_acceso": "20260226",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 04                                      ",
+        "fecha_acceso": "20260926",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 21                                      ",
+        "fecha_acceso": "20260322",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 31                                      ",
+        "fecha_acceso": "20261211",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 41                                      ",
+        "fecha_acceso": "20261015",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 51                                      ",
+        "fecha_acceso": "20260215",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 61                                      ",
+        "fecha_acceso": "20260802",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 71                                      ",
+        "fecha_acceso": "20260110",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 81                                      ",
+        "fecha_acceso": "20260423",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 91                                      ",
+        "fecha_acceso": "20260804",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 31                                   ",
+        "fecha_acceso": "20260506",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Tour Informe 41                                   ",
+        "fecha_acceso": "20261215",
+        "cantidad": 4
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Nahuel Huapi",
+    "fecha": "20260113",
+    "pos": "Porteria sur",
+    "metodo": "Efectivo",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20260917",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20261221",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Avistaje Bosque Andino                            ",
+        "fecha_acceso": "20260213",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 05                                      ",
+        "fecha_acceso": "20261123",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 22                                      ",
+        "fecha_acceso": "20261231",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 32                                      ",
+        "fecha_acceso": "20261021",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 42                                      ",
+        "fecha_acceso": "20260113",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 52                                      ",
+        "fecha_acceso": "20261031",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 62                                      ",
+        "fecha_acceso": "20260701",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 72                                      ",
+        "fecha_acceso": "20260703",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 82                                      ",
+        "fecha_acceso": "20260502",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 92                                      ",
+        "fecha_acceso": "20260623",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 32                                   ",
+        "fecha_acceso": "20261021",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Tour Informe 42                                   ",
+        "fecha_acceso": "20260712",
+        "cantidad": 4
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Nahuel Huapi",
+    "fecha": "20260502",
+    "pos": "Porteria sur",
+    "metodo": "Debito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261110",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20260825",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Avistaje Bosque Andino                            ",
+        "fecha_acceso": "20260731",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 05                                      ",
+        "fecha_acceso": "20260822",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 22                                      ",
+        "fecha_acceso": "20260524",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 32                                      ",
+        "fecha_acceso": "20261004",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 42                                      ",
+        "fecha_acceso": "20260123",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 52                                      ",
+        "fecha_acceso": "20261004",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 62                                      ",
+        "fecha_acceso": "20260122",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 72                                      ",
+        "fecha_acceso": "20261219",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 82                                      ",
+        "fecha_acceso": "20261007",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 92                                      ",
+        "fecha_acceso": "20260616",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 32                                   ",
+        "fecha_acceso": "20260125",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 42                                   ",
+        "fecha_acceso": "20260612",
+        "cantidad": 1
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional Nahuel Huapi",
+    "fecha": "20261018",
+    "pos": "Porteria sur",
+    "metodo": "Credito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261107",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20261228",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Avistaje Bosque Andino                            ",
+        "fecha_acceso": "20260626",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 05                                      ",
+        "fecha_acceso": "20260821",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 22                                      ",
+        "fecha_acceso": "20260513",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 32                                      ",
+        "fecha_acceso": "20260301",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 42                                      ",
+        "fecha_acceso": "20260517",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 52                                      ",
+        "fecha_acceso": "20260214",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 62                                      ",
+        "fecha_acceso": "20261216",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 72                                      ",
+        "fecha_acceso": "20260427",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 82                                      ",
+        "fecha_acceso": "20260104",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 92                                      ",
+        "fecha_acceso": "20261029",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Tour Informe 32                                   ",
+        "fecha_acceso": "20260614",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 42                                   ",
+        "fecha_acceso": "20260811",
+        "cantidad": 1
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional El Palmar",
+    "fecha": "20260320",
+    "pos": "Acceso principal",
+    "metodo": "Efectivo",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20260725",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20260120",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 08                                      ",
+        "fecha_acceso": "20260319",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 15                                      ",
+        "fecha_acceso": "20260816",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 25                                      ",
+        "fecha_acceso": "20261222",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 35                                      ",
+        "fecha_acceso": "20261126",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 45                                      ",
+        "fecha_acceso": "20261109",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 55                                      ",
+        "fecha_acceso": "20260518",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 65                                      ",
+        "fecha_acceso": "20260401",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 75                                      ",
+        "fecha_acceso": "20260825",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 85                                      ",
+        "fecha_acceso": "20260814",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 95                                      ",
+        "fecha_acceso": "20260101",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Tour Informe 35                                   ",
+        "fecha_acceso": "20261103",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 45                                   ",
+        "fecha_acceso": "20260619",
+        "cantidad": 4
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional El Palmar",
+    "fecha": "20261211",
+    "pos": "Acceso principal",
+    "metodo": "Debito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261125",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20261009",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 08                                      ",
+        "fecha_acceso": "20260402",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 15                                      ",
+        "fecha_acceso": "20260225",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 25                                      ",
+        "fecha_acceso": "20260418",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 35                                      ",
+        "fecha_acceso": "20260126",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 45                                      ",
+        "fecha_acceso": "20261126",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 55                                      ",
+        "fecha_acceso": "20260911",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 65                                      ",
+        "fecha_acceso": "20260819",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 75                                      ",
+        "fecha_acceso": "20260908",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Seed Tour 85                                      ",
+        "fecha_acceso": "20260924",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 95                                      ",
+        "fecha_acceso": "20261202",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Tour Informe 35                                   ",
+        "fecha_acceso": "20261104",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Tour Informe 45                                   ",
+        "fecha_acceso": "20260918",
+        "cantidad": 2
+      }
+    ]
+  },
+  {
+    "parque": "Parque Nacional El Palmar",
+    "fecha": "20261119",
+    "pos": "Acceso principal",
+    "metodo": "Credito",
+    "items": [
+      {
+        "concepto": "Adulto",
+        "fecha_acceso": "20261123",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Menor",
+        "fecha_acceso": "20261223",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 08                                      ",
+        "fecha_acceso": "20261218",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 15                                      ",
+        "fecha_acceso": "20260512",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 25                                      ",
+        "fecha_acceso": "20260525",
+        "cantidad": 3
+      },
+      {
+        "concepto": "Seed Tour 35                                      ",
+        "fecha_acceso": "20260608",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 45                                      ",
+        "fecha_acceso": "20260530",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 55                                      ",
+        "fecha_acceso": "20260424",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 65                                      ",
+        "fecha_acceso": "20261101",
+        "cantidad": 4
+      },
+      {
+        "concepto": "Seed Tour 75                                      ",
+        "fecha_acceso": "20260212",
+        "cantidad": 1
+      },
+      {
+        "concepto": "Seed Tour 85                                      ",
+        "fecha_acceso": "20261121",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Seed Tour 95                                      ",
+        "fecha_acceso": "20260714",
+        "cantidad": 2
+      },
+      {
+        "concepto": "Tour Informe 35                                   ",
+        "fecha_acceso": "20260715",
+        "cantidad": 5
+      },
+      {
+        "concepto": "Tour Informe 45                                   ",
+        "fecha_acceso": "20260116",
+        "cantidad": 3
+      }
+    ]
+  }
+]

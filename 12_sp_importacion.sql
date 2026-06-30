@@ -200,6 +200,8 @@ BEGIN
     END
 
     DROP TABLE #TempImport
+
+    SELECT * FROM gestion.Ubicacion
 END
 GO
 

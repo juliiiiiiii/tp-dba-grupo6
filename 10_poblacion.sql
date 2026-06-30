@@ -23,6 +23,9 @@ GO
 SET NOCOUNT ON;
 GO
 
+SET LANGUAGE us_english;
+GO
+
 -----------------------------------------------------------
 -- 1. Catalogos base sin dependencias
 -----------------------------------------------------------

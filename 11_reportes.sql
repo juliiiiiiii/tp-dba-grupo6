@@ -27,7 +27,7 @@ AS
 	SELECT * FROM visitas_por_mes ORDER BY parque, mes, año
 	--for XML PATH('Visitantes'), ROOT('Reporte') -- o AUTO?
 GO
-
+select * from ventas.entrada
 SELECT 'Reporte de visitas por mes'
 EXEC reportes.generar_reporte_visitas_por_mes
 go
@@ -39,7 +39,7 @@ AS
 	ORDER BY mes
 	FOR XML PATH('Visitas'), ROOT('Reporte')
 GO
---EXEC reportes.generar_xml_visitas_mensuales_por_parque @parque = 'Parque Nacional El Palmar', @año = '2026'
+--EXEC reportes.generar_xml_visitas_mensuales_por_parque @parque = 'Parque Nacional El Palmar', @año = '2022'
 
 CREATE OR ALTER PROCEDURE reportes.generar_reporte_visitas @parque VARCHAR(50)
 AS
@@ -68,16 +68,15 @@ CREATE OR ALTER PROCEDURE reportes.pivot_ventas_por_mes @año int
 AS
 BEGIN
 	DECLARE @cadenaSQL nvarchar(max)
-
 	SET @cadenaSQL = '
-	with visitas(parque, mes, visitas) as (SELECT 
-		parque, mes, visitas
+	with visitas(parque, mes, visitas) as
+	(
+		SELECT parque, mes, visitas
 		FROM reportes.visitas_anuales
-		where año = ' + CAST(@año AS CHAR(4)) + ')
+		where año = ' + CAST(@año AS CHAR(4)) +	')
 		SELECT * FROM visitas
 		PIVOT (SUM(visitas) for mes in ('
-
-	SELECT  @cadenaSQL =  @cadenaSQL  + '[' + CAST((mes) AS CHAR(2)) + + ']' + ','
+	SELECT  @cadenaSQL =  @cadenaSQL  + '[' + CAST((mes) AS CHAR(2)) + ']' + ','
 	FROM reportes.visitas_anuales
 	GROUP BY mes
 	SET @cadenaSQL = left(@cadenaSQL,len(@cadenaSQL)-1)
@@ -87,8 +86,8 @@ BEGIN
 END
 go
 
-select 'Reporte de matriz de visitas'
-exec reportes.pivot_ventas_por_mes 2026
+select 'Reporte de matriz de visitas';
+exec reportes.pivot_ventas_por_mes @año = 2026
 go
 
 /*
@@ -224,20 +223,20 @@ GO
 VENTAS POR AÑO Y PARQUE
 =================
 */
-CREATE OR ALTER PROCEDURE reportes.ventas_por_año @parque VARCHAR(50)
+CREATE OR ALTER PROCEDURE reportes.visitas_por_año @parque VARCHAR(50)
 AS
 BEGIN
 	DECLARE @id_parque INT;
 	SET @id_parque = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 
 	SELECT p.nombre, v.año, v.visitas 
-	FROM reportes.ventas_por_año v --TODO: este rompe porque no existe
-	LEFT JOIN gestion.parque p ON p.id = v.parque
+	FROM reportes.visitas_anuales v --TODO: este rompe porque no existe
+	LEFT JOIN gestion.parque p ON p.nombre = v.parque
 	WHERE p.id = @id_parque
 END
 GO
-	
---EXEC reportes.ventas_por_año 'Parque Nacional Ibera'
+
+--EXEC reportes.visitas_por_año 'Parque Nacional Iguazu'
 --go
 
 CREATE OR ALTER PROCEDURE reportes.reporte_visitas_por_semana @parque VARCHAR(50)

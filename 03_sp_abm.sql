@@ -220,7 +220,7 @@ BEGIN
 
             IF @nombre_nuevo = '' or @nombre_nuevo is null
                 SET @errores += 'El nombre nuevo no puede ser vacio o null.' + CHAR(10);
-            IF exists (SELECT 1 FROM gestion.Parque WHERE nombre = @nombre_nuevo)
+            IF @nombre_nuevo <> @nombre and exists (SELECT 1 FROM gestion.Parque WHERE nombre = @nombre_nuevo)
                 SET @errores += 'El nombre nuevo ya existe' + CHAR(10);
         END
     END
@@ -1321,7 +1321,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-    IF EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
+    IF EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL)
 		SET @errores += 'Ya existe la entrada. Utilice modificación. ' + CHAR(10)
 	IF @tipo_id IS NULL
 		SET @errores += 'No existe el tipo de visitante. Debe darlo de alta para proseguir. ' + CHAR(10)
@@ -1350,13 +1350,14 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo)
 
-    IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
+    IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL)
 		SET @errores += 'No existe la entrada seleccionada. ' + CHAR(10)
 
     IF @errores <> ''
 		THROW 50000, @errores, 1
 
-	UPDATE ventas.entrada SET fecha_hasta = DATEADD(DAY, -1, GETDATE()) WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL
+	UPDATE ventas.entrada SET fecha_hasta = DATEADD(DAY, -1, GETDATE())
+    WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL
 END
 GO
 
@@ -1376,7 +1377,7 @@ BEGIN
 	SET @parque_id = (SELECT id FROM gestion.parque WHERE nombre = @parque);
 	SET @tipo_id = (SELECT id FROM ventas.tipo_visitante WHERE descripcion = @tipo);
 
-	IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id)
+	IF NOT EXISTS ( SELECT 1 FROM ventas.entrada WHERE parque = @parque_id AND tipo = @tipo_id AND fecha_hasta IS NULL)
 		SET @errores += 'No existe una entrada vigente. Debe darla de alta antes de modificarla. '
 
     IF @errores <> ''
@@ -1390,7 +1391,8 @@ BEGIN
 	END TRY
 	BEGIN CATCH
 		IF XACT_STATE() <> 0 --IF @@TRANCOUNT > 0?
-			ROLLBACK
+			ROLLBACK;
+        THROW
 	END CATCH
 END
 GO
@@ -1499,7 +1501,7 @@ BEGIN
 	SET @errores = ''
     SET @id_parque = (SELECT parque FROM ventas.venta WHERE id = @venta)
     SET @parque = (SELECT nombre FROM gestion.parque WHERE id = @id_parque)
-	IF @concepto IN (SELECT visitante FROM reportes.entradas_vigentes WHERE parque = @parque)
+	IF @concepto IN (SELECT visitante FROM reportes.entradas_vigentes WHERE parque = @parque) 
         BEGIN
         SET @id_concepto = (SELECT id_visitante FROM reportes.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)
         SET @precio = (SELECT precio FROM reportes.entradas_vigentes WHERE parque = @parque AND visitante = @concepto)

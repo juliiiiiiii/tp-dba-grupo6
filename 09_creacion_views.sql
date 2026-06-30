@@ -88,7 +88,7 @@ GO
 CREATE OR ALTER VIEW reportes.visitas_anuales
 AS
 	SELECT p.nombre as parque, semana, mes, año, visitas,
-	SUM(visitas) OVER (PARTITION BY parque, mes) as 'total_mes',
+	SUM(visitas) OVER (PARTITION BY parque, mes, año) as 'total_mes',
 	SUM(visitas) OVER (PARTITION BY parque, año) as 'total_año'
 	FROM reportes.visitas_por_semana v
 	LEFT JOIN
@@ -99,9 +99,9 @@ GO
 CREATE OR ALTER VIEW reportes.visitas_mensuales
 as
 	SELECT DISTINCT parque, mes, año, total_mes FROM reportes.visitas_anuales
---SELECT * from ventas.visitas_anuales ORDER BY parque, mes, año
---SELECT DISTINCT parque, mes, año, total_mes FROM ventas.visitas_anuales ORDER BY parque, mes, año
---SELECT DISTINCT parque, año, total_año FROM ventas.visitas_anuales ORDER BY parque, año
+--SELECT * from reportes.visitas_anuales ORDER BY parque, mes, año
+--SELECT DISTINCT parque, mes, año, total_mes FROM reportes.visitas_anuales ORDER BY parque, mes, año
+--SELECT DISTINCT parque, año, total_año FROM reportes.visitas_anuales ORDER BY parque, año
 GO
 /*
 ===========================================
