@@ -716,6 +716,29 @@ BEGIN
 END
 GO
 
+-- Parque Nacional Iguazu - Adulto
+IF EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_modificacion @parque = 'Parque Nacional Iguazu', @tipo = 'Adulto', @nuevo_precio = 11500.00;
+
+-- Parque Nacional Iguazu - Menor
+IF EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Iguazu' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_modificacion @parque = 'Parque Nacional Iguazu', @tipo = 'Menor', @nuevo_precio = 7000.00;
+GO
+
+-- Parque Nacional Los Glaciares - Adulto
+IF EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Los Glaciares' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_modificacion @parque = 'Parque Nacional Los Glaciares', @tipo = 'Adulto', @nuevo_precio = 11500.00;
+GO
+
+-- Parque Nacional Nahuel Huapi - Adulto
+IF EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Adulto' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_modificacion @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Adulto', @nuevo_precio = 11500.00;
+
+-- Parque Nacional Nahuel Huapi - Menor
+IF EXISTS (SELECT 1 FROM ventas.entrada e INNER JOIN gestion.Parque p ON p.id = e.parque INNER JOIN ventas.tipo_visitante tv ON tv.id = e.tipo WHERE p.nombre = 'Parque Nacional Nahuel Huapi' AND tv.descripcion = 'Menor' AND e.fecha_hasta IS NULL)
+    EXEC ventas.tipo_entrada_modificacion @parque = 'Parque Nacional Nahuel Huapi', @tipo = 'Menor', @nuevo_precio = 7000.00;
+GO
+
 DECLARE @canon_fecha DATE = '2026-08-01';
 DECLARE @canon_empresa VARCHAR(25);
 DECLARE @canon_parque VARCHAR(100);
