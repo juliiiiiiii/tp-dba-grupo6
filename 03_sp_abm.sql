@@ -639,7 +639,6 @@ GO
 
 CREATE OR ALTER PROCEDURE gestion.actividad_alta
 	@nombre_parque VARCHAR(100),
-	@dni_guia CHAR(8),
 	@nombre CHAR(50),
 	@descripcion VARCHAR(100),
 	@tipo CHAR(25),
@@ -653,24 +652,12 @@ BEGIN
 
 	DECLARE @errores VARCHAR(300);
     DECLARE @id_parque INT = NULL;
-    DECLARE @id_guia INT = NULL;
 	DECLARE @id_tipo INT = NULL;
 	SET @errores = '';
 
     SELECT @id_parque = id FROM gestion.Parque WHERE nombre = @nombre_parque;
     IF @id_parque IS NULL
         SET @errores += 'El parque en el que se quiere registrar la actividad no existe.' + CHAR(10);
-
-    SELECT @id_guia = id FROM personal.Guia WHERE dni = @dni_guia;
-    IF @id_guia IS NULL
-        SET @errores += 'El guia en el que se quiere registrar la actividad no existe.' + CHAR(10);
-    ELSE
-        IF NOT EXISTS(
-			SELECT g.id FROM personal.Guia g
-			INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
-			WHERE g.id = @id_guia AND a.estado = 'vigente' AND a.fecha_vencimiento >= GETDATE()
-		)
-			SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
 
     SELECT @id_tipo = id FROM gestion.Tipo_actividad WHERE descripcion = @tipo;
     IF @id_tipo IS NULL
@@ -726,8 +713,6 @@ BEGIN
         THROW 50000, @errores, 1;
 
     UPDATE gestion.Actividad SET estado = 'Cancelado' WHERE id = @id_actividad;
-
-    -- Tener en cuenta que hacer si hay entradas con actividades programadas
 END
 GO
 
@@ -747,7 +732,6 @@ BEGIN
 
 	DECLARE @errores VARCHAR(400);
     DECLARE @id_actividad INT = NULL;
-    DECLARE @id_guia INT = NULL;
 	DECLARE @id_tipo INT;
 	DECLARE @estado_actual CHAR(10);
 	
@@ -764,20 +748,6 @@ BEGIN
 
         IF @estado_actual IN ('Cancelado', 'Finalizado', 'En curso')
             SET @errores += 'No se puede modificar una actividad que esta ' + RTRIM(@estado_actual) + '.' + CHAR(10);
-    END
-
-    SELECT @id_guia = id FROM personal.Guia WHERE dni = @dni_guia;
-    IF NOT EXISTS (SELECT id FROM personal.Guia WHERE id = @id_guia)
-        SET @errores += 'El guia especificado no existe.' + CHAR(10);
-    ELSE
-    BEGIN
-        IF NOT EXISTS (SELECT g.id FROM personal.Guia g
-            INNER JOIN personal.Acreditacion a ON g.id_acreditacion = a.id
-            WHERE g.id = @id_guia
-              AND a.estado = 'Activo'
-              AND a.fecha_vencimiento >= GETDATE()
-        )
-            SET @errores += 'El guia no esta autorizado a supervisar una actividad.' + CHAR(10);
     END
 
 	IF @id_tipo IS NULL
