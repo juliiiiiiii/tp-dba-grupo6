@@ -113,7 +113,7 @@ PRINT '--- TEST 3.1: Asignacion exitosa ---';
 select * from personal.Guardaparque
 select * from gestion.Parque_asignado
 EXEC gestion.guardaparque_asignar
-    @id_parque = 2,
+    @id_parque = 1,
     @id_guardaparque = 1;
  
 -- Evidencia: asignacion creada y guardaparque en estado Activo
@@ -174,7 +174,7 @@ GO
 PRINT '--- TEST 3.5: Guardaparque ya asignado en otro parque (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.guardaparque_asignar
-    @id_parque = 2,
+    @id_parque = 1,
     @id_guardaparque = 1   -- guardaparque 1 ya esta asignado al parque 1;
     PRINT 'FALLO - Test 3.5: se esperaba error y no ocurrio.';
 END TRY
@@ -234,6 +234,7 @@ BEGIN TRY
     EXEC gestion.actividad_alta
     @nombre_parque = 'Parque inexistente test',
     @dni_guia = '35111222',
+    @nombre = 'Actividad inexistente',
     @descripcion = 'Test test',
     @tipo        = 'Tour guiado test',
     @costo       = 0,
@@ -253,6 +254,7 @@ BEGIN TRY
     EXEC gestion.actividad_alta
     @nombre_parque = 'Parque Nacional Iguazu test',
     @dni_guia = '25123456',
+    @nombre = 'Actividad test',
     @descripcion = 'Test test',
     @tipo        = 'Tour guiado test',
     @costo       = 0,
@@ -272,6 +274,7 @@ BEGIN TRY
     EXEC gestion.actividad_alta
     @nombre_parque = 'Parque Nacional Iguazu test',
     @dni_guia = '38912345',
+    @nombre = 'Acreditacion inactiva',
     @descripcion = 'Test test',
     @tipo        = 'Tour guiado test',
     @costo       = 0,
@@ -291,6 +294,7 @@ BEGIN TRY
     EXEC gestion.actividad_alta
     @nombre_parque = 'Parque Nacional Iguazu test',
     @dni_guia = '35111222',
+    @nombre = 'Fecha pasada',
     @descripcion = 'Test test',
     @tipo        = 'Tour guiado test',
     @costo       = 0,
@@ -310,6 +314,7 @@ BEGIN TRY
     EXEC gestion.actividad_alta
         @nombre_parque = 'Parque inexistente test', -- parque no existe
         @dni_guia = '99999999', -- guia no existe
+        @nombre = 'Trekking Cataratas test', -- actividad ya existe
         @descripcion = 'Test test',
         @tipo        = 'Tour no guiado test', -- tipo invalido
         @costo       = 0,
@@ -371,10 +376,15 @@ EXEC gestion.parque_modificacion
     @nombre     = 'Parque Nacional Iguazu test',
     @tipo       = 'Nacional test',
     @ubicacion  = 'Misiones test',
-    @superficie = 70000;
+    @superficie = 70000,
+    @nombre_nuevo = 'Parque Nacional Iguazu';
  
 -- Evidencia
-SELECT id, nombre, tipo, ubicacion, superficie FROM gestion.Parque WHERE id = 1;
+SELECT p.id, p.nombre, p.tipo, u.provincia, p.superficie
+FROM gestion.Parque p
+INNER JOIN gestion.Ubicacion u
+ON p.id_ubicacion = u.id
+WHERE p.id = 1;
 GO
  
 -- TEST 6.2: parque inexistente
@@ -406,6 +416,16 @@ BEGIN CATCH
     PRINT 'OK - Test 6.3: fallo como se esperaba. Detalle: ' + ERROR_MESSAGE();
 END CATCH
 GO
+
+-- TEST 6.4: volvemos a renombrar como 'Parque Nacional Iguazu test' para testing posterior
+select * from gestion.Parque
+PRINT '--- TEST 6.1: Modificar parque exitoso ---';
+EXEC gestion.parque_modificacion
+    @nombre     = 'Parque Nacional Iguazu test',
+    @tipo       = 'Nacional test',
+    @ubicacion  = 'Misiones test',
+    @superficie = 70000,
+    @nombre_nuevo = 'Parque Nacional Iguazu';
  
 -- ============================================================
 -- SECCION 7: MODIFICACION DE GUARDAPARQUE
@@ -552,7 +572,7 @@ GO
 -- TEST 10.1: exitoso (cancelar actividad programada)
 PRINT '--- TEST 10.1: Baja de actividad exitosa ---';
 EXEC gestion.actividad_baja
-    @nombre = 'Trekking Cataratas Actualizado test';
+    @nombre = 'Trekking Cataratas test';
 
 -- Evidencia: estado debe ser 'Cancelado'
 SELECT id, nombre, estado FROM gestion.Actividad WHERE id = 1;
@@ -574,7 +594,7 @@ GO
 PRINT '--- TEST 10.3: Actividad ya cancelada (debe fallar) ---';
 BEGIN TRY
     EXEC gestion.actividad_baja
-    @nombre = 'Trekking Cataratas Actualizado test';
+    @nombre = 'Trekking Cataratas test';
     PRINT 'FALLO - Test 10.3: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH

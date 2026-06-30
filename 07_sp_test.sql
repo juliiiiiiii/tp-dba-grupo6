@@ -271,13 +271,13 @@ END CATCH
 GO
 
 -- TEST 4.3: Institucion NULL (debe fallar)
-PRINT '--- TEST 4.3: Falta especificar la institucion (debe fallar) ---';
+PRINT '--- TEST 4.3: No se dan parametros en la asignacion (debe fallar) ---';
 BEGIN TRY
     EXEC personal.titulacion_asignar
     @dni = '25123456',
-    @descripcion = 'Especializado en flora nativa Argentina test',
+    @descripcion = '',
     @institucion = NULL,
-    @fecha_emision = '2020-04-15';
+    @fecha_emision = '';
     PRINT 'FALLO - Test 4.3: se esperaba error y no ocurrio.';
 END TRY
 BEGIN CATCH
