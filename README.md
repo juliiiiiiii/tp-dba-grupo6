@@ -1,4 +1,4 @@
-<img width="1600" height="690" alt="image" src="https://github.com/user-attachments/assets/4cae47e6-2ca5-425a-a2d3-26e3f83380fc" /># Gestion De Parques Nacionales
+
 ## Grupo 6
 
 ## Introduccion
